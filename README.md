@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pre-IPO Витрина
 
-## Getting Started
+Сайт-витрина pre-IPO проектов: посетитель (клиент или фин. советник) видит актуальные проекты — цены, объёмы, минимальный чек — и оставляет заявку. Оператор управляет проектами и видит заявки в админке.
 
-First, run the development server:
+## Возможности
+
+- **Витрина** (`/`) — публичный список активных проектов с ценой, объёмом, мин. чеком и оценкой.
+- **Страница проекта** (`/project/[id]`) — полная карточка + форма заявки.
+- **Связь** — кнопки Telegram / WhatsApp / Email + форма заявки (лид падает в базу).
+- **Админка** (`/admin`) — вход по паролю; управление проектами (создать/изменить/скрыть/удалить) и заявками (статусы new → в работе → закрыта).
+
+## Стек
+
+Next.js 16 (App Router) · React 19 · TypeScript · Tailwind · Prisma 7 + SQLite (драйвер better-sqlite3).
+
+## Запуск
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npx prisma migrate dev      # применить миграции
+npm run seed                # демо-проекты (необязательно)
+npm run dev                 # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Настройка (`.env`)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+DATABASE_URL="file:./dev.db"     # база
+ADMIN_PASSWORD="admin123"        # пароль входа в админку — СМЕНИТЕ!
+NEXT_PUBLIC_TELEGRAM="https://t.me/your_username"
+NEXT_PUBLIC_WHATSAPP="https://wa.me/79990000000"
+NEXT_PUBLIC_EMAIL="you@example.com"
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Полезные команды
 
-## Learn More
+```bash
+npm run seed        # перезалить демо-данные
+npm run db:reset    # сбросить базу и миграции
+npm run build       # продакшн-сборка
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Структура
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+prisma/schema.prisma          модели Project и Lead
+prisma/seed.ts                демо-данные
+src/lib/                      prisma-клиент, форматирование, auth, контакты
+src/components/               ProjectCard, ProjectForm, LeadForm, ContactButtons
+src/app/                      витрина, страница проекта, server actions
+src/app/admin/                логин + (protected) дашборд, проекты, заявки
+docs/DESIGN.md                проектный документ
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Дальше можно добавить
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Фильтры/поиск по проектам, аналитику и сценарии доходности, конструктор портфеля, уведомления о новых заявках (email/Telegram-бот), загрузку логотипов файлом, мультиязычность.

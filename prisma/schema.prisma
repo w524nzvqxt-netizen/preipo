@@ -1,0 +1,78 @@
+// Схема базы данных витрины pre-IPO проектов
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// Проект (pre-IPO компания) — то, что видит посетитель на витрине
+model Project {
+  id          String  @id @default(cuid())
+  name        String // Название компании
+  sector      String? // Отрасль (напр. "Финтех")
+  stage       String? // Стадия (напр. "Series C")
+  description String? // Краткое содержание (о компании)
+  logoUrl     String? // Ссылка на логотип
+
+  // Структурированный контент (по пункту на строку)
+  salesPoints String? // Основные сейлз-поинты
+  pros        String? // Плюсы компании
+  risks       String? // Риски компании
+
+  pricePerShare Float? // Цена за акцию/долю
+  currency      String  @default("USD") // Валюта цены
+  volume        Float? // Доступный объём (в деньгах)
+  minTicket     Float? // Минимальный чек для входа (не отображается)
+  valuation     Float? // Оценка компании (оценка входа)
+
+  expectedExit   String? // Прогноз выхода на биржу (напр. "H2 2029")
+  expectedReturn Float? // Потенциальная доходность, % (напр. 51)
+
+  videoScript String? // JSON-сценарий видео о проекте (сцены: caption+narration)
+
+  financialAnalysis String? // JSON AI-оценки фин. отчётности и плана компании
+  scenarios         String? // JSON ожидаемых результатов на $100k (лучший/средний/худший)
+
+  // Видео с диктором HeyGen
+  videoJobId  String? // ID задачи генерации в HeyGen
+  videoStatus String? // processing | completed | failed
+  videoUrl    String? // Путь к скачанному mp4 в /public (или ошибка)
+
+  isActive Boolean @default(true) // Показывать ли на витрине
+  isHot    Boolean @default(false) // Метка "горячий" проект
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  leads     Lead[]
+  documents ProjectDocument[]
+}
+
+// Документ проекта (PDF, презентация) — для скачивания со страницы проекта
+model ProjectDocument {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title     String // Название документа (напр. "Презентация Anthropic")
+  kind      String   @default("doc") // doc | financial | presentation
+  fileUrl   String // Путь к файлу в /public (напр. "/uploads/abc.pdf")
+  fileName  String // Исходное имя файла
+  sizeBytes Int // Размер для отображения
+  createdAt DateTime @default(now())
+}
+
+// Заявка от посетителя — лид, с которым связывается оператор
+model Lead {
+  id        String   @id @default(cuid())
+  name      String // Имя посетителя
+  contact   String // Телефон / email / @username
+  message   String? // Комментарий
+  projectId String? // По какому проекту заявка (необязательно)
+  project   Project? @relation(fields: [projectId], references: [id])
+  status    String   @default("new") // new | in_progress | done
+  createdAt DateTime @default(now())
+}
