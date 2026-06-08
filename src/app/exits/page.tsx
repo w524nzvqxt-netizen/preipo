@@ -5,6 +5,8 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { ExitsExplorer, type ExitCompany } from "@/components/ExitsExplorer";
 import { Disclaimer } from "@/components/Disclaimer";
+import { computeExitIndex, TICKET } from "@/lib/exit-index";
+import { formatMoney } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +16,7 @@ export const metadata: Metadata = {
     "Компании, вышедшие на IPO: история раундов с оценками, цена акций, доходность и калькулятор портфеля по точке входа.",
 };
 
-type RawRound = { round?: string; year?: number; valuationUSD?: number | null; note?: string };
+type RawRound = { round?: string; year?: number; valuationUSD?: number | null; note?: string; ours?: boolean };
 
 export default async function ExitsPage() {
   const rows = await prisma.publicCompany.findMany({ orderBy: { order: "asc" } });
@@ -42,9 +44,13 @@ export default async function ExitsPage() {
         year: x.year ?? null,
         valuationUSD: x.valuationUSD ?? null,
         note: x.note ?? "",
+        ours: x.ours ?? false,
       })),
     };
   });
+
+  const idx = computeExitIndex(companies);
+  const outperform = idx.sp500Mult > 0 ? idx.preIpoMult / idx.sp500Mult : 0;
 
   return (
     <div className="bg-bg">
@@ -69,6 +75,41 @@ export default async function ExitsPage() {
           цена акций сегодня и доходность с момента размещения — и взлёты, и
           провалы. Ниже — калькулятор: что было бы с вложением по точке входа.
         </p>
+
+        {/* Индекс «$10k в каждый раунд» vs S&P 500 */}
+        <div className="mt-8 overflow-hidden rounded-card border border-border bg-surface p-6 sm:p-8">
+          <p className="kicker text-text-muted">
+            Индекс · {formatMoney(TICKET)} в каждый из {idx.count} раундов
+          </p>
+          <div className="mt-4 grid gap-5 sm:grid-cols-3">
+            <div>
+              <p className="kicker text-text-muted">Вложено всего</p>
+              <p className="nums mt-1 text-2xl font-bold text-text-primary">{formatMoney(idx.invested)}</p>
+            </div>
+            <div className="sm:border-l sm:border-border sm:pl-5">
+              <p className="kicker text-text-muted">Pre-IPO портфель сегодня</p>
+              <p className="nums mt-1 text-2xl font-bold text-positive">
+                {formatMoney(idx.preIpoValue)}{" "}
+                <span className="text-base">×{idx.preIpoMult.toFixed(1).replace(".", ",")}</span>
+              </p>
+            </div>
+            <div className="sm:border-l sm:border-border sm:pl-5">
+              <p className="kicker text-text-muted">Те же деньги в S&amp;P 500</p>
+              <p className="nums mt-1 text-2xl font-bold text-text-secondary">
+                {formatMoney(idx.sp500Value)}{" "}
+                <span className="text-base">×{idx.sp500Mult.toFixed(1).replace(".", ",")}</span>
+              </p>
+            </div>
+          </div>
+          <p className="mt-4 text-sm text-text-secondary">
+            Если бы {formatMoney(TICKET)} заходило в <b>каждый</b> раунд этих
+            компаний (и взлёты, и провалы), портфель опередил бы S&amp;P 500
+            примерно в{" "}
+            <b className="text-brand">{outperform.toFixed(1).replace(".", ",")}×</b>.
+            Сравнение модельное: каждая сумма входит по оценке раунда, S&amp;P 500
+            — по уровню индекса того же года (тек. ≈ 7 384).
+          </p>
+        </div>
 
         <div className="mt-8">
           <ExitsExplorer companies={companies} />

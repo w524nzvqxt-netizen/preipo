@@ -152,6 +152,23 @@ const data = [
       { round: "Series E", year: 2020, valuationUSD: 10.2 * B, note: "$225M" },
       { round: "Series F", year: 2021, valuationUSD: 35 * B, note: "пик $35B перед IPO" },
     ] },
+  // SpaceX — IPO 12.06.2026 по $135 при оценке $1.77T (сплит 5:1 в мае 2026).
+  // Наш вход (FinSight) — май 2026 по оценке $1.2T.
+  { name: "SpaceX", ticker: "SPAX", sector: "Космос / Starlink · IPO 12.06.2026", ipoDate: "2026-06", ipoPriceUSD: 135, ipoValuationUSD: 1770 * B, currentPriceUSD: 135, currentMarketCapUSD: 1770 * B, asOf: "2026-06",
+    rounds: [
+      { round: "Раунд 2019", year: 2019, valuationUSD: 33 * B, note: "≈$33B" },
+      { round: "Раунд 2020", year: 2020, valuationUSD: 46 * B, note: "$1.9B, авг 2020" },
+      { round: "Раунд 2021", year: 2021, valuationUSD: 74 * B, note: "$1.16B, фев 2021; Sequoia/Coatue/Fidelity" },
+      { round: "Раунд 2021", year: 2021, valuationUSD: 100 * B, note: "окт 2021" },
+      { round: "Раунд 2022", year: 2022, valuationUSD: 127 * B, note: "$1.68B, лид Mirae" },
+      { round: "Раунд 2023", year: 2023, valuationUSD: 150 * B, note: "a16z и др." },
+      { round: "Раунд 2024", year: 2024, valuationUSD: 210 * B, note: "июнь 2024" },
+      { round: "Tender", year: 2024, valuationUSD: 350 * B, note: "дек 2024, $185/акц" },
+      { round: "Tender", year: 2025, valuationUSD: 800 * B, note: "дек 2025" },
+      { round: "Слияние с xAI", year: 2026, valuationUSD: 1250 * B, note: "фев 2026, объединённая компания $1.25T" },
+      { round: "Наш вход (FinSight)", year: 2026, valuationUSD: 1200 * B, note: "май 2026 · вход по оценке $1.2T", ours: true },
+      { round: "IPO (Nasdaq)", year: 2026, valuationUSD: 1770 * B, note: "12.06.2026 · $135/акц · $1.77T" },
+    ] },
 ];
 
 db.prepare("DELETE FROM PublicCompany").run();

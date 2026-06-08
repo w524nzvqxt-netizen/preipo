@@ -10,6 +10,7 @@ export type ExitRound = {
   year: number | null;
   valuationUSD: number | null;
   note: string;
+  ours?: boolean; // раунд, в который входили мы (FinSight)
 };
 
 export type ExitCompany = {
@@ -27,6 +28,11 @@ export type ExitCompany = {
 };
 
 function plPct(c: ExitCompany): number | null {
+  // если есть отметка нашего входа — считаем доходность с неё
+  const ours = c.rounds.find((r) => r.ours && r.valuationUSD);
+  if (ours && ours.valuationUSD && c.currentMarketCapUSD) {
+    return Math.round((c.currentMarketCapUSD / ours.valuationUSD - 1) * 100);
+  }
   if (c.ipoPriceUSD && c.currentPriceUSD) {
     return Math.round((c.currentPriceUSD / c.ipoPriceUSD - 1) * 100);
   }
@@ -356,7 +362,17 @@ function FragmentRow({
                     ? c.currentMarketCapUSD / r.valuationUSD
                     : null;
                 return (
-                  <div key={i} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 text-sm">
+                  <div
+                    key={i}
+                    className={`flex flex-wrap items-baseline gap-x-3 gap-y-0.5 text-sm ${
+                      r.ours ? "rounded-control bg-brand-subtle px-2 py-1" : ""
+                    }`}
+                  >
+                    {r.ours && (
+                      <span className="kicker rounded-full border border-brand bg-surface px-2 py-0.5 text-brand">
+                        наш вход
+                      </span>
+                    )}
                     <span className="font-medium text-text-primary">{r.round}</span>
                     <span className="nums text-text-muted">{r.year ?? ""}</span>
                     <span className="nums font-semibold text-text-primary">

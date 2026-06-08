@@ -9,6 +9,8 @@ import { Reveal } from "@/components/motion/Reveal";
 import { Disclaimer } from "@/components/Disclaimer";
 import { ProjectsExplorer } from "@/components/ProjectsExplorer";
 import { ProjectCard } from "@/components/ProjectCard";
+import { computeExitIndex, TICKET } from "@/lib/exit-index";
+import { formatMoney } from "@/lib/format";
 
 // Витрина всегда отражает актуальные данные из админки
 export const dynamic = "force-dynamic";
@@ -22,6 +24,23 @@ export default async function HomePage() {
   // Открытые раунды (можно войти) и реализованные сделки (трек-рекорд)
   const projects = all.filter((p) => p.dealStatus !== "closed");
   const closedDeals = all.filter((p) => p.dealStatus === "closed");
+
+  // Индекс трек-рекорда (вышедшие на биржу компании)
+  const publicRows = await prisma.publicCompany.findMany();
+  const idx = computeExitIndex(
+    publicRows.map((r) => {
+      let rounds: { valuationUSD: number | null; year: number | null }[] = [];
+      try {
+        rounds = (JSON.parse(r.rounds ?? "[]") as { valuationUSD?: number | null; year?: number | null }[]).map(
+          (x) => ({ valuationUSD: x.valuationUSD ?? null, year: x.year ?? null })
+        );
+      } catch {
+        rounds = [];
+      }
+      return { currentMarketCapUSD: r.currentMarketCapUSD, rounds };
+    })
+  );
+  const outperform = idx.sp500Mult > 0 ? idx.preIpoMult / idx.sp500Mult : 0;
 
   // KPI для hero
   const withReturn = all.filter((p) => p.expectedReturn != null);
@@ -70,6 +89,34 @@ export default async function HomePage() {
           closedCount={closedDeals.length}
           avgReturn={avgReturn}
         />
+
+        {/* Заметный баннер трек-рекорда рынка + индекс vs S&P 500 */}
+        <Link
+          href="/exits"
+          className="group mt-6 block overflow-hidden rounded-card border border-border bg-surface p-6 transition-all hover:border-brand hover:shadow-[var(--shadow-card-hover)] sm:p-8"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="kicker text-text-muted">Трек-рекорд рынка · 21 компания от раунда до IPO</p>
+              <h2 className="mt-2 text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
+                {formatMoney(TICKET)} в каждый раунд →{" "}
+                <span className="text-positive">×{idx.preIpoMult.toFixed(1).replace(".", ",")}</span>
+                <span className="ml-2 text-lg font-semibold text-text-muted">
+                  vs S&amp;P 500 ×{idx.sp500Mult.toFixed(1).replace(".", ",")}
+                </span>
+              </h2>
+              <p className="mt-2 max-w-2xl text-text-secondary">
+                Pre-IPO раунды известных компаний (и взлёты, и провалы) опередили бы
+                S&amp;P 500 примерно в{" "}
+                <b className="text-brand">{outperform.toFixed(1).replace(".", ",")}×</b>.
+                Разбивка по раундам, цена акций и калькулятор по точке входа.
+              </p>
+            </div>
+            <span className="shrink-0 rounded-control bg-brand px-5 py-3 font-semibold text-white transition-colors group-hover:bg-brand-hover">
+              Смотреть трек-рекорд →
+            </span>
+          </div>
+        </Link>
 
         {/* Видео-объяснялка — «Pre-IPO: Инструкция для инвестора» */}
         <section id="about" className="mt-14 sm:mt-20">
