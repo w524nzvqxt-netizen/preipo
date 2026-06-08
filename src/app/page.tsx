@@ -64,14 +64,16 @@ export default async function HomePage() {
           <Link href="/" className="flex items-center gap-2 text-lg font-bold text-text-primary">
             <span className="text-brand">◆</span> Pre-IPO
           </Link>
-          <div className="flex items-center gap-5">
-            <Link href="/exits" className="hidden text-sm font-medium text-text-secondary hover:text-brand sm:block">
+          <div className="flex items-center gap-3 sm:gap-5">
+            <Link href="/exits" className="text-xs font-medium text-text-secondary hover:text-brand sm:text-sm">
               Уже на бирже
             </Link>
-            <Link href="/portfolio" className="hidden text-sm font-medium text-text-secondary hover:text-brand sm:block">
-              Конструктор портфеля
+            <Link href="/portfolio" className="text-xs font-medium text-text-secondary hover:text-brand sm:text-sm">
+              Портфель
             </Link>
-            <ContactButtons size="sm" />
+            <div className="hidden sm:block">
+              <ContactButtons size="sm" />
+            </div>
           </div>
         </div>
       </header>
