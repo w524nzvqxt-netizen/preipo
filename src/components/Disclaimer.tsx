@@ -7,7 +7,7 @@ import Link from "next/link";
 // Короткое предупреждение о рисках — под «доходными» цифрами (сценарии, прогнозы).
 export function RiskNote({ className = "" }: { className?: string }) {
   return (
-    <p className={`text-xs leading-relaxed text-neutral-400 ${className}`}>
+    <p className={`text-xs leading-relaxed text-text-muted ${className}`}>
       Не является индивидуальной инвестиционной рекомендацией и гарантией
       доходности. Инвестиции в непубличные компании высокорисковые: доходность не
       гарантирована, возможна полная потеря вложенных средств.
@@ -18,8 +18,8 @@ export function RiskNote({ className = "" }: { className?: string }) {
 // Полный правовой блок — в подвал страниц.
 export function Disclaimer() {
   return (
-    <div className="space-y-3 text-xs leading-relaxed text-neutral-400">
-      <p className="font-semibold uppercase tracking-wider text-neutral-500">
+    <div className="space-y-3 text-xs leading-relaxed text-text-secondary">
+      <p className="kicker text-text-muted">
         Правовая информация и предупреждение о рисках
       </p>
       <p>
@@ -53,7 +53,7 @@ export function Disclaimer() {
       </p>
       <p>
         Оставляя заявку, вы соглашаетесь с{" "}
-        <Link href="/privacy" className="text-neutral-500 underline hover:text-neutral-700">
+        <Link href="/privacy" className="text-brand underline">
           Политикой обработки персональных данных
         </Link>{" "}
         (Федеральный закон от 27.07.2006 № 152-ФЗ).

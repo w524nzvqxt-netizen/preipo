@@ -3,23 +3,32 @@ import { contacts } from "@/lib/config";
 
 export function ContactButtons({ size = "md" }: { size?: "sm" | "md" }) {
   const pad = size === "sm" ? "px-3 py-1.5 text-sm" : "px-4 py-2.5";
-  const items = [
-    contacts.telegram && {
-      href: contacts.telegram,
-      label: "Telegram",
-      cls: "bg-sky-50 text-sky-700 hover:bg-sky-100 border-sky-200",
-    },
+
+  const primary = contacts.telegram
+    ? {
+        href: contacts.telegram,
+        label: "Telegram",
+        cls: "bg-brand text-white hover:bg-brand-hover border-brand",
+      }
+    : null;
+
+  const secondaries = [
     contacts.whatsapp && {
       href: contacts.whatsapp,
       label: "WhatsApp",
-      cls: "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-emerald-200",
+      cls: "bg-surface text-text-primary border-border hover:bg-surface-alt hover:border-brand",
     },
     contacts.email && {
       href: `mailto:${contacts.email}`,
       label: "Email",
-      cls: "bg-neutral-100 text-neutral-700 hover:bg-neutral-200 border-neutral-200",
+      cls: "bg-surface text-text-primary border-border hover:bg-surface-alt hover:border-brand",
     },
   ].filter(Boolean) as { href: string; label: string; cls: string }[];
+
+  const items = [
+    ...(primary ? [primary] : []),
+    ...secondaries,
+  ];
 
   if (items.length === 0) return null;
 
@@ -31,7 +40,7 @@ export function ContactButtons({ size = "md" }: { size?: "sm" | "md" }) {
           href={it.href}
           target="_blank"
           rel="noopener noreferrer"
-          className={`rounded-lg border font-medium transition-colors ${pad} ${it.cls}`}
+          className={`rounded-control border font-medium transition-colors ${pad} ${it.cls}`}
         >
           {it.label}
         </a>

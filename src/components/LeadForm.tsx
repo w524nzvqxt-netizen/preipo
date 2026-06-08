@@ -19,9 +19,9 @@ export function LeadForm({
 
   if (state.ok) {
     return (
-      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5 text-emerald-800">
-        <p className="font-semibold">Заявка отправлена ✓</p>
-        <p className="mt-1 text-sm text-emerald-700/80">
+      <div className="rounded-control border border-border bg-brand-subtle p-5 text-text-primary">
+        <p className="font-semibold">Заявка отправлена</p>
+        <p className="mt-1 text-sm text-text-secondary">
           Мы свяжемся с вами в ближайшее время.
         </p>
       </div>
@@ -32,41 +32,42 @@ export function LeadForm({
     <form action={action} className="space-y-3">
       {projectId && <input type="hidden" name="projectId" value={projectId} />}
       {projectName && (
-        <p className="text-sm text-neutral-500">
-          Заявка по проекту: <span className="font-medium text-neutral-900">{projectName}</span>
+        <p className="text-sm text-text-muted">
+          Заявка по проекту:{" "}
+          <span className="font-medium text-text-primary">{projectName}</span>
         </p>
       )}
       <input
         name="name"
         placeholder="Ваше имя"
         required
-        className="w-full rounded-lg border border-neutral-300 bg-white px-4 py-2.5 outline-none placeholder:text-neutral-400 focus:border-emerald-500"
+        className="w-full rounded-control border border-border bg-surface px-4 py-2.5 text-text-primary placeholder:text-text-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
       />
       <input
         name="contact"
         placeholder="Телефон, email или @telegram"
         required
-        className="w-full rounded-lg border border-neutral-300 bg-white px-4 py-2.5 outline-none placeholder:text-neutral-400 focus:border-emerald-500"
+        className="w-full rounded-control border border-border bg-surface px-4 py-2.5 text-text-primary placeholder:text-text-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
       />
       <textarea
         name="message"
         placeholder="Комментарий (необязательно)"
         rows={3}
-        className="w-full rounded-lg border border-neutral-300 bg-white px-4 py-2.5 outline-none placeholder:text-neutral-400 focus:border-emerald-500"
+        className="w-full rounded-control border border-border bg-surface px-4 py-2.5 text-text-primary placeholder:text-text-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
       />
-      <label className="flex items-start gap-2.5 text-xs leading-relaxed text-neutral-500">
+      <label className="flex items-start gap-2.5 text-xs leading-relaxed text-text-muted">
         <input
           type="checkbox"
           name="consent"
           required
-          className="mt-0.5 h-4 w-4 shrink-0 accent-emerald-600"
+          className="mt-0.5 h-4 w-4 shrink-0 accent-brand"
         />
         <span>
           Я согласен(а) на обработку персональных данных в соответствии с{" "}
           <Link
             href="/privacy"
             target="_blank"
-            className="text-emerald-700 underline hover:text-emerald-800"
+            className="text-brand underline hover:text-brand-hover"
           >
             Политикой обработки персональных данных
           </Link>{" "}
@@ -74,11 +75,11 @@ export function LeadForm({
           является индивидуальной инвестиционной рекомендацией.
         </span>
       </label>
-      {state.error && <p className="text-sm text-red-400">{state.error}</p>}
+      {state.error && <p className="text-sm text-negative">{state.error}</p>}
       <button
         type="submit"
         disabled={pending}
-        className="w-full rounded-lg bg-emerald-600 px-4 py-2.5 font-semibold text-white transition-colors hover:bg-emerald-700 disabled:opacity-60"
+        className="w-full rounded-control bg-brand px-4 py-2.5 font-semibold text-white transition-colors hover:bg-brand-hover disabled:opacity-60"
       >
         {pending ? "Отправляем…" : "Оставить заявку"}
       </button>

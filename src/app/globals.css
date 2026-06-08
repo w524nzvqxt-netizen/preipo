@@ -2,101 +2,85 @@
 
 @theme inline {
   --font-sans: var(--font-manrope);
-  /* Акцентный цвет бренда */
-  --color-brand: #059669;
-  --color-brand-dark: #047857;
+
+  /* Палитра — единая светлая тёплая база */
+  --color-bg: #FBFAF8;
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #F4F2ED;
+  --color-border: #E6E2DA;
+
+  /* Текст (WCAG AA на bg #FBFAF8: primary ~14:1, secondary ~6.4:1, muted ~4.6:1) */
+  --color-text-primary: #1A1916;
+  --color-text-secondary: #5C5852;
+  --color-text-muted: #7A756C;
+
+  /* Бренд — единственный акцент (teal-green). brand на белом ~4.9:1, белый на brand ~5.2:1 */
+  --color-brand: #15715E;
+  --color-brand-hover: #0F5A4A;
+  --color-brand-subtle: #E8F1ED;
+
+  /* Вторичный акцент — строго для редких ссылок/инфо */
+  --color-accent: #1F6F8B;
+  --color-accent-subtle: #E7F0F4;
+
+  /* Семантика данных — НЕ путать с брендом */
+  --color-positive: #1E7A55;
+  --color-negative: #B23B36;
+  --color-warning: #9A6B1E;
+
+  /* Радиусы — только две величины */
+  --radius-control: 12px;
+  --radius-card: 16px;
+
+  /* Тени — один сдержанный уровень + hover */
+  --shadow-card: 0 1px 2px rgba(26,25,22,0.04), 0 2px 8px rgba(26,25,22,0.05);
+  --shadow-card-hover: 0 2px 4px rgba(26,25,22,0.05), 0 8px 24px rgba(26,25,22,0.08);
 }
 
 html {
   scroll-behavior: smooth;
 }
 
-/* Lenis — плавный инерционный скролл */
-html.lenis,
-html.lenis body {
-  height: auto;
-}
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-.lenis.lenis-stopped {
-  overflow: hidden;
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-manrope), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-body {
-  font-family: var(--font-manrope), Arial, Helvetica, sans-serif;
+/* Табличные цифры — ядро доверия. Вешать .nums на ВСЕ деньги/метрики/котировки */
+.nums {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+/* Kicker-лейбл над секцией (редакционный приём) */
+.kicker {
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
 }
 
 /* Аккуратный скроллбар */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #d4d4d4 transparent;
+  scrollbar-color: var(--color-border) transparent;
 }
 
-/* Анимированный градиентный текст */
-.gradient-text {
-  background: linear-gradient(110deg, #059669, #0ea5e9, #059669);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: shimmer 6s linear infinite;
-}
-
-@keyframes shimmer {
-  to {
-    background-position: 200% center;
-  }
-}
-
-/* Плавающие градиентные «блобы» для фона */
-.blob {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(80px);
-  opacity: 0.5;
-  animation: float 14s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-  33% {
-    transform: translate(30px, -40px) scale(1.1);
-  }
-  66% {
-    transform: translate(-20px, 30px) scale(0.95);
-  }
-}
-
-/* Мягкое свечение под видео/карточками */
-.glow {
-  box-shadow: 0 30px 80px -30px rgba(5, 150, 105, 0.35);
-}
-
-/* Бесконечная лента логотипов */
+/* Бесконечная лента тикера/логотипов */
 .marquee {
-  animation: marquee 28s linear infinite;
+  animation: marquee 40s linear infinite;
 }
-
 @keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 
+/* Единый паттерн появления — быстрый, без каскадов */
 @media (prefers-reduced-motion: reduce) {
-  .blob,
-  .gradient-text,
-  .marquee {
-    animation: none;
-  }
+  .marquee { animation: none; }
+  * { scroll-behavior: auto !important; }
 }

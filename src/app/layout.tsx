@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 import "./globals.css";
-import { SmoothScroll } from "@/components/motion/SmoothScroll";
 
 // Manrope — современный геометричный гротеск, премиальный вид, полная кириллица
 const manrope = Manrope({
@@ -22,8 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru" className={`${manrope.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-neutral-50 text-neutral-900">
-        <SmoothScroll />
+      <body className="min-h-full flex flex-col">
         {children}
       </body>
     </html>

@@ -8,7 +8,6 @@ import { ContactButtons } from "@/components/ContactButtons";
 import { LeadForm } from "@/components/LeadForm";
 import { ProjectVideo, type VideoScene } from "@/components/ProjectVideo";
 import { Reveal } from "@/components/motion/Reveal";
-import { AnimatedWords } from "@/components/motion/AnimatedWords";
 import { Disclaimer, RiskNote } from "@/components/Disclaimer";
 
 export const dynamic = "force-dynamic";
@@ -79,48 +78,74 @@ export default async function ProjectPage({
     ["Отрасль / стадия", [project.sector, project.stage].filter(Boolean).join(" · ") || "—"],
   ];
 
+  const sectorStage = [project.sector, project.stage].filter(Boolean).join(" · ") || "—";
+
   return (
     <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:py-14">
-      <Link href="/" className="text-sm text-neutral-500 hover:text-neutral-900">
-        ← Все проекты
+      <Link
+        href="/"
+        className="text-sm text-text-muted hover:text-text-primary transition-colors"
+      >
+        &larr; Все проекты
       </Link>
 
       {/* Шапка */}
-      <Reveal className="mt-6 flex flex-wrap items-center gap-4">
-        {project.logoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={project.logoUrl}
-            alt={project.name}
-            className="h-16 w-16 rounded-xl border border-neutral-200 bg-white object-contain p-2"
-          />
-        ) : (
-          <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-neutral-100 text-2xl font-bold text-neutral-500">
-            {project.name.charAt(0)}
+      <Reveal className="mt-6">
+        <div className="flex flex-wrap items-start gap-4">
+          {/* Логотип или инициал */}
+          {project.logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={project.logoUrl}
+              alt={project.name}
+              className="h-16 w-16 rounded-card border border-border bg-surface object-contain p-2 shadow-[var(--shadow-card)]"
+            />
+          ) : (
+            <div className="flex h-16 w-16 items-center justify-center rounded-card bg-surface-alt text-2xl font-bold text-text-muted">
+              {project.name.charAt(0)}
+            </div>
+          )}
+
+          {/* Название + метаданные */}
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-2xl font-bold text-text-primary sm:text-3xl">
+                {project.name}
+              </h1>
+              {project.isHot && (
+                <span className="kicker rounded-full border border-brand bg-brand-subtle px-2.5 py-1 text-brand">
+                  Высокий спрос
+                </span>
+              )}
+            </div>
+            <p className="mt-1 text-sm text-text-muted">{sectorStage}</p>
           </div>
-        )}
-        <div>
-          <h1 className="flex flex-wrap items-center gap-3 text-2xl font-bold sm:text-3xl">
-            {project.name}
-            {project.isHot && (
-              <span className="rounded-full bg-amber-100 px-2.5 py-1 text-sm font-medium text-amber-700">
-                🔥 Горячий
+
+          {/* CTA-блок в шапке (заметен на всех разрешениях) */}
+          <div className="flex flex-col items-end gap-2 shrink-0">
+            <p className="text-sm text-text-muted">
+              Цена за долю:{" "}
+              <span className="nums font-semibold text-text-primary">
+                {formatPrice(project.pricePerShare, project.currency)}
               </span>
-            )}
-          </h1>
-          <p className="text-neutral-500">
-            {[project.sector, project.stage].filter(Boolean).join(" · ") || "—"}
-          </p>
+            </p>
+            <a
+              href="#lead"
+              className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
+            >
+              Оставить заявку
+            </a>
+          </div>
         </div>
       </Reveal>
 
       {/* Видео о проекте */}
       {project.videoStatus === "completed" &&
       project.videoUrl?.startsWith("/uploads/") ? (
-        <Section title="Видео о проекте">
-          <div className="overflow-hidden rounded-3xl border border-neutral-200 shadow-sm">
+        <Section kicker="Медиа" title="Видео о проекте">
+          <div className="overflow-hidden rounded-card border border-border shadow-[var(--shadow-card)]">
             <video
-              className="aspect-video w-full bg-neutral-900"
+              className="aspect-video w-full bg-surface-alt"
               controls
               preload="metadata"
               playsInline
@@ -131,7 +156,7 @@ export default async function ProjectPage({
         </Section>
       ) : (
         videoScenes.length > 0 && (
-          <Section title="Видео о проекте">
+          <Section kicker="Медиа" title="Видео о проекте">
             <ProjectVideo scenes={videoScenes} title={project.name} />
           </Section>
         )
@@ -139,20 +164,20 @@ export default async function ProjectPage({
 
       {/* 1. Краткое содержание */}
       {project.description && (
-        <Section title="Краткое содержание">
-          <p className="whitespace-pre-line text-lg leading-relaxed text-neutral-700">
+        <Section kicker="О компании" title="Краткое содержание">
+          <p className="whitespace-pre-line text-base leading-relaxed text-text-secondary">
             {project.description}
           </p>
         </Section>
       )}
 
       {/* 2. Ключевые показатели */}
-      <Section title="Оценка и прогноз">
-        <div className="grid gap-px overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-200 sm:grid-cols-2 lg:grid-cols-3">
+      <Section kicker="Финансы" title="Оценка и прогноз">
+        <div className="grid gap-px overflow-hidden rounded-card border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
           {metrics.map(([label, value]) => (
-            <div key={label} className="bg-white p-5">
-              <p className="text-sm text-neutral-500">{label}</p>
-              <p className="mt-1 text-lg font-semibold">{value}</p>
+            <div key={label} className="bg-surface p-5">
+              <p className="kicker text-text-muted">{label}</p>
+              <p className="nums mt-1 text-lg font-semibold text-text-primary">{value}</p>
             </div>
           ))}
         </div>
@@ -160,32 +185,38 @@ export default async function ProjectPage({
 
       {/* Ожидаемые результаты ($100k) */}
       {scenarios.length > 0 && (
-        <Section title="Ожидаемые результаты — вложили $100 000">
+        <Section kicker="Моделирование" title="Ожидаемые результаты — вложили $100 000">
           <div className="grid gap-5 sm:grid-cols-3">
             {scenarios.map((s) => {
-              const c =
+              const borderAccent =
                 s.color === "emerald"
-                  ? "border-emerald-300 bg-emerald-50 text-emerald-700"
+                  ? "border-l-positive"
                   : s.color === "sky"
-                    ? "border-sky-300 bg-sky-50 text-sky-700"
-                    : "border-amber-300 bg-amber-50 text-amber-700";
+                    ? "border-l-accent"
+                    : "border-l-warning";
+              const valColor =
+                s.color === "emerald"
+                  ? "text-positive"
+                  : s.color === "sky"
+                    ? "text-accent"
+                    : "text-warning";
               return (
                 <div
                   key={s.key}
-                  className={`rounded-2xl border p-5 text-center shadow-sm ${c}`}
+                  className={`rounded-card border border-border bg-surface border-l-4 ${borderAccent} p-5`}
                 >
-                  <div className="text-sm font-semibold">{s.key}</div>
-                  <div className="mt-2 text-3xl font-bold text-neutral-900">
+                  <div className="kicker text-text-muted">{s.key}</div>
+                  <div className={`nums mt-2 text-3xl font-bold ${valColor}`}>
                     ${s.val.toLocaleString("ru-RU")}
                   </div>
-                  <div className="mt-1 text-sm text-neutral-500">
-                    ×{s.mult.toFixed(2).replace(".", ",")} · IRR {s.irr}
+                  <div className="nums mt-1 text-sm text-text-secondary">
+                    &times;{s.mult.toFixed(2).replace(".", ",")} &middot; IRR {s.irr}
                   </div>
                 </div>
               );
             })}
           </div>
-          <p className="mt-3 text-xs text-neutral-400">
+          <p className="mt-3 text-xs text-text-muted">
             Горизонт ~3,6 года. Расчёт нетто: с учётом разводнения 35%, carry
             20%, fee 5% (по финансовой модели).
           </p>
@@ -195,12 +226,17 @@ export default async function ProjectPage({
 
       {/* 3. Сейлз-поинты */}
       {salesPoints.length > 0 && (
-        <Section title="Основные сейлз-поинты">
+        <Section kicker="Инвест-тезис" title="Основные сейлз-поинты">
           <ul className="space-y-2">
             {salesPoints.map((p, i) => (
-              <li key={i} className="flex gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-                <span className="text-emerald-600">★</span>
-                <span className="text-neutral-800">{p}</span>
+              <li
+                key={i}
+                className="flex items-start gap-4 rounded-control border border-border bg-surface p-4"
+              >
+                <span className="kicker shrink-0 text-brand">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="text-sm text-text-primary">{p}</span>
               </li>
             ))}
           </ul>
@@ -209,27 +245,29 @@ export default async function ProjectPage({
 
       {/* 4. Плюсы и 5. Риски — рядом */}
       {(pros.length > 0 || risks.length > 0) && (
-        <Section title="Плюсы и риски">
+        <Section kicker="Анализ" title="Плюсы и риски">
           <div className="grid gap-5 sm:grid-cols-2">
             {pros.length > 0 && (
-              <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-                <h3 className="font-semibold text-emerald-700">✓ Плюсы компании</h3>
+              <div className="rounded-card border border-border bg-surface p-5">
+                <h3 className="font-semibold text-positive">Плюсы компании</h3>
                 <ul className="mt-3 space-y-2">
                   {pros.map((p, i) => (
-                    <li key={i} className="flex gap-2 text-sm text-neutral-700">
-                      <span className="text-emerald-500">+</span> {p}
+                    <li key={i} className="flex gap-2 text-sm text-text-secondary">
+                      <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-positive translate-y-1.5" />
+                      {p}
                     </li>
                   ))}
                 </ul>
               </div>
             )}
             {risks.length > 0 && (
-              <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-                <h3 className="font-semibold text-amber-700">⚠ Риски компании</h3>
+              <div className="rounded-card border border-border bg-surface p-5">
+                <h3 className="font-semibold text-warning">Риски компании</h3>
                 <ul className="mt-3 space-y-2">
                   {risks.map((p, i) => (
-                    <li key={i} className="flex gap-2 text-sm text-neutral-700">
-                      <span className="text-amber-500">–</span> {p}
+                    <li key={i} className="flex gap-2 text-sm text-text-secondary">
+                      <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-warning translate-y-1.5" />
+                      {p}
                     </li>
                   ))}
                 </ul>
@@ -241,10 +279,10 @@ export default async function ProjectPage({
 
       {/* 6. Финансовая модель */}
       {financialDocs.length > 0 && (
-        <Section title="Финансовая модель">
+        <Section kicker="Документы" title="Финансовая модель">
           <div className="space-y-2">
             {financialDocs.map((doc) => (
-              <DocLink key={doc.id} doc={doc} accent />
+              <DocLink key={doc.id} doc={doc} />
             ))}
           </div>
         </Section>
@@ -252,7 +290,7 @@ export default async function ProjectPage({
 
       {/* 7. Документы */}
       {otherDocs.length > 0 && (
-        <Section title="Документы">
+        <Section kicker="Документы" title="Материалы">
           <div className="space-y-2">
             {otherDocs.map((doc) => (
               <DocLink key={doc.id} doc={doc} />
@@ -262,9 +300,9 @@ export default async function ProjectPage({
       )}
 
       {/* 8. Заявка */}
-      <section className="mt-10 rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm sm:p-8">
-        <h2 className="text-2xl font-bold">Заинтересовал проект?</h2>
-        <p className="mt-2 text-neutral-600">
+      <section id="lead" className="mt-10 rounded-card border border-border bg-surface p-6 sm:p-8">
+        <h2 className="text-xl font-bold text-text-primary">Заинтересовал проект?</h2>
+        <p className="mt-2 text-sm text-text-secondary">
           Оставьте заявку или напишите напрямую — расскажем условия входа.
         </p>
         <div className="mt-5">
@@ -275,11 +313,16 @@ export default async function ProjectPage({
         </div>
       </section>
 
-      <footer className="mt-12 border-t border-neutral-200 pt-6">
+      <footer className="mt-12 border-t border-border pt-6">
         <Disclaimer />
-        <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-neutral-500">
-          <span>© {new Date().getFullYear()} Pre-IPO Витрина</span>
-          <Link href="/privacy" className="text-neutral-400 underline hover:text-neutral-600">
+        <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-text-muted">
+          <span>
+            &copy; <span className="nums">{new Date().getFullYear()}</span> Pre-IPO Витрина
+          </span>
+          <Link
+            href="/privacy"
+            className="underline hover:text-text-secondary transition-colors"
+          >
             Политика обработки персональных данных
           </Link>
         </div>
@@ -289,17 +332,20 @@ export default async function ProjectPage({
 }
 
 function Section({
+  kicker,
   title,
   children,
 }: {
+  kicker: string;
   title: string;
   children: React.ReactNode;
 }) {
   return (
     <Reveal className="mt-10">
-      <h2 className="mb-4 text-xl font-bold tracking-tight">
-        <AnimatedWords text={title} />
-      </h2>
+      <div className="mb-4">
+        <p className="kicker text-text-muted">{kicker}</p>
+        <h2 className="mt-0.5 text-xl font-bold text-text-primary">{title}</h2>
+      </div>
       {children}
     </Reveal>
   );
@@ -307,30 +353,39 @@ function Section({
 
 function DocLink({
   doc,
-  accent,
 }: {
   doc: { fileUrl: string; title: string; fileName: string; sizeBytes: number };
-  accent?: boolean;
 }) {
+  // Определяем метку типа файла из расширения
+  const ext = doc.fileName.split(".").pop()?.toLowerCase() ?? "";
+  const fileLabel =
+    ext === "pdf"
+      ? "PDF"
+      : ext === "xlsx" || ext === "xls"
+        ? "XLSX"
+        : ext === "pptx" || ext === "ppt"
+          ? "PPTX"
+          : "DOC";
+
   return (
     <a
       href={doc.fileUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className={`flex items-center justify-between rounded-xl border px-4 py-3 shadow-sm transition-colors hover:border-emerald-400 ${
-        accent ? "border-emerald-200 bg-emerald-50" : "border-neutral-200 bg-white"
-      }`}
+      className="flex items-center justify-between rounded-control border border-border bg-surface px-4 py-3 transition-colors hover:border-brand shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)]"
     >
-      <span className="flex items-center gap-3">
-        <span>{accent ? "📊" : "📄"}</span>
-        <span>
-          <span className="font-medium">{doc.title}</span>
-          <span className="block text-xs text-neutral-500">
-            {doc.fileName} · {formatSize(doc.sizeBytes)}
+      <span className="flex items-center gap-3 min-w-0">
+        <span className="kicker shrink-0 rounded-control border border-border px-2 py-0.5 text-text-muted">
+          {fileLabel}
+        </span>
+        <span className="min-w-0">
+          <span className="block truncate font-medium text-text-primary">{doc.title}</span>
+          <span className="nums block text-xs text-text-muted">
+            {doc.fileName} &middot; {formatSize(doc.sizeBytes)}
           </span>
         </span>
       </span>
-      <span className="text-sm font-medium text-emerald-600">Скачать ↓</span>
+      <span className="ml-4 shrink-0 text-sm font-semibold text-brand">Скачать &darr;</span>
     </a>
   );
 }
