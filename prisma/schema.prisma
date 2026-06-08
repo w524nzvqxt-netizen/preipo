@@ -45,6 +45,11 @@ model Project {
   isActive Boolean @default(true) // Показывать ли на витрине
   isHot    Boolean @default(false) // Метка "горячий" проект
 
+  // Статус сделки: open — открытый раунд (можно войти), closed — реализованная сделка (трек-рекорд)
+  dealStatus String @default("open")
+  exitValuation Float? // Ожидаемая оценка на выходе (для трек-рекорда)
+  cocMultiple   Float? // Net CoC, мультипликатор на капитал (напр. 5.6)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

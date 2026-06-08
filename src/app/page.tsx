@@ -8,15 +8,20 @@ import { Ticker } from "@/components/Ticker";
 import { Reveal } from "@/components/motion/Reveal";
 import { Disclaimer } from "@/components/Disclaimer";
 import { ProjectsExplorer } from "@/components/ProjectsExplorer";
+import { ProjectCard } from "@/components/ProjectCard";
 
 // Витрина всегда отражает актуальные данные из админки
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const projects = await prisma.project.findMany({
+  const all = await prisma.project.findMany({
     where: { isActive: true },
     orderBy: [{ isHot: "desc" }, { createdAt: "desc" }],
   });
+
+  // Открытые раунды (можно войти) и реализованные сделки (трек-рекорд)
+  const projects = all.filter((p) => p.dealStatus !== "closed");
+  const closedDeals = all.filter((p) => p.dealStatus === "closed");
 
   const totalVolume = projects.reduce((s, p) => s + (p.volume ?? 0), 0);
 
@@ -102,6 +107,27 @@ export default async function HomePage() {
             </div>
           )}
         </section>
+
+        {/* Реализованные сделки — трек-рекорд */}
+        {closedDeals.length > 0 && (
+          <section id="track-record" className="mt-20 sm:mt-24">
+            <p className="kicker mb-2 text-text-muted">Трек-рекорд</p>
+            <h2 className="text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
+              Реализованные сделки
+            </h2>
+            <p className="mt-2 max-w-2xl text-text-secondary">
+              Раунды, которые мы уже закрыли для инвесторов. Параметры — на момент
+              входа в сделку.
+            </p>
+            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {closedDeals.map((p, i) => (
+                <Reveal key={p.id} delay={(i % 3) * 0.06}>
+                  <ProjectCard project={p} />
+                </Reveal>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Контакт */}
         <section id="contact" className="mt-20 sm:mt-24">

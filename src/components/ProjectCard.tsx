@@ -4,6 +4,8 @@ import { formatMoney, formatPrice } from "@/lib/format";
 import type { Project } from "@/generated/prisma/client";
 
 export function ProjectCard({ project }: { project: Project }) {
+  const isClosed = project.dealStatus === "closed";
+
   return (
     <Link
       href={`/project/${project.id}`}
@@ -33,10 +35,16 @@ export function ProjectCard({ project }: { project: Project }) {
             </p>
           </div>
         </div>
-        {project.isHot && (
-          <span className="kicker rounded-full border border-brand bg-brand-subtle px-2 py-0.5 text-brand">
-            Высокий спрос
+        {isClosed ? (
+          <span className="kicker rounded-full border border-border bg-surface-alt px-2 py-0.5 text-text-muted">
+            Реализована
           </span>
+        ) : (
+          project.isHot && (
+            <span className="kicker rounded-full border border-brand bg-brand-subtle px-2 py-0.5 text-brand">
+              Высокий спрос
+            </span>
+          )
         )}
       </div>
 
@@ -47,22 +55,47 @@ export function ProjectCard({ project }: { project: Project }) {
         </p>
       )}
 
-      {/* Герой — доходность */}
-      {project.expectedReturn != null && (
+      {/* Герой — мультипликатор (закрытая) или доходность (открытая) */}
+      {isClosed && project.cocMultiple != null ? (
         <div className="mt-4 rounded-control bg-brand-subtle px-3 py-2.5">
-          <p className="kicker text-text-muted">Потенц. доходность</p>
+          <p className="kicker text-text-muted">Потенциал на капитал · базовый</p>
           <p className="nums mt-0.5 text-xl font-bold text-positive">
-            +{project.expectedReturn}%
+            ×{project.cocMultiple.toFixed(1).replace(".", ",")}
+            {project.expectedReturn != null && (
+              <span className="ml-2 text-sm font-semibold text-text-secondary">
+                ~{project.expectedReturn}% годовых
+              </span>
+            )}
           </p>
         </div>
+      ) : (
+        project.expectedReturn != null && (
+          <div className="mt-4 rounded-control bg-brand-subtle px-3 py-2.5">
+            <p className="kicker text-text-muted">Потенц. доходность</p>
+            <p className="nums mt-0.5 text-xl font-bold text-positive">
+              +{project.expectedReturn}%
+            </p>
+          </div>
+        )
       )}
 
       {/* Сетка метрик */}
       <div className="mt-4 grid grid-cols-2 gap-3 border-t border-border pt-4">
         <Metric label="Оценка входа" value={formatMoney(project.valuation, project.currency)} />
         <Metric label="Прогноз выхода" value={project.expectedExit || "—"} />
-        <Metric label="Цена за долю" value={formatPrice(project.pricePerShare, project.currency)} />
-        <Metric label="Объём" value={formatMoney(project.volume, project.currency)} />
+        {isClosed ? (
+          <Metric
+            label="Оценка на выходе"
+            value={formatMoney(project.exitValuation, project.currency)}
+          />
+        ) : (
+          <Metric label="Цена за долю" value={formatPrice(project.pricePerShare, project.currency)} />
+        )}
+        {isClosed ? (
+          <Metric label="Доходность (нетто)" value={project.expectedReturn != null ? `~${project.expectedReturn}%` : "—"} />
+        ) : (
+          <Metric label="Объём" value={formatMoney(project.volume, project.currency)} />
+        )}
       </div>
 
       {/* CTA */}
