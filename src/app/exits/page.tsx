@@ -5,7 +5,8 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { ExitsExplorer, type ExitCompany } from "@/components/ExitsExplorer";
 import { Disclaimer } from "@/components/Disclaimer";
-import { computeExitIndex, TICKET } from "@/lib/exit-index";
+import { computeExitIndex, computeExitIndexSeries, TICKET } from "@/lib/exit-index";
+import { IndexChart } from "@/components/IndexChart";
 import { formatMoney } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -50,6 +51,7 @@ export default async function ExitsPage() {
   });
 
   const idx = computeExitIndex(companies);
+  const series = computeExitIndexSeries(companies);
   const outperform = idx.sp500Mult > 0 ? idx.preIpoMult / idx.sp500Mult : 0;
 
   return (
@@ -109,6 +111,9 @@ export default async function ExitsPage() {
             Сравнение модельное: каждая сумма входит по оценке раунда, S&amp;P 500
             — по уровню индекса того же года (тек. ≈ 7 384).
           </p>
+          <div className="mt-6">
+            <IndexChart series={series} />
+          </div>
         </div>
 
         <div className="mt-8">
