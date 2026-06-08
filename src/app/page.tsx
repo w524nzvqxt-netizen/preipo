@@ -23,7 +23,14 @@ export default async function HomePage() {
   const projects = all.filter((p) => p.dealStatus !== "closed");
   const closedDeals = all.filter((p) => p.dealStatus === "closed");
 
-  const totalVolume = projects.reduce((s, p) => s + (p.volume ?? 0), 0);
+  // KPI для hero
+  const withReturn = all.filter((p) => p.expectedReturn != null);
+  const avgReturn = withReturn.length
+    ? Math.round(
+        withReturn.reduce((s, p) => s + (p.expectedReturn ?? 0), 0) /
+          withReturn.length
+      )
+    : 0;
 
   return (
     <div className="bg-bg">
@@ -38,16 +45,24 @@ export default async function HomePage() {
           <div className="flex items-center gap-2 text-lg font-bold text-text-primary">
             <span className="text-brand">●</span> Pre-IPO Витрина
           </div>
-          <ContactButtons size="sm" />
+          <div className="flex items-center gap-3">
+            <Link
+              href="/portfolio"
+              className="hidden text-sm font-medium text-text-secondary hover:text-brand sm:block"
+            >
+              Конструктор портфеля
+            </Link>
+            <ContactButtons size="sm" />
+          </div>
         </div>
       </header>
 
       <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-12">
         {/* Hero с видео и анимациями */}
         <Hero
-          projectCount={projects.length}
-          totalVolume={totalVolume}
-          hotCount={projects.filter((p) => p.isHot).length}
+          dealCount={all.length}
+          closedCount={closedDeals.length}
+          avgReturn={avgReturn}
         />
 
         {/* Видео-объяснялка — «Pre-IPO: Инструкция для инвестора» */}
@@ -93,10 +108,20 @@ export default async function HomePage() {
 
         {/* Сетка проектов */}
         <section id="projects" className="mt-20 sm:mt-24">
-          <p className="kicker mb-2 text-text-muted">Витрина</p>
-          <h2 className="text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
-            Доступные проекты
-          </h2>
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="kicker mb-2 text-text-muted">Витрина</p>
+              <h2 className="text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
+                Доступные проекты
+              </h2>
+            </div>
+            <Link
+              href="/portfolio"
+              className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
+            >
+              Собрать портфель →
+            </Link>
+          </div>
           {projects.length === 0 ? (
             <div className="mt-6 rounded-card border border-dashed border-border p-10 text-center text-text-muted">
               Пока нет активных проектов.

@@ -66,16 +66,26 @@ export default async function ProjectPage({
   const financialDocs = project.documents.filter((d) => d.kind === "financial");
   const otherDocs = project.documents.filter((d) => d.kind !== "financial");
 
+  const plPct =
+    project.cocMultiple != null
+      ? Math.round((project.cocMultiple - 1) * 100)
+      : null;
+
   const metrics: [string, string][] = [
-    ["Оценка входа", formatMoney(project.valuation, project.currency)],
-    ["Прогноз выхода на биржу", project.expectedExit || "—"],
+    ["Цена входа", formatMoney(project.valuation, project.currency)],
+    ["Оценка на выходе · прогноз", formatMoney(project.exitValuation, project.currency)],
     [
-      "Потенциальная доходность",
-      project.expectedReturn != null ? `+${project.expectedReturn}%` : "—",
+      "Потенциал (P/L)",
+      project.cocMultiple != null
+        ? `×${project.cocMultiple.toFixed(1).replace(".", ",")}${plPct != null ? ` · +${plPct}%` : ""}`
+        : "—",
     ],
+    [
+      "Доходность нетто",
+      project.expectedReturn != null ? `~${project.expectedReturn}%/год` : "—",
+    ],
+    ["Прогноз выхода", project.expectedExit || "—"],
     ["Цена за долю", formatPrice(project.pricePerShare, project.currency)],
-    ["Доступный объём", formatMoney(project.volume, project.currency)],
-    ["Отрасль / стадия", [project.sector, project.stage].filter(Boolean).join(" · ") || "—"],
   ];
 
   const sectorStage = [project.sector, project.stage].filter(Boolean).join(" · ") || "—";
@@ -112,9 +122,9 @@ export default async function ProjectPage({
               <h1 className="text-2xl font-bold text-text-primary sm:text-3xl">
                 {project.name}
               </h1>
-              {project.isHot && (
-                <span className="kicker rounded-full border border-brand bg-brand-subtle px-2.5 py-1 text-brand">
-                  Высокий спрос
+              {project.dealStatus === "closed" && (
+                <span className="kicker rounded-full border border-border bg-surface-alt px-2.5 py-1 text-text-muted">
+                  Реализована
                 </span>
               )}
             </div>

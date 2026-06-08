@@ -5,13 +5,13 @@ import { motion, useInView, useMotionValue, animate } from "motion/react";
 import { formatMoney } from "@/lib/format";
 
 export function Hero({
-  projectCount,
-  totalVolume,
-  hotCount,
+  dealCount,
+  closedCount,
+  avgReturn,
 }: {
-  projectCount: number;
-  totalVolume: number;
-  hotCount: number;
+  dealCount: number;
+  closedCount: number;
+  avgReturn: number;
 }) {
   return (
     <motion.div
@@ -53,9 +53,9 @@ export function Hero({
 
           {/* KPI-стрип */}
           <div className="mt-9 grid grid-cols-3 divide-x divide-border rounded-control bg-surface-alt px-5 py-4">
-            <KpiCell value={projectCount} label="проектов" />
-            <KpiCell value={totalVolume} label="суммарный объём" kind="money" />
-            <KpiCell value={hotCount} label="горячих сделок" />
+            <KpiCell value={dealCount} label="сделок" />
+            <KpiCell value={closedCount} label="реализовано" />
+            <KpiCell value={avgReturn} label="ср. дох., %/год" />
           </div>
         </div>
 
