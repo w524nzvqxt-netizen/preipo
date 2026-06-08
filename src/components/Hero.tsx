@@ -4,7 +4,6 @@
 // созвездием, кинетическим заголовком и стеклянным KPI-виджетом.
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView, useMotionValue, animate } from "motion/react";
-import { formatMoney } from "@/lib/format";
 import { SplitReveal } from "@/components/motion/SplitReveal";
 import { MagneticButton } from "@/components/motion/MagneticButton";
 import { DataCanvas } from "@/components/motion/DataCanvas";
@@ -108,9 +107,9 @@ export function Hero({
                 <Kpi value={avgReturn} label="ср. дох., %/год" accent />
               </div>
               <div className="mt-6 hairline rounded-control p-4">
-                <p className="kicker text-text-muted">Суммарный потенциал</p>
+                <p className="kicker text-text-muted">Под наблюдением</p>
                 <p className="nums mt-1 text-2xl font-bold text-brand">
-                  {formatMoney(NODE_LABELS.length * 1e9)}+ под наблюдением
+                  20+ компаний от раунда до IPO
                 </p>
               </div>
             </div>

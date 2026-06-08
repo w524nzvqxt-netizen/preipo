@@ -7,8 +7,8 @@ import { Hero } from "@/components/Hero";
 import { Ticker } from "@/components/Ticker";
 import { Reveal } from "@/components/motion/Reveal";
 import { Disclaimer } from "@/components/Disclaimer";
-import { ProjectsExplorer } from "@/components/ProjectsExplorer";
 import { ProjectCard } from "@/components/ProjectCard";
+import { contacts } from "@/lib/config";
 import { computeExitIndex, TICKET } from "@/lib/exit-index";
 import { formatMoney } from "@/lib/format";
 
@@ -227,6 +227,28 @@ export default async function HomePage() {
           </div>
         </footer>
       </main>
+
+      {/* Липкий мобильный CTA */}
+      <div className="glass fixed inset-x-0 bottom-0 z-50 p-3 sm:hidden">
+        <div className="flex gap-2">
+          <a
+            href="#contact"
+            className="glow-brand flex-1 rounded-control bg-brand py-3 text-center font-semibold text-bg"
+          >
+            Оставить заявку
+          </a>
+          {contacts.telegram && (
+            <a
+              href={contacts.telegram}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hairline rounded-control px-5 py-3 text-center font-semibold text-text-primary"
+            >
+              Telegram
+            </a>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

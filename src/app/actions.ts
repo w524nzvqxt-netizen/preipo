@@ -34,8 +34,42 @@ export async function submitLead(
         projectId,
       },
     });
+    // Мгновенное уведомление оператору в Telegram (если настроено в env)
+    await notifyOperator({ name, contact, message, projectId });
     return { ok: true };
   } catch {
     return { error: "Не удалось отправить заявку. Попробуйте ещё раз." };
+  }
+}
+
+// Шлёт уведомление о новой заявке в Telegram оператора. Fire-and-forget.
+async function notifyOperator(lead: {
+  name: string;
+  contact: string;
+  message: string;
+  projectId: string | null;
+}) {
+  const token = process.env.TELEGRAM_NOTIFY_TOKEN;
+  const chat = process.env.TELEGRAM_NOTIFY_CHAT;
+  if (!token || !chat) return;
+  let project = "";
+  if (lead.projectId) {
+    try {
+      const p = await prisma.project.findUnique({
+        where: { id: lead.projectId },
+        select: { name: true },
+      });
+      if (p) project = `\nПроект: ${p.name}`;
+    } catch {}
+  }
+  const text = `🔔 Новая заявка на pre-ipo.pro\nИмя: ${lead.name}\nКонтакт: ${lead.contact}${project}\nКомментарий: ${lead.message || "—"}`;
+  try {
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chat, text, disable_web_page_preview: true }),
+    });
+  } catch {
+    // не валим заявку, если уведомление не ушло
   }
 }

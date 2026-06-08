@@ -8,6 +8,13 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 export function SmoothScroll() {
   useEffect(() => {
+    // На тач-устройствах и при reduced-motion — нативный скролл (быстрее, без дрожания)
+    if (
+      window.matchMedia("(pointer: coarse)").matches ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return;
+    }
     gsap.registerPlugin(ScrollTrigger);
     const lenis = new Lenis({ duration: 1.1, smoothWheel: true });
     lenis.on("scroll", ScrollTrigger.update);
