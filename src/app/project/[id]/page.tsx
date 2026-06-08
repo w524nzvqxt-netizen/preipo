@@ -9,6 +9,7 @@ import { LeadForm } from "@/components/LeadForm";
 import { ProjectVideo, type VideoScene } from "@/components/ProjectVideo";
 import { Reveal } from "@/components/motion/Reveal";
 import { AnimatedWords } from "@/components/motion/AnimatedWords";
+import { Disclaimer, RiskNote } from "@/components/Disclaimer";
 
 export const dynamic = "force-dynamic";
 
@@ -186,8 +187,9 @@ export default async function ProjectPage({
           </div>
           <p className="mt-3 text-xs text-neutral-400">
             Горизонт ~3,6 года. Расчёт нетто: с учётом разводнения 35%, carry
-            20%, fee 5% (по финансовой модели). Не является гарантией доходности.
+            20%, fee 5% (по финансовой модели).
           </p>
+          <RiskNote className="mt-2" />
         </Section>
       )}
 
@@ -272,6 +274,16 @@ export default async function ProjectPage({
           <LeadForm projectId={project.id} projectName={project.name} />
         </div>
       </section>
+
+      <footer className="mt-12 border-t border-neutral-200 pt-6">
+        <Disclaimer />
+        <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-neutral-500">
+          <span>© {new Date().getFullYear()} Pre-IPO Витрина</span>
+          <Link href="/privacy" className="text-neutral-400 underline hover:text-neutral-600">
+            Политика обработки персональных данных
+          </Link>
+        </div>
+      </footer>
     </main>
   );
 }

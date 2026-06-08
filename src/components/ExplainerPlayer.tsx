@@ -165,7 +165,7 @@ export function ExplainerPlayer() {
               muted
               loop
               playsInline
-              poster="/uploads/prometheus.jpg"
+              poster="/uploads/poster-hero.jpg"
             >
               <source src={src} type="video/mp4" />
             </video>

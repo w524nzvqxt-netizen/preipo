@@ -16,9 +16,13 @@ export async function submitLead(
   const contact = String(formData.get("contact") || "").trim();
   const message = String(formData.get("message") || "").trim();
   const projectId = String(formData.get("projectId") || "").trim() || null;
+  const consent = formData.get("consent") != null;
 
   if (!name || !contact) {
     return { error: "Укажите имя и контакт для связи." };
+  }
+  if (!consent) {
+    return { error: "Нужно согласие на обработку персональных данных." };
   }
 
   try {

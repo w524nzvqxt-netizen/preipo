@@ -2,6 +2,7 @@
 
 // Форма заявки. После отправки лид сохраняется в базу (server action).
 import { useActionState } from "react";
+import Link from "next/link";
 import { submitLead, type LeadState } from "@/app/actions";
 
 export function LeadForm({
@@ -53,6 +54,26 @@ export function LeadForm({
         rows={3}
         className="w-full rounded-lg border border-neutral-300 bg-white px-4 py-2.5 outline-none placeholder:text-neutral-400 focus:border-emerald-500"
       />
+      <label className="flex items-start gap-2.5 text-xs leading-relaxed text-neutral-500">
+        <input
+          type="checkbox"
+          name="consent"
+          required
+          className="mt-0.5 h-4 w-4 shrink-0 accent-emerald-600"
+        />
+        <span>
+          Я согласен(а) на обработку персональных данных в соответствии с{" "}
+          <Link
+            href="/privacy"
+            target="_blank"
+            className="text-emerald-700 underline hover:text-emerald-800"
+          >
+            Политикой обработки персональных данных
+          </Link>{" "}
+          и подтверждаю, что ознакомлен(а) с тем, что информация на сайте не
+          является индивидуальной инвестиционной рекомендацией.
+        </span>
+      </label>
       {state.error && <p className="text-sm text-red-400">{state.error}</p>}
       <button
         type="submit"

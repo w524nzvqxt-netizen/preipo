@@ -1,4 +1,5 @@
 // Главная страница — публичная витрина pre-IPO проектов
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ProjectCard } from "@/components/ProjectCard";
 import { ContactButtons } from "@/components/ContactButtons";
@@ -8,6 +9,7 @@ import { Ticker } from "@/components/Ticker";
 import { Reveal } from "@/components/motion/Reveal";
 import { AnimatedWords } from "@/components/motion/AnimatedWords";
 import { GsapText } from "@/components/motion/GsapText";
+import { Disclaimer } from "@/components/Disclaimer";
 
 // Витрина всегда отражает актуальные данные из админки
 export const dynamic = "force-dynamic";
@@ -68,7 +70,7 @@ export default async function HomePage() {
                 controls
                 preload="metadata"
                 playsInline
-                poster="/uploads/prometheus.jpg"
+                poster="/uploads/poster-main.jpg"
               >
                 <source src="/uploads/main-pre-ipo.mp4" type="video/mp4" />
               </video>
@@ -154,13 +156,12 @@ export default async function HomePage() {
         </section>
 
         <footer className="mt-16 border-t border-neutral-200 pt-6 text-sm text-neutral-500">
-          <p className="max-w-3xl text-xs text-neutral-400">
-            Информация на сайте носит ознакомительный характер и не является
-            инвестиционной рекомендацией или публичной офертой. Решение об
-            инвестициях принимается самостоятельно с учётом всех рисков.
-          </p>
-          <div className="mt-4">
+          <Disclaimer />
+          <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2">
             <span>© {new Date().getFullYear()} Pre-IPO Витрина</span>
+            <Link href="/privacy" className="text-neutral-400 underline hover:text-neutral-600">
+              Политика обработки персональных данных
+            </Link>
           </div>
         </footer>
       </main>

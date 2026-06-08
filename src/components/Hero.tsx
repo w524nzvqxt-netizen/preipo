@@ -155,7 +155,7 @@ export function Hero({
               muted
               loop
               playsInline
-              poster="/uploads/prometheus.jpg"
+              poster="/uploads/poster-hero.jpg"
             >
               <source src="/uploads/hero.mp4" type="video/mp4" />
             </video>
