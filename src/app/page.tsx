@@ -130,8 +130,8 @@ export default async function HomePage() {
         <section className="full-bleed mt-28">
           <div className="mx-auto max-w-7xl px-6">
             <p className="text-display text-center text-[clamp(28px,5vw,68px)] font-extrabold leading-[1.05]">
-              Завтрашние <span className="text-brand">лидеры</span> рынка
-              <br className="hidden sm:block" /> сегодня ещё <span className="text-brand">частные</span>
+              Лучшие компании мира —
+              <br className="hidden sm:block" /> <span className="text-brand">до их выхода на биржу</span>
             </p>
           </div>
         </section>

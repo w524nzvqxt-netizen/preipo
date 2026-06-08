@@ -8,6 +8,7 @@ import { formatMoney } from "@/lib/format";
 import { SplitReveal } from "@/components/motion/SplitReveal";
 import { MagneticButton } from "@/components/motion/MagneticButton";
 import { DataCanvas } from "@/components/motion/DataCanvas";
+import { Candlesticks } from "@/components/motion/Candlesticks";
 
 const NODE_LABELS = [
   "Cursor", "OpenEvidence", "Prometheus", "Tamara", "Cashea", "SpaceX",
@@ -27,10 +28,15 @@ export function Hero({
     <section className="full-bleed grain relative flex min-h-[100svh] flex-col justify-center overflow-hidden bg-bg">
       {/* Слои фона */}
       <div className="pointer-events-none absolute inset-0">
-        <DataCanvas labels={NODE_LABELS} className="absolute inset-0 opacity-90" />
+        <DataCanvas labels={NODE_LABELS} className="absolute inset-0 opacity-70" />
         <div className="grid-overlay absolute inset-0" />
+        {/* Японские свечи — крупная живая лента снизу */}
+        <div className="absolute inset-x-0 bottom-0 h-[60%]">
+          <Candlesticks className="h-full w-full" />
+          <div className="absolute inset-0 bg-gradient-to-t from-bg/70 via-transparent to-bg/80" />
+        </div>
         <div className="scene-vignette absolute inset-0" />
-        <div className="absolute left-[8%] top-[20%] h-[420px] w-[420px] rounded-full bg-brand/10 blur-[140px]" />
+        <div className="absolute left-[8%] top-[14%] h-[420px] w-[420px] rounded-full bg-brand/10 blur-[140px]" />
       </div>
 
       <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 px-6 py-24 lg:grid-cols-12">
@@ -46,8 +52,8 @@ export function Hero({
           </motion.span>
 
           <SplitReveal
-            text="Будущие гиганты — пока ещё частные"
-            highlight={["частные"]}
+            text="Инвестируйте в гигантов до IPO"
+            highlight={["IPO"]}
             delay={0.15}
             className="text-display mt-5 text-[clamp(44px,8vw,104px)] font-extrabold leading-[0.98]"
           />
