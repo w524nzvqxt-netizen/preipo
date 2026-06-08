@@ -7,6 +7,8 @@ import { formatMoney, formatPrice, formatSize } from "@/lib/format";
 import { ContactButtons } from "@/components/ContactButtons";
 import { LeadForm } from "@/components/LeadForm";
 import { ProjectVideo, type VideoScene } from "@/components/ProjectVideo";
+import { Reveal } from "@/components/motion/Reveal";
+import { AnimatedWords } from "@/components/motion/AnimatedWords";
 
 export const dynamic = "force-dynamic";
 
@@ -83,7 +85,7 @@ export default async function ProjectPage({
       </Link>
 
       {/* Шапка */}
-      <div className="mt-6 flex flex-wrap items-center gap-4">
+      <Reveal className="mt-6 flex flex-wrap items-center gap-4">
         {project.logoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -109,7 +111,7 @@ export default async function ProjectPage({
             {[project.sector, project.stage].filter(Boolean).join(" · ") || "—"}
           </p>
         </div>
-      </div>
+      </Reveal>
 
       {/* Видео о проекте */}
       {project.videoStatus === "completed" &&
@@ -282,10 +284,12 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="mt-10">
-      <h2 className="mb-4 text-xl font-bold tracking-tight">{title}</h2>
+    <Reveal className="mt-10">
+      <h2 className="mb-4 text-xl font-bold tracking-tight">
+        <AnimatedWords text={title} />
+      </h2>
       {children}
-    </section>
+    </Reveal>
   );
 }
 
