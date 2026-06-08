@@ -46,6 +46,9 @@ function frames(file: string): number {
       outputLocation: out,
       inputProps: { scenes },
       concurrency: 2,
+      // Максимальное качество: 1920×1080, низкий CRF, медленный пресет
+      crf: 16,
+      x264Preset: "slow",
     });
     console.log(`✅ готово: ${d.slug}-video.mp4`);
   }
