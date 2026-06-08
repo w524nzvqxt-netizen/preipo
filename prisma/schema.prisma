@@ -82,6 +82,24 @@ model Quote {
   createdAt DateTime @default(now())
 }
 
+// Компания, уже вышедшая на биржу (IPO) — для раздела «трек-рекорд рынка»
+// и калькулятора «что если бы вошли на раунде X».
+model PublicCompany {
+  id                  String   @id @default(cuid())
+  name                String
+  ticker              String
+  sector              String?
+  ipoDate             String? // напр. "2024-03"
+  ipoPriceUSD         Float? // цена размещения
+  ipoValuationUSD     Float? // оценка на IPO
+  currentPriceUSD     Float? // цена акции сейчас
+  currentMarketCapUSD Float? // капитализация сейчас
+  asOf                String? // дата актуальности (напр. "2026-06")
+  rounds              String? // JSON истории раундов: [{round,year,valuationUSD,note}]
+  order               Int      @default(0)
+  createdAt           DateTime @default(now())
+}
+
 // Заявка от посетителя — лид, с которым связывается оператор
 model Lead {
   id        String   @id @default(cuid())

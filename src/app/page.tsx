@@ -45,7 +45,13 @@ export default async function HomePage() {
           <div className="flex items-center gap-2 text-lg font-bold text-text-primary">
             <span className="text-brand">●</span> Pre-IPO Витрина
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
+            <Link
+              href="/exits"
+              className="hidden text-sm font-medium text-text-secondary hover:text-brand sm:block"
+            >
+              Уже на бирже
+            </Link>
             <Link
               href="/portfolio"
               className="hidden text-sm font-medium text-text-secondary hover:text-brand sm:block"
