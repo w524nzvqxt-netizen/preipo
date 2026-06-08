@@ -5,6 +5,7 @@ import { writeFile, unlink, mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import {
   generateProjectBrief,
@@ -24,14 +25,41 @@ import {
 
 export type LoginState = { error?: string };
 
+// Защита от перебора: лимит неудачных попыток по IP (in-memory).
+const MAX_FAILS = 6;
+const LOCK_MS = 10 * 60 * 1000; // блок на 10 минут
+const fails = new Map<string, { n: number; until: number }>();
+
+async function clientIp(): Promise<string> {
+  const h = await headers();
+  return (
+    h.get("cf-connecting-ip") ||
+    h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    "unknown"
+  );
+}
+
 export async function login(
   _prev: LoginState,
   formData: FormData
 ): Promise<LoginState> {
+  const ip = await clientIp();
+  const now = Date.now();
+  const rec = fails.get(ip);
+  if (rec && rec.until > now) {
+    return { error: "Слишком много попыток. Попробуйте через несколько минут." };
+  }
+
   const password = String(formData.get("password") || "");
   if (!checkPassword(password)) {
+    const n = (rec?.n ?? 0) + 1;
+    fails.set(ip, { n, until: n >= MAX_FAILS ? now + LOCK_MS : 0 });
+    // небольшая задержка тормозит автоматический перебор
+    await new Promise((r) => setTimeout(r, 400));
     return { error: "Неверный пароль." };
   }
+
+  fails.delete(ip);
   await setSession();
   redirect("/admin");
 }
