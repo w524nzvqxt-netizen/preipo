@@ -65,6 +65,18 @@ model ProjectDocument {
   createdAt DateTime @default(now())
 }
 
+// Котировка для бегущей строки (управляется из админки)
+model Quote {
+  id        String   @id @default(cuid())
+  name      String // Компания
+  valuation String // Оценка, напр. "$350B"
+  change    String   @default("") // Изменение, напр. "+4,2%"
+  up        Boolean  @default(true) // Рост (▲) или снижение (▼)
+  order     Int      @default(0) // Порядок в строке
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
 // Заявка от посетителя — лид, с которым связывается оператор
 model Lead {
   id        String   @id @default(cuid())

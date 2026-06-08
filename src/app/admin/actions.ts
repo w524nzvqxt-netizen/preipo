@@ -414,6 +414,44 @@ export async function deleteDocument(formData: FormData) {
   revalidatePath(`/project/${doc.projectId}`);
 }
 
+// --- Котировки (бегущая строка) ---
+
+function quoteData(formData: FormData) {
+  return {
+    name: String(formData.get("name") || "").trim(),
+    valuation: String(formData.get("valuation") || "").trim(),
+    change: String(formData.get("change") || "").trim(),
+    up: formData.get("up") === "on",
+    order: Number(formData.get("order") || 0) || 0,
+    isActive: formData.get("isActive") === "on",
+  };
+}
+
+export async function createQuote(formData: FormData) {
+  await requireAuth();
+  const d = quoteData(formData);
+  if (!d.name) return;
+  await prisma.quote.create({ data: d });
+  revalidatePath("/");
+  revalidatePath("/admin/quotes");
+}
+
+export async function updateQuote(id: string, formData: FormData) {
+  await requireAuth();
+  const d = quoteData(formData);
+  if (!d.name) return;
+  await prisma.quote.update({ where: { id }, data: d });
+  revalidatePath("/");
+  revalidatePath("/admin/quotes");
+}
+
+export async function deleteQuote(formData: FormData) {
+  await requireAuth();
+  await prisma.quote.delete({ where: { id: String(formData.get("id") || "") } });
+  revalidatePath("/");
+  revalidatePath("/admin/quotes");
+}
+
 // --- Заявки ---
 
 export async function setLeadStatus(formData: FormData) {
