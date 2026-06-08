@@ -63,8 +63,30 @@ export default async function ProjectPage({
       scenarios = [];
     }
   }
+  // Аналитический разбор (AI-аналитик)
+  type Analysis = {
+    rating: string;
+    ratingScore: number;
+    thesis: string;
+    execSummary: string;
+    keyDrivers: string[];
+    risks: string[];
+  };
+  let analysis: Analysis | null = null;
+  if (project.financialAnalysis) {
+    try {
+      analysis = JSON.parse(project.financialAnalysis) as Analysis;
+    } catch {
+      analysis = null;
+    }
+  }
+  const analysisDoc =
+    project.documents.find((d) => d.kind === "analysis") || null;
+
   const financialDocs = project.documents.filter((d) => d.kind === "financial");
-  const otherDocs = project.documents.filter((d) => d.kind !== "financial");
+  const otherDocs = project.documents.filter(
+    (d) => d.kind !== "financial" && d.kind !== "analysis"
+  );
 
   const plPct =
     project.cocMultiple != null
@@ -232,6 +254,64 @@ export default async function ProjectPage({
             20%, fee 5% (по финансовой модели).
           </p>
           <RiskNote className="mt-2" />
+        </Section>
+      )}
+
+      {/* Аналитический разбор (AI-аналитик) */}
+      {analysis && (
+        <Section kicker="AI-аналитик" title="Аналитический разбор">
+          <div className="rounded-card border border-border bg-surface p-5 shadow-[var(--shadow-card)] sm:p-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <span className="kicker rounded-full border border-brand bg-brand-subtle px-3 py-1 text-brand">
+                {analysis.rating} · {analysis.ratingScore}/10
+              </span>
+              {analysisDoc && (
+                <a
+                  href={analysisDoc.fileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
+                >
+                  Скачать полный разбор (PDF) ↓
+                </a>
+              )}
+            </div>
+            <p className="mt-4 text-lg font-semibold text-text-primary">
+              {analysis.thesis}
+            </p>
+            <p className="mt-3 leading-relaxed text-text-secondary">
+              {analysis.execSummary}
+            </p>
+            <div className="mt-5 grid gap-5 border-t border-border pt-5 sm:grid-cols-2">
+              <div>
+                <p className="kicker mb-2 text-text-muted">Драйверы роста</p>
+                <ul className="space-y-1.5">
+                  {analysis.keyDrivers.map((d, i) => (
+                    <li key={i} className="flex gap-2 text-sm text-text-secondary">
+                      <span className="text-positive">+</span>
+                      <span>{d}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <p className="kicker mb-2 text-text-muted">Ключевые риски</p>
+                <ul className="space-y-1.5">
+                  {analysis.risks.map((r, i) => (
+                    <li key={i} className="flex gap-2 text-sm text-text-secondary">
+                      <span className="text-warning">–</span>
+                      <span>{r}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <p className="mt-4 text-xs text-text-muted">
+              Полный разбор фин-модели и бизнеса на 5 минут чтения — в PDF
+              {analysisDoc ? ` · ${Math.round(analysisDoc.sizeBytes / 1024)} КБ` : ""}.
+              Не является индивидуальной инвестиционной рекомендацией.
+            </p>
+          </div>
         </Section>
       )}
 
