@@ -1,8 +1,18 @@
 "use client";
 
+// Премиум-hero «Обсерватория капитала»: full-bleed тёмная сцена с генеративным
+// созвездием, кинетическим заголовком и стеклянным KPI-виджетом.
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView, useMotionValue, animate } from "motion/react";
 import { formatMoney } from "@/lib/format";
+import { SplitReveal } from "@/components/motion/SplitReveal";
+import { MagneticButton } from "@/components/motion/MagneticButton";
+import { DataCanvas } from "@/components/motion/DataCanvas";
+
+const NODE_LABELS = [
+  "Cursor", "OpenEvidence", "Prometheus", "Tamara", "Cashea", "SpaceX",
+  "Anthropic", "Revolut", "Stripe",
+];
 
 export function Hero({
   dealCount,
@@ -14,99 +24,126 @@ export function Hero({
   avgReturn: number;
 }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, ease: "easeOut" }}
-      className="mt-6 bg-surface border border-border rounded-card px-6 py-12 sm:px-10 sm:py-14"
-    >
-      <div className="grid items-center gap-10 lg:grid-cols-2">
+    <section className="full-bleed grain relative flex min-h-[100svh] flex-col justify-center overflow-hidden bg-bg">
+      {/* Слои фона */}
+      <div className="pointer-events-none absolute inset-0">
+        <DataCanvas labels={NODE_LABELS} className="absolute inset-0 opacity-90" />
+        <div className="grid-overlay absolute inset-0" />
+        <div className="scene-vignette absolute inset-0" />
+        <div className="absolute left-[8%] top-[20%] h-[420px] w-[420px] rounded-full bg-brand/10 blur-[140px]" />
+      </div>
+
+      <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 px-6 py-24 lg:grid-cols-12">
         {/* Левая колонка */}
-        <div>
-          <span className="kicker">Pre-IPO · инвестиции до биржи</span>
+        <div className="lg:col-span-7">
+          <motion.span
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="kicker kicker-gold inline-block"
+          >
+            Pre-IPO · доступ до биржи
+          </motion.span>
 
-          <h1 className="mt-4 text-4xl font-extrabold leading-[1.05] tracking-tight text-text-primary sm:text-5xl">
-            Будущие гиганты — пока ещё{" "}
-            <span className="text-brand">частные</span>
-          </h1>
+          <SplitReveal
+            text="Будущие гиганты — пока ещё частные"
+            highlight={["частные"]}
+            delay={0.15}
+            className="text-display mt-5 text-[clamp(44px,8vw,104px)] font-extrabold leading-[0.98]"
+          />
 
-          <p className="mt-5 max-w-[60ch] text-base text-text-secondary sm:text-lg">
-            Pre-IPO открывает доступ к долям в зрелых частных компаниях до их
-            выхода на биржу. Выбирайте проекты и оставляйте заявку — поможем
-            войти в сделку.
-          </p>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.7, delay: 0.6 }}
+            className="mt-6 max-w-xl text-lg leading-relaxed text-text-secondary"
+          >
+            Pre-IPO открывает доступ к долям в зрелых частных компаниях до их выхода
+            на биржу. Отобранные сделки, аналитика и сценарии — войдите раньше всех.
+          </motion.p>
 
-          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <a
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.75 }}
+            className="mt-9 flex flex-col gap-3 sm:flex-row"
+          >
+            <MagneticButton
               href="#projects"
-              className="rounded-control bg-brand px-6 py-3 text-center font-semibold text-white transition-colors hover:bg-brand-hover"
+              className="glow-brand rounded-control bg-brand px-7 py-3.5 text-center font-semibold text-bg transition-colors hover:brightness-110"
             >
               Смотреть проекты
-            </a>
+            </MagneticButton>
             <a
               href="#about"
-              className="rounded-control border border-border px-6 py-3 text-center font-semibold text-text-primary transition-colors hover:bg-surface-alt"
+              className="hairline rounded-control px-7 py-3.5 text-center font-semibold text-text-primary transition-colors hover:bg-surface"
             >
               Как это работает
             </a>
-          </div>
-
-          {/* KPI-стрип */}
-          <div className="mt-9 grid grid-cols-3 divide-x divide-border rounded-control bg-surface-alt px-5 py-4">
-            <KpiCell value={dealCount} label="сделок" />
-            <KpiCell value={closedCount} label="реализовано" />
-            <KpiCell value={avgReturn} label="ср. дох., %/год" />
-          </div>
+          </motion.div>
         </div>
 
-        {/* Правая колонка — видео */}
-        <div className="order-first lg:order-none overflow-hidden rounded-card border border-border">
-          <video
-            className="aspect-video w-full object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
-            poster="/uploads/poster-hero.jpg"
-          >
-            <source src="/uploads/hero.mp4" type="video/mp4" />
-          </video>
-        </div>
+        {/* Правая колонка — стеклянный KPI-виджет */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="lg:col-span-5"
+        >
+          <div className="glass inset-panel rounded-card p-1">
+            <div className="rounded-[14px] p-6">
+              <div className="flex items-center justify-between">
+                <span className="kicker text-text-muted">Витрина · live</span>
+                <span className="glow-pulse h-2 w-2 rounded-full bg-brand" />
+              </div>
+              <div className="mt-6 grid grid-cols-3 divide-x divide-border">
+                <Kpi value={dealCount} label="сделок" />
+                <Kpi value={closedCount} label="реализовано" />
+                <Kpi value={avgReturn} label="ср. дох., %/год" accent />
+              </div>
+              <div className="mt-6 hairline rounded-control p-4">
+                <p className="kicker text-text-muted">Суммарный потенциал</p>
+                <p className="nums mt-1 text-2xl font-bold text-brand">
+                  {formatMoney(NODE_LABELS.length * 1e9)}+ под наблюдением
+                </p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </div>
-    </motion.div>
+
+      {/* scroll-cue */}
+      <motion.div
+        animate={{ y: [0, 8, 0] }}
+        transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 text-text-muted"
+      >
+        ↓
+      </motion.div>
+    </section>
   );
 }
 
-function KpiCell({
-  value,
-  label,
-  kind = "plain",
-}: {
-  value: number;
-  label: string;
-  kind?: "plain" | "money";
-}) {
+function Kpi({ value, label, accent }: { value: number; label: string; accent?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true });
   const mv = useMotionValue(0);
-  const [display, setDisplay] = useState("0");
-
+  const [d, setD] = useState("0");
   useEffect(() => {
     if (!inView) return;
-    const controls = animate(mv, value, {
-      duration: 0.8,
+    const c = animate(mv, value, {
+      duration: 1.1,
       ease: "easeOut",
-      onUpdate: (v) => {
-        setDisplay(kind === "money" ? formatMoney(v) : String(Math.round(v)));
-      },
+      onUpdate: (v) => setD(String(Math.round(v))),
     });
-    return () => controls.stop();
-  }, [inView, value, kind, mv]);
-
+    return () => c.stop();
+  }, [inView, value, mv]);
   return (
-    <div ref={ref} className="flex flex-col items-center gap-1 px-3 first:pl-0 last:pr-0">
-      <span className="nums text-2xl font-bold text-text-primary">{display}</span>
-      <span className="kicker">{label}</span>
+    <div ref={ref} className="px-3 first:pl-0 last:pr-0">
+      <div className={`nums text-3xl font-bold ${accent ? "text-brand" : "text-text-primary"}`}>
+        {d}
+      </div>
+      <div className="kicker mt-1 text-text-muted">{label}</div>
     </div>
   );
 }

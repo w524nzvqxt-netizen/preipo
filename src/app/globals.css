@@ -1,46 +1,64 @@
 @import "tailwindcss";
 
-@theme inline {
+/* «Obsidian Capital» — тёмная премиум-база + светлые data-острова (.island).
+   @theme (НЕ inline) — чтобы .island мог переопределять токены каскадом. */
+@theme {
   --font-sans: var(--font-manrope);
 
-  /* Палитра — единая светлая тёплая база */
-  --color-bg: #FBFAF8;
+  /* Тёмная сцена */
+  --color-bg: #070B0E;
+  --color-surface: #0E141A;
+  --color-surface-alt: #141C24;
+  --color-glass: rgba(20, 28, 36, 0.55);
+  --color-border: #1E2A34;
+  --color-border-strong: #2A3A47;
+
+  --color-text-primary: #ECF1F4;
+  --color-text-secondary: #9DACB6;
+  --color-text-muted: #6B7A85;
+
+  --color-brand: #27E0A8;
+  --color-brand-deep: #15715E;
+  --color-brand-subtle: #11221C;
+  --color-accent: #7FD9FF;
+  --color-accent-subtle: #102530;
+  --color-gold: #C9A227;
+
+  --color-positive: #34E5A0;
+  --color-negative: #F0616D;
+  --color-warning: #E0A93B;
+
+  --radius-control: 12px;
+  --radius-card: 16px;
+  --radius-pill: 999px;
+}
+
+/* Светлый «data-остров» — для таблиц, калькуляторов, форм (читаемость).
+   Переопределяет токены на светлые → дочерние компоненты становятся светлыми. */
+.island {
+  --color-bg: #F7F5F0;
   --color-surface: #FFFFFF;
-  --color-surface-alt: #F4F2ED;
-  --color-border: #E6E2DA;
-
-  /* Текст (WCAG AA на bg #FBFAF8: primary ~14:1, secondary ~6.4:1, muted ~4.6:1) */
-  --color-text-primary: #1A1916;
-  --color-text-secondary: #5C5852;
-  --color-text-muted: #7A756C;
-
-  /* Бренд — единственный акцент (teal-green). brand на белом ~4.9:1, белый на brand ~5.2:1 */
-  --color-brand: #15715E;
-  --color-brand-hover: #0F5A4A;
+  --color-surface-alt: #F0ECE3;
+  --color-glass: rgba(255, 255, 255, 0.7);
+  --color-border: #E2DCD0;
+  --color-border-strong: #D4CCBC;
+  --color-text-primary: #15140F;
+  --color-text-secondary: #57534A;
+  --color-text-muted: #857F73;
+  --color-brand: #0E6B58;
   --color-brand-subtle: #E8F1ED;
-
-  /* Вторичный акцент — строго для редких ссылок/инфо */
   --color-accent: #1F6F8B;
   --color-accent-subtle: #E7F0F4;
-
-  /* Семантика данных — НЕ путать с брендом */
   --color-positive: #1E7A55;
   --color-negative: #B23B36;
   --color-warning: #9A6B1E;
-
-  /* Радиусы — только две величины */
-  --radius-control: 12px;
-  --radius-card: 16px;
-
-  /* Тени — один сдержанный уровень + hover */
-  --shadow-card: 0 1px 2px rgba(26,25,22,0.04), 0 2px 8px rgba(26,25,22,0.05);
-  --shadow-card-hover: 0 2px 4px rgba(26,25,22,0.05), 0 8px 24px rgba(26,25,22,0.08);
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
 }
 
 html {
   scroll-behavior: smooth;
 }
-
 body {
   background-color: var(--color-bg);
   color: var(--color-text-primary);
@@ -48,39 +66,82 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Табличные цифры — ядро доверия. Вешать .nums на ВСЕ деньги/метрики/котировки */
+/* Lenis smooth scroll */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+/* Табличные цифры — финансовый инструмент */
 .nums {
   font-variant-numeric: tabular-nums lining-nums;
   font-feature-settings: "tnum" 1, "lnum" 1;
 }
-
-/* Kicker-лейбл над секцией (редакционный приём) */
+/* Kicker-лейбл */
 .kicker {
-  font-size: 12px;
-  line-height: 1.4;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 11px; line-height: 1.4; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--color-text-muted);
 }
+.kicker-gold { color: var(--color-gold); }
 
-/* Аккуратный скроллбар */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-border) transparent;
+/* Дисплейный градиентный заголовок (объём) */
+.text-display {
+  background: linear-gradient(180deg, var(--color-text-primary), var(--color-text-secondary));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  letter-spacing: -0.03em;
 }
 
-/* Бесконечная лента тикера/логотипов */
-.marquee {
-  animation: marquee 40s linear infinite;
+/* Глубина без теней: хайрлайны / стекло / inset */
+.hairline { border: 1px solid var(--color-border); }
+.glass {
+  background: var(--color-glass);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  border: 1px solid var(--color-border);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+.inset-panel {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), inset 0 -1px 0 rgba(0, 0, 0, 0.4);
 }
 
-/* Единый паттерн появления — быстрый, без каскадов */
+/* Glow — только на живых данных */
+.glow-brand {
+  box-shadow: 0 0 0 1px rgba(39, 224, 168, 0.18), 0 0 40px -8px rgba(39, 224, 168, 0.30);
+}
+.glow-pulse { animation: glowPulse 5s ease-in-out infinite; }
+@keyframes glowPulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+
+/* Плёночное зерно — убивает «цифровую плоскость» */
+.grain::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  opacity: 0.04; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Тонкая сетка-оверлей для hero */
+.grid-overlay {
+  background-image:
+    linear-gradient(rgba(39, 224, 168, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(39, 224, 168, 0.045) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: radial-gradient(circle at 30% 30%, black, transparent 80%);
+  mask-image: radial-gradient(circle at 30% 30%, black, transparent 80%);
+}
+.scene-vignette {
+  background: radial-gradient(120% 80% at 20% 10%, transparent, rgba(7, 11, 14, 0.9));
+}
+
+/* full-bleed во весь экран */
+.full-bleed { width: 100vw; margin-left: calc(50% - 50vw); }
+
+/* Бесконечная лента */
+.marquee { animation: marquee 50s linear infinite; }
+.marquee:hover { animation-play-state: paused; }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+* { scrollbar-width: thin; scrollbar-color: var(--color-border) transparent; }
+
 @media (prefers-reduced-motion: reduce) {
-  .marquee { animation: none; }
+  .marquee, .glow-pulse { animation: none; }
   * { scroll-behavior: auto !important; }
 }

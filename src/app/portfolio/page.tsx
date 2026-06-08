@@ -58,7 +58,7 @@ export default async function PortfolioPage() {
     });
 
   return (
-    <div className="bg-bg">
+    <div className="island min-h-screen">
       <header className="sticky top-0 z-40 border-b border-border bg-surface">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-5">
           <Link

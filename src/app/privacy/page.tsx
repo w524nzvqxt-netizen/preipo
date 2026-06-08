@@ -15,7 +15,7 @@ const CONTACT_EMAIL = "privacy@example.com"; // контакт для обращ
 
 export default function PrivacyPage() {
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-10 sm:py-14">
+    <main className="island mx-auto my-8 w-full max-w-3xl rounded-card px-5 py-10 sm:my-12 sm:px-10">
       <Link href="/" className="text-sm text-neutral-500 hover:text-neutral-900">
         ← На главную
       </Link>

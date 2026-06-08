@@ -52,29 +52,23 @@ export default async function HomePage() {
     : 0;
 
   return (
-    <div className="bg-bg">
-      {/* Бегущая строка котировок */}
-      <div>
+    <div className="relative bg-bg">
+      {/* Тикер котировок — edge-to-edge */}
+      <div className="full-bleed border-b border-border bg-surface/50">
         <Ticker />
       </div>
 
-      {/* Шапка */}
-      <header className="sticky top-0 z-40 bg-surface border-b border-border">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-5">
-          <div className="flex items-center gap-2 text-lg font-bold text-text-primary">
-            <span className="text-brand">●</span> Pre-IPO Витрина
-          </div>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/exits"
-              className="hidden text-sm font-medium text-text-secondary hover:text-brand sm:block"
-            >
+      {/* Стеклянная шапка */}
+      <header className="full-bleed sticky top-0 z-50 glass">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-6 py-3">
+          <Link href="/" className="flex items-center gap-2 text-lg font-bold text-text-primary">
+            <span className="text-brand">◆</span> Pre-IPO
+          </Link>
+          <div className="flex items-center gap-5">
+            <Link href="/exits" className="hidden text-sm font-medium text-text-secondary hover:text-brand sm:block">
               Уже на бирже
             </Link>
-            <Link
-              href="/portfolio"
-              className="hidden text-sm font-medium text-text-secondary hover:text-brand sm:block"
-            >
+            <Link href="/portfolio" className="hidden text-sm font-medium text-text-secondary hover:text-brand sm:block">
               Конструктор портфеля
             </Link>
             <ContactButtons size="sm" />
@@ -82,51 +76,45 @@ export default async function HomePage() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-12">
-        {/* Hero с видео и анимациями */}
-        <Hero
-          dealCount={all.length}
-          closedCount={closedDeals.length}
-          avgReturn={avgReturn}
-        />
+      {/* HERO — full-bleed обсерватория */}
+      <Hero dealCount={all.length} closedCount={closedDeals.length} avgReturn={avgReturn} />
 
-        {/* Заметный баннер трек-рекорда рынка + индекс vs S&P 500 */}
+      <main className="mx-auto w-full max-w-7xl px-6 pb-28">
+        {/* Баннер индекса vs S&P 500 — наезжает на hero */}
         <Link
           href="/exits"
-          className="group mt-6 block overflow-hidden rounded-card border border-border bg-surface p-6 transition-all hover:border-brand hover:shadow-[var(--shadow-card-hover)] sm:p-8"
+          className="group relative z-20 -mt-12 block overflow-hidden rounded-card glass p-6 transition-colors hover:border-brand sm:p-8"
         >
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <p className="kicker text-text-muted">Трек-рекорд рынка · 21 компания от раунда до IPO</p>
+              <p className="kicker kicker-gold">Трек-рекорд рынка · 21 компания от раунда до IPO</p>
               <h2 className="mt-2 text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
                 {formatMoney(TICKET)} в каждый раунд →{" "}
-                <span className="text-positive">×{idx.preIpoMult.toFixed(1).replace(".", ",")}</span>
-                <span className="ml-2 text-lg font-semibold text-text-muted">
+                <span className="nums text-positive">×{idx.preIpoMult.toFixed(1).replace(".", ",")}</span>
+                <span className="nums ml-2 text-lg font-semibold text-text-muted">
                   vs S&amp;P 500 ×{idx.sp500Mult.toFixed(1).replace(".", ",")}
                 </span>
               </h2>
               <p className="mt-2 max-w-2xl text-text-secondary">
                 Pre-IPO раунды известных компаний (и взлёты, и провалы) опередили бы
                 S&amp;P 500 примерно в{" "}
-                <b className="text-brand">{outperform.toFixed(1).replace(".", ",")}×</b>.
-                Разбивка по раундам, цена акций и калькулятор по точке входа.
+                <b className="text-brand">{outperform.toFixed(1).replace(".", ",")}×</b>. Разбивка по
+                раундам, цена акций и калькулятор по точке входа.
               </p>
             </div>
-            <span className="shrink-0 rounded-control bg-brand px-5 py-3 font-semibold text-white transition-colors group-hover:bg-brand-hover">
+            <span className="glow-brand shrink-0 rounded-control bg-brand px-5 py-3 font-semibold text-bg transition-all group-hover:brightness-110">
               Смотреть трек-рекорд →
             </span>
           </div>
         </Link>
 
-        {/* Видео-объяснялка — «Pre-IPO: Инструкция для инвестора» */}
-        <section id="about" className="mt-14 sm:mt-20">
-          <Reveal>
-            <p className="kicker mb-3 text-text-muted">
-              Pre-IPO: инструкция для инвестора
-            </p>
-            <div className="border border-border rounded-card overflow-hidden">
+        {/* 01 — Видео-объяснялка */}
+        <section id="about" className="mt-28">
+          <SectionHead n="01" kicker="Pre-IPO: инструкция для инвестора" title="Как это работает" />
+          <Reveal className="mt-8">
+            <div className="hairline overflow-hidden rounded-card">
               <video
-                className="aspect-video w-full bg-surface-alt"
+                className="aspect-video w-full bg-surface"
                 controls
                 preload="metadata"
                 playsInline
@@ -138,18 +126,18 @@ export default async function HomePage() {
           </Reveal>
         </section>
 
-        {/* Слоган */}
-        <section className="mt-16 sm:mt-20">
-          <div className="bg-surface-alt rounded-card px-6 py-10 text-center sm:px-10 sm:py-14">
-            <p className="text-2xl font-bold leading-tight tracking-tight text-text-primary sm:text-4xl">
-              Завтрашние <span className="text-brand">лидеры</span> рынка сегодня ещё{" "}
-              <span className="text-brand">частные</span>
+        {/* Слоган — full-bleed display */}
+        <section className="full-bleed mt-28">
+          <div className="mx-auto max-w-7xl px-6">
+            <p className="text-display text-center text-[clamp(28px,5vw,68px)] font-extrabold leading-[1.05]">
+              Завтрашние <span className="text-brand">лидеры</span> рынка
+              <br className="hidden sm:block" /> сегодня ещё <span className="text-brand">частные</span>
             </p>
           </div>
         </section>
 
-        {/* Блоки-преимущества */}
-        <section className="mt-16 sm:mt-20">
+        {/* Преимущества */}
+        <section className="mt-28">
           <div className="grid gap-5 sm:grid-cols-3">
             {FEATURES.map((f, i) => (
               <Reveal key={f.title} delay={i * 0.08}>
@@ -159,45 +147,41 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Сетка проектов */}
-        <section id="projects" className="mt-20 sm:mt-24">
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <p className="kicker mb-2 text-text-muted">Витрина</p>
-              <h2 className="text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
-                Доступные проекты
-              </h2>
-            </div>
+        {/* 02 — Открытые раунды */}
+        <section id="projects" className="mt-28">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <SectionHead n="02" kicker="Витрина" title="Доступные проекты" />
             <Link
               href="/portfolio"
-              className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
+              className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-bg transition-all hover:brightness-110"
             >
               Собрать портфель →
             </Link>
           </div>
           {projects.length === 0 ? (
-            <div className="mt-6 rounded-card border border-dashed border-border p-10 text-center text-text-muted">
+            <div className="mt-8 rounded-card border border-dashed border-border p-10 text-center text-text-muted">
               Пока нет активных проектов.
             </div>
           ) : (
-            <div className="mt-6">
-              <ProjectsExplorer projects={projects} />
+            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {projects.map((p, i) => (
+                <Reveal key={p.id} delay={(i % 3) * 0.06}>
+                  <ProjectCard project={p} />
+                </Reveal>
+              ))}
             </div>
           )}
         </section>
 
-        {/* Реализованные сделки — трек-рекорд */}
+        {/* 03 — Закрытые раунды (золотой акцент) */}
         {closedDeals.length > 0 && (
-          <section id="track-record" className="mt-20 sm:mt-24">
-            <p className="kicker mb-2 text-text-muted">Трек-рекорд</p>
-            <h2 className="text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
-              Закрытые раунды
-            </h2>
-            <p className="mt-2 max-w-2xl text-text-secondary">
-              Раунды, которые мы уже закрыли для инвесторов. Параметры — на момент
-              входа в сделку.
+          <section id="track-record" className="mt-28">
+            <SectionHead n="03" kicker="Трек-рекорд" title="Закрытые раунды" gold />
+            <p className="mt-3 max-w-2xl text-text-secondary">
+              Раунды, которые мы уже закрыли для инвесторов. Параметры — на момент входа
+              в сделку.
             </p>
-            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {closedDeals.map((p, i) => (
                 <Reveal key={p.id} delay={(i % 3) * 0.06}>
                   <ProjectCard project={p} />
@@ -207,25 +191,23 @@ export default async function HomePage() {
           </section>
         )}
 
-        {/* Контакт */}
-        <section id="contact" className="mt-20 sm:mt-24">
+        {/* 04 — Контакт: тёмная панель + светлый остров с формой */}
+        <section id="contact" className="mt-28">
           <Reveal>
-            <div className="bg-surface border border-border rounded-card p-6 sm:p-10">
-              <div className="grid gap-8 sm:grid-cols-2">
-                <div>
-                  <p className="kicker mb-2 text-text-muted">Связаться</p>
-                  <h2 className="text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
-                    Связаться с нами
-                  </h2>
-                  <p className="mt-3 text-text-secondary">
-                    Оставьте заявку или напишите напрямую — ответим и подберём
-                    проект под ваши задачи.
+            <div className="hairline overflow-hidden rounded-card">
+              <div className="grid sm:grid-cols-2">
+                <div className="p-8 sm:p-10">
+                  <SectionHead n="04" kicker="Связаться" title="Войдите в сделку" />
+                  <p className="mt-4 max-w-md text-text-secondary">
+                    Оставьте заявку или напишите напрямую — ответим и подберём проект под
+                    ваши задачи.
                   </p>
                   <div className="mt-6">
                     <ContactButtons />
                   </div>
                 </div>
-                <div className="bg-surface-alt rounded-card p-5 sm:p-6">
+                <div className="island p-8 sm:p-10">
+                  <p className="kicker mb-4 text-text-muted">Оставить заявку</p>
                   <LeadForm />
                 </div>
               </div>
@@ -233,7 +215,7 @@ export default async function HomePage() {
           </Reveal>
         </section>
 
-        <footer className="mt-16 border-t border-border pt-6 text-sm">
+        <footer className="mt-20 border-t border-border pt-8 text-sm">
           <Disclaimer />
           <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-text-muted">
             <span className="nums">© {new Date().getFullYear()} Pre-IPO Витрина</span>
@@ -243,6 +225,30 @@ export default async function HomePage() {
           </div>
         </footer>
       </main>
+    </div>
+  );
+}
+
+function SectionHead({
+  n,
+  kicker,
+  title,
+  gold,
+}: {
+  n: string;
+  kicker: string;
+  title: string;
+  gold?: boolean;
+}) {
+  return (
+    <div className="flex items-end gap-4">
+      <span className="nums text-[clamp(32px,5vw,72px)] font-extrabold leading-none text-border-strong">
+        {n}
+      </span>
+      <div className="pb-1">
+        <p className={`kicker ${gold ? "kicker-gold" : "text-text-muted"}`}>{kicker}</p>
+        <h2 className="text-display mt-1 text-2xl font-bold sm:text-4xl">{title}</h2>
+      </div>
     </div>
   );
 }
@@ -291,9 +297,9 @@ function FeatureCard({
 
   return (
     <div
-      className={`h-full bg-surface border border-border border-l-4 ${borderAccent} rounded-card p-6 transition-shadow hover:shadow-[var(--shadow-card-hover)]`}
+      className={`group h-full rounded-card border border-border border-l-4 bg-surface p-6 transition-colors hover:border-brand ${borderAccent}`}
     >
-      <p className="kicker text-text-muted mb-3">{num}</p>
+      <p className="kicker mb-3 text-text-muted">{num}</p>
       <h3 className="text-lg font-semibold text-text-primary">{title}</h3>
       <p className="mt-2 text-sm leading-relaxed text-text-secondary">{text}</p>
     </div>

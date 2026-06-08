@@ -114,7 +114,7 @@ export default async function ProjectPage({
   const sectorStage = [project.sector, project.stage].filter(Boolean).join(" · ") || "—";
 
   return (
-    <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:py-14">
+    <main className="island mx-auto my-8 w-full max-w-4xl rounded-card px-5 py-8 sm:my-12 sm:px-10 sm:py-12">
       <Link
         href="/"
         className="text-sm text-text-muted hover:text-text-primary transition-colors"
