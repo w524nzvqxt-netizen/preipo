@@ -5,6 +5,7 @@ import { ProjectCard } from "@/components/ProjectCard";
 import { ContactButtons } from "@/components/ContactButtons";
 import { LeadForm } from "@/components/LeadForm";
 import { Hero } from "@/components/Hero";
+import { Ticker } from "@/components/Ticker";
 import { Reveal } from "@/components/motion/Reveal";
 import { AnimatedWords } from "@/components/motion/AnimatedWords";
 
@@ -35,6 +36,11 @@ export default async function HomePage() {
       </div>
 
       <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-12">
+        {/* Бегущая строка котировок */}
+        <div className="mb-4">
+          <Ticker />
+        </div>
+
         {/* Шапка */}
         <header className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-neutral-200/70 bg-white/60 px-4 py-3 backdrop-blur sm:px-5">
           <div className="flex items-center gap-2 text-lg font-bold">
