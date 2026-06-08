@@ -73,13 +73,14 @@ export default async function ProjectPage({
 
   const metrics: [string, string][] = [
     ["Цена входа", formatMoney(project.valuation, project.currency)],
-    ["Оценка на выходе · прогноз", formatMoney(project.exitValuation, project.currency)],
+    ["Ожидаемая капитализация на IPO", formatMoney(project.exitValuation, project.currency)],
     [
       "Потенциал (P/L)",
       project.cocMultiple != null
         ? `×${project.cocMultiple.toFixed(1).replace(".", ",")}${plPct != null ? ` · +${plPct}%` : ""}`
         : "—",
     ],
+    ["Объём раунда", formatMoney(project.volume, project.currency)],
     [
       "Доходность нетто",
       project.expectedReturn != null ? `~${project.expectedReturn}%/год` : "—",
@@ -124,7 +125,7 @@ export default async function ProjectPage({
               </h1>
               {project.dealStatus === "closed" && (
                 <span className="kicker rounded-full border border-border bg-surface-alt px-2.5 py-1 text-text-muted">
-                  Реализована
+                  Закрыт раунд
                 </span>
               )}
             </div>

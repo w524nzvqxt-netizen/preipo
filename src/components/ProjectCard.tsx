@@ -42,7 +42,7 @@ export function ProjectCard({ project }: { project: Project }) {
         </div>
         {isClosed && (
           <span className="kicker rounded-full border border-border bg-surface-alt px-2 py-0.5 text-text-muted">
-            Реализована
+            Закрыт
           </span>
         )}
       </div>
@@ -72,18 +72,15 @@ export function ProjectCard({ project }: { project: Project }) {
         </div>
       )}
 
-      {/* Сравнение вход → выход + сроки */}
+      {/* Сравнение вход → ожидаемая капитализация на IPO + объём + сроки */}
       <div className="mt-4 grid grid-cols-2 gap-3 border-t border-border pt-4">
         <Metric label="Цена входа" value={formatMoney(project.valuation, project.currency)} />
         <Metric
-          label="Оценка на выходе"
+          label="Ожид. кап. на IPO"
           value={formatMoney(project.exitValuation, project.currency)}
         />
+        <Metric label="Объём раунда" value={formatMoney(project.volume, project.currency)} />
         <Metric label="Прогноз выхода" value={project.expectedExit || "—"} />
-        <Metric
-          label="Доходность нетто"
-          value={project.expectedReturn != null ? `~${project.expectedReturn}%/год` : "—"}
-        />
       </div>
 
       {/* CTA */}

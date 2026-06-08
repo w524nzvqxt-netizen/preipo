@@ -144,7 +144,7 @@ export default async function HomePage() {
           <section id="track-record" className="mt-20 sm:mt-24">
             <p className="kicker mb-2 text-text-muted">Трек-рекорд</p>
             <h2 className="text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
-              Реализованные сделки
+              Закрытые раунды
             </h2>
             <p className="mt-2 max-w-2xl text-text-secondary">
               Раунды, которые мы уже закрыли для инвесторов. Параметры — на момент
