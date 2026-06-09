@@ -7,7 +7,6 @@ import { Hero } from "@/components/Hero";
 import { Ticker } from "@/components/Ticker";
 import { Reveal } from "@/components/motion/Reveal";
 import { Disclaimer } from "@/components/Disclaimer";
-import { ProjectCard } from "@/components/ProjectCard";
 import { ClubSelector } from "@/components/ClubSelector";
 import { contacts } from "@/lib/config";
 import { computeExitIndex, TICKET } from "@/lib/exit-index";
@@ -58,8 +57,8 @@ export default async function HomePage() {
     .map((p) => ({ name: p.name, cap: p.valuation as number }))
     .sort((a, b) => b.cap - a.cap);
 
-  // Карточки открытых проектов в стиле «выбора клуба FIFA»
-  const selectorItems = projects.map((p) => ({
+  // Карточки в стиле «выбора клуба FIFA» — общий маппер
+  const toClubItem = (p: (typeof all)[number]) => ({
     id: p.id,
     name: p.name,
     sector: [p.sector, p.stage].filter(Boolean).join(" · ") || "Pre-IPO",
@@ -69,7 +68,9 @@ export default async function HomePage() {
     exit: p.expectedExit || "—",
     potential: p.cocMultiple != null ? `×${p.cocMultiple.toFixed(1).replace(".", ",")}` : "—",
     isHot: p.isHot,
-  }));
+  });
+  const selectorItems = projects.map(toClubItem);
+  const closedSelectorItems = closedDeals.map(toClubItem);
 
   return (
     <div className="relative bg-bg">
@@ -199,12 +200,8 @@ export default async function HomePage() {
               Раунды, которые мы уже закрыли для инвесторов. Параметры — на момент входа
               в сделку.
             </p>
-            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {closedDeals.map((p, i) => (
-                <Reveal key={p.id} delay={(i % 3) * 0.06} className="h-full">
-                  <ProjectCard project={p} />
-                </Reveal>
-              ))}
+            <div className="mt-10">
+              <ClubSelector items={closedSelectorItems} />
             </div>
           </section>
         )}

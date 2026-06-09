@@ -132,10 +132,6 @@ export function SolarSystem({ planets, className = "" }: { planets: Planet[]; cl
           ctx!.restore();
         }
         ctx!.restore();
-
-        ctx!.strokeStyle = `rgba(255,190,80,${0.5 * g})`;
-        ctx!.lineWidth = 2;
-        ctx!.beginPath(); ctx!.arc(cx, cy, r, 0, Math.PI * 2); ctx!.stroke();
       } else {
         const core = ctx!.createRadialGradient(cx - r * 0.2, cy - r * 0.2, 0, cx, cy, r);
         core.addColorStop(0, "#FFFDF0"); core.addColorStop(0.5, "#FFE066"); core.addColorStop(1, "#FFB400");
