@@ -15,7 +15,8 @@
 
   --color-text-primary: #ECF1F4;
   --color-text-secondary: #9DACB6;
-  --color-text-muted: #6B7A85;
+  /* Поднят с #6B7A85 (контраст 4.18) до ≥4.5 на фоне #070B0E — читаемость кикеров/подписей */
+  --color-text-muted: #8C9BA5;
 
   --color-brand: #27E0A8;
   --color-brand-deep: #15715E;

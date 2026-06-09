@@ -1,7 +1,7 @@
 "use client";
 
 // Кинетический заголовок: появление по словам (clip-path снизу-вверх + y + blur).
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import type { ReactNode } from "react";
 
 export function SplitReveal({
@@ -19,6 +19,25 @@ export function SplitReveal({
 }) {
   const words = text.split(" ");
   const ease = [0.16, 1, 0.3, 1] as const;
+  const reduce = useReducedMotion();
+
+  // При «уменьшить движение» — статичный заголовок, сразу читается целиком.
+  if (reduce) {
+    return (
+      <Tag className={className}>
+        {words.map((word, i) => {
+          const hl = highlight.includes(word.replace(/[.,—]/g, ""));
+          return (
+            <span key={i}>
+              <Word hl={hl}>{word}</Word>
+              {i < words.length - 1 ? " " : ""}
+            </span>
+          );
+        })}
+      </Tag>
+    );
+  }
+
   return (
     <Tag className={className}>
       {words.map((word, i) => {

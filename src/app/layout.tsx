@@ -15,10 +15,29 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+const SITE_URL = "https://pre-ipo.pro";
+const OG_TITLE = "Инвестируйте в гигантов до IPO";
+const OG_DESC =
+  "Доступ к долям в зрелых частных компаниях до выхода на биржу. Трек-рекорд ×12,7 против S&P 500 ×2,1. Отобранные сделки и аналитика.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Pre-IPO Витрина — инвестиции в частные компании до IPO",
   description:
     "Актуальные pre-IPO проекты: цены, объёмы, минимальный чек. Оставьте заявку — свяжемся с вами.",
+  openGraph: {
+    type: "website",
+    locale: "ru_RU",
+    siteName: "Pre-IPO Витрина",
+    title: OG_TITLE,
+    description: OG_DESC,
+    url: SITE_URL,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: OG_TITLE,
+    description: OG_DESC,
+  },
 };
 
 export default function RootLayout({

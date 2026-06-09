@@ -8,7 +8,7 @@ export function ContactButtons({ size = "md" }: { size?: "sm" | "md" }) {
     ? {
         href: contacts.telegram,
         label: "Telegram",
-        cls: "bg-brand text-white hover:bg-brand-hover border-brand",
+        cls: "bg-brand text-bg hover:brightness-110 border-brand",
       }
     : null;
 

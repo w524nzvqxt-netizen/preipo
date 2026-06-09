@@ -266,7 +266,10 @@ function SectionHead({
 }) {
   return (
     <div className="flex items-end gap-4">
-      <span className="nums text-[clamp(32px,5vw,72px)] font-extrabold leading-none text-border-strong">
+      <span
+        aria-hidden="true"
+        className="nums text-[clamp(32px,5vw,72px)] font-extrabold leading-none text-border-strong"
+      >
         {n}
       </span>
       <div className="pb-1">
