@@ -71,38 +71,68 @@ export function SolarSystem({ planets, className = "" }: { planets: Planet[]; cl
       });
     }
 
-    // Положение светила по локальному времени
+    // Положение солнца: по горизонтали — по времени суток; по вертикали —
+    // плавный спуск при прокрутке, но только до нижней кромки hero (≈ начало
+    // второго раздела), дальше не опускается.
     function skyPos() {
       const now = new Date();
       const hour = now.getHours() + now.getMinutes() / 60;
-      const isDay = hour >= 6 && hour < 19;
-      const prog = isDay ? (hour - 6) / 13 : (((hour - 19 + 24) % 24)) / 11; // 0..1 по дуге
-      const elev = Math.sin(Math.min(Math.max(prog, 0), 1) * Math.PI); // 0 на горизонте, 1 в зените
-      const cx = w * (0.12 + prog * 0.76) + nx * 30;
-      const cy = h * (0.52 - elev * 0.34) + ny * 18 + scrollY * 0.8;
-      return { isDay, cx, cy, elev };
+      const dayProg = Math.min(Math.max((hour - 6) / 13, 0), 1); // утро 0 … вечер 1
+      const elev = Math.sin(dayProg * Math.PI); // зенит в полдень
+      const cx = w * (0.16 + dayProg * 0.68) + nx * 28;
+
+      const cyStart = h * (0.3 - elev * 0.16); // выше в полдень
+      const cyTarget = h * 0.9; // у границы второго раздела
+      const p = Math.min(Math.max(scrollY / (h * 0.85), 0), 1);
+      const eased = p * p * (3 - 2 * p); // smoothstep
+      const cy = cyStart + eased * (cyTarget - cyStart) + ny * 16;
+      return { cx, cy };
     }
 
     function drawSun(cx: number, cy: number, r: number) {
-      // корона
-      const corona = ctx!.createRadialGradient(cx, cy, r * 0.6, cx, cy, r * 3.4);
-      corona.addColorStop(0, `rgba(255,210,90,${0.5 * glow})`);
-      corona.addColorStop(0.4, `rgba(255,160,40,${0.22 * glow})`);
-      corona.addColorStop(1, "rgba(255,150,30,0)");
-      ctx!.fillStyle = corona;
-      ctx!.beginPath(); ctx!.arc(cx, cy, r * 3.4, 0, Math.PI * 2); ctx!.fill();
+      const pulse = reduce ? 1 : 0.94 + 0.06 * Math.sin(t * 1.2);
+      const g = glow * pulse;
+      const coronaR = r * (3.0 + (reduce ? 0 : 0.22 * Math.sin(t * 0.8)));
 
+      // Свечение и лучи — аддитивно (мягкий объёмный свет)
+      ctx!.save();
+      ctx!.globalCompositeOperation = "lighter";
+
+      const c1 = ctx!.createRadialGradient(cx, cy, r * 0.5, cx, cy, coronaR);
+      c1.addColorStop(0, `rgba(255,216,110,${0.4 * g})`);
+      c1.addColorStop(0.45, `rgba(255,170,55,${0.16 * g})`);
+      c1.addColorStop(1, "rgba(255,150,30,0)");
+      ctx!.fillStyle = c1;
+      ctx!.beginPath(); ctx!.arc(cx, cy, coronaR, 0, Math.PI * 2); ctx!.fill();
+
+      if (!reduce) {
+        ctx!.save();
+        ctx!.translate(cx, cy);
+        ctx!.rotate(t * 0.03);
+        for (let i = 0; i < 14; i++) {
+          ctx!.rotate((Math.PI * 2) / 14);
+          const ray = ctx!.createLinearGradient(0, 0, 0, -coronaR * 1.25);
+          ray.addColorStop(0, `rgba(255,205,90,${0.07 * g})`);
+          ray.addColorStop(1, "rgba(255,205,90,0)");
+          ctx!.fillStyle = ray;
+          ctx!.beginPath();
+          ctx!.moveTo(-r * 0.16, 0); ctx!.lineTo(r * 0.16, 0); ctx!.lineTo(0, -coronaR * 1.25);
+          ctx!.closePath(); ctx!.fill();
+        }
+        ctx!.restore();
+      }
+      ctx!.restore();
+
+      // Диск: фото NASA, медленное вращение
       if (sunImg.complete && sunImg.naturalWidth > 0) {
-        // живое фото, слегка вращается
         ctx!.save();
         ctx!.beginPath(); ctx!.arc(cx, cy, r, 0, Math.PI * 2); ctx!.clip();
         ctx!.translate(cx, cy);
-        if (!reduce) ctx!.rotate(t * 0.05);
+        if (!reduce) ctx!.rotate(t * 0.02);
         const s = r * 2.16;
         ctx!.drawImage(sunImg, -s / 2, -s / 2, s, s);
         ctx!.restore();
-        // тёплый ободок
-        ctx!.strokeStyle = `rgba(255,200,80,${0.5 * glow})`;
+        ctx!.strokeStyle = `rgba(255,205,100,${0.5 * g})`;
         ctx!.lineWidth = 2;
         ctx!.beginPath(); ctx!.arc(cx, cy, r, 0, Math.PI * 2); ctx!.stroke();
       } else {
@@ -113,33 +143,10 @@ export function SolarSystem({ planets, className = "" }: { planets: Planet[]; cl
       }
     }
 
-    function drawMoon(cx: number, cy: number, r: number) {
-      const mg = ctx!.createRadialGradient(cx, cy, r * 0.5, cx, cy, r * 2.6);
-      mg.addColorStop(0, "rgba(214,224,240,0.35)");
-      mg.addColorStop(1, "rgba(214,224,240,0)");
-      ctx!.fillStyle = mg;
-      ctx!.beginPath(); ctx!.arc(cx, cy, r * 2.6, 0, Math.PI * 2); ctx!.fill();
-
-      const disc = ctx!.createRadialGradient(cx - r * 0.3, cy - r * 0.3, r * 0.2, cx, cy, r);
-      disc.addColorStop(0, "#EEF1F6"); disc.addColorStop(1, "#B6C0D2");
-      ctx!.fillStyle = disc;
-      ctx!.beginPath(); ctx!.arc(cx, cy, r, 0, Math.PI * 2); ctx!.fill();
-
-      // кратеры
-      ctx!.save();
-      ctx!.beginPath(); ctx!.arc(cx, cy, r, 0, Math.PI * 2); ctx!.clip();
-      ctx!.fillStyle = "rgba(150,160,180,0.35)";
-      const cr: [number, number, number][] = [[-0.3, -0.2, 0.18], [0.25, 0.1, 0.22], [0.05, 0.4, 0.14], [0.4, -0.35, 0.12]];
-      for (const [dx, dy, rr] of cr) {
-        ctx!.beginPath(); ctx!.arc(cx + dx * r, cy + dy * r, rr * r, 0, Math.PI * 2); ctx!.fill();
-      }
-      ctx!.restore();
-    }
-
     function draw() {
       ctx!.clearRect(0, 0, w, h);
       glow += (glowTarget - glow) * 0.08;
-      const { isDay, cx, cy } = skyPos();
+      const { cx, cy } = skyPos();
       const r = Math.min(w, h) * 0.085;
 
       // орбиты
@@ -149,8 +156,7 @@ export function SolarSystem({ planets, className = "" }: { planets: Planet[]; cl
         ctx!.beginPath(); ctx!.arc(cx, cy, b.orbit, 0, Math.PI * 2); ctx!.stroke();
       }
 
-      if (isDay) drawSun(cx, cy, r);
-      else drawMoon(cx, cy, r);
+      drawSun(cx, cy, r);
 
       // планеты
       for (const b of bodies) {
