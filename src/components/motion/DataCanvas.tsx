@@ -36,12 +36,16 @@ export function DataCanvas({
       canvas!.width = w * dpr; canvas!.height = h * dpr;
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
       const count = Math.max(14, Math.min(density, Math.floor((w * h) / 22000)));
-      nodes = Array.from({ length: count }, (_, i) => ({
-        x: Math.random() * w, y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.18, vy: (Math.random() - 0.5) * 0.18,
-        r: Math.random() * 1.6 + 1,
-        label: i < labels.length ? labels[i] : undefined,
-      }));
+      nodes = Array.from({ length: count }, (_, i) => {
+        const isCompany = i < labels.length;
+        return {
+          x: Math.random() * w, y: Math.random() * h,
+          vx: (Math.random() - 0.5) * 0.18, vy: (Math.random() - 0.5) * 0.18,
+          // узлы-компании заметно крупнее фоновых точек
+          r: isCompany ? 4 : Math.random() * 1.6 + 1,
+          label: isCompany ? labels[i] : undefined,
+        };
+      });
     }
 
     const LINK = 168;
@@ -80,12 +84,20 @@ export function DataCanvas({
           if (n.x < 0 || n.x > w) n.vx *= -1;
           if (n.y < 0 || n.y > h) n.vy *= -1;
         }
-        ctx!.fillStyle = `rgba(${BRAND},0.55)`;
-        ctx!.beginPath(); ctx!.arc(n.x, n.y, n.r, 0, Math.PI * 2); ctx!.fill();
         if (n.label) {
-          ctx!.fillStyle = "rgba(157,172,182,0.5)";
-          ctx!.font = "11px Manrope, sans-serif";
-          ctx!.fillText(n.label, n.x + 8, n.y + 3);
+          // компания — крупная светящаяся звезда + читаемая подпись
+          ctx!.save();
+          ctx!.shadowBlur = 14;
+          ctx!.shadowColor = `rgba(${BRAND},0.9)`;
+          ctx!.fillStyle = `rgba(${BRAND},0.95)`;
+          ctx!.beginPath(); ctx!.arc(n.x, n.y, n.r, 0, Math.PI * 2); ctx!.fill();
+          ctx!.restore();
+          ctx!.fillStyle = "rgba(214,224,230,0.82)";
+          ctx!.font = "600 13px Manrope, sans-serif";
+          ctx!.fillText(n.label, n.x + n.r + 6, n.y + 4);
+        } else {
+          ctx!.fillStyle = `rgba(${BRAND},0.55)`;
+          ctx!.beginPath(); ctx!.arc(n.x, n.y, n.r, 0, Math.PI * 2); ctx!.fill();
         }
       }
     }

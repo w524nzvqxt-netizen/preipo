@@ -14,7 +14,7 @@ export function ProjectCard({ project }: { project: Project }) {
   return (
     <Link
       href={`/project/${project.id}`}
-      className="group flex flex-col rounded-card border border-border bg-surface p-5 shadow-[var(--shadow-card)] transition-all hover:border-brand hover:shadow-[var(--shadow-card-hover)]"
+      className="group flex flex-col rounded-card border border-border bg-surface p-5 shadow-[var(--shadow-card)] transition-all duration-300 ease-out hover:-translate-y-1 hover:border-brand hover:shadow-[var(--shadow-card-hover)] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
     >
       {/* Шапка: лого + название + бейдж */}
       <div className="flex items-start justify-between gap-3">

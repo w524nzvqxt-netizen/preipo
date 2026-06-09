@@ -3,7 +3,7 @@
 // Премиум-hero «Обсерватория капитала»: full-bleed тёмная сцена с генеративным
 // созвездием, кинетическим заголовком и стеклянным KPI-виджетом.
 import { useEffect, useRef, useState } from "react";
-import { motion, useInView, useMotionValue, animate } from "motion/react";
+import { motion, useInView, useMotionValue, useSpring, useReducedMotion, animate } from "motion/react";
 import { SplitReveal } from "@/components/motion/SplitReveal";
 import { MagneticButton } from "@/components/motion/MagneticButton";
 import { DataCanvas } from "@/components/motion/DataCanvas";
@@ -23,10 +23,26 @@ export function Hero({
   closedCount: number;
   avgReturn: number;
 }) {
+  // Параллакс света/фона от курсора — «живая» сцена
+  const reduce = useReducedMotion();
+  const mx = useMotionValue(0);
+  const my = useMotionValue(0);
+  const px = useSpring(mx, { stiffness: 60, damping: 20, mass: 0.4 });
+  const py = useSpring(my, { stiffness: 60, damping: 20, mass: 0.4 });
+  function onMove(e: React.MouseEvent<HTMLElement>) {
+    if (reduce) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    mx.set(((e.clientX - r.left) / r.width - 0.5) * 26);
+    my.set(((e.clientY - r.top) / r.height - 0.5) * 26);
+  }
+
   return (
-    <section className="full-bleed grain relative flex min-h-[100svh] flex-col justify-center overflow-hidden bg-bg">
-      {/* Слои фона */}
-      <div className="pointer-events-none absolute inset-0">
+    <section
+      onMouseMove={onMove}
+      className="full-bleed grain relative flex min-h-[100svh] flex-col justify-center overflow-hidden bg-bg"
+    >
+      {/* Слои фона (с параллаксом от курсора) */}
+      <motion.div style={{ x: px, y: py, scale: 1.06 }} className="pointer-events-none absolute inset-0">
         <DataCanvas labels={NODE_LABELS} className="absolute inset-0 opacity-70" />
         <div className="grid-overlay absolute inset-0" />
         {/* Японские свечи — крупная живая лента снизу */}
@@ -36,7 +52,7 @@ export function Hero({
         </div>
         <div className="scene-vignette absolute inset-0" />
         <div className="absolute left-[8%] top-[14%] h-[420px] w-[420px] rounded-full bg-brand/10 blur-[140px]" />
-      </div>
+      </motion.div>
 
       <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 px-6 py-24 lg:grid-cols-12">
         {/* Левая колонка */}
