@@ -114,7 +114,7 @@ export default async function ProjectPage({
   const sectorStage = [project.sector, project.stage].filter(Boolean).join(" · ") || "—";
 
   return (
-    <main className="island mx-auto my-8 w-full max-w-4xl rounded-card px-5 py-8 sm:my-12 sm:px-10 sm:py-12">
+    <main className="mx-auto my-8 w-full max-w-4xl rounded-card px-5 py-8 sm:my-12 sm:px-10 sm:py-12">
       <Link
         href="/"
         className="text-sm text-text-muted hover:text-text-primary transition-colors"
@@ -164,7 +164,7 @@ export default async function ProjectPage({
             </p>
             <a
               href="#lead"
-              className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
+              className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-bg transition-colors hover:brightness-110"
             >
               Оставить заявку
             </a>
@@ -270,7 +270,7 @@ export default async function ProjectPage({
                   href={analysisDoc.fileUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
+                  className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-bg transition-colors hover:brightness-110"
                 >
                   Скачать полный разбор (PDF) ↓
                 </a>

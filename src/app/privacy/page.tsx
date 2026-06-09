@@ -15,20 +15,20 @@ const CONTACT_EMAIL = "privacy@example.com"; // контакт для обращ
 
 export default function PrivacyPage() {
   return (
-    <main className="island mx-auto my-8 w-full max-w-3xl rounded-card px-5 py-10 sm:my-12 sm:px-10">
-      <Link href="/" className="text-sm text-neutral-500 hover:text-neutral-900">
+    <main className="mx-auto my-8 w-full max-w-3xl rounded-card px-5 py-10 sm:my-12 sm:px-10">
+      <Link href="/" className="text-sm text-text-muted hover:text-text-primary">
         ← На главную
       </Link>
 
       <h1 className="mt-6 text-2xl font-bold tracking-tight sm:text-3xl">
         Политика обработки персональных данных
       </h1>
-      <p className="mt-2 text-sm text-neutral-500">
+      <p className="mt-2 text-sm text-text-muted">
         Разработана в соответствии с Федеральным законом от 27.07.2006 № 152-ФЗ
         «О персональных данных».
       </p>
 
-      <div className="mt-8 space-y-6 text-sm leading-relaxed text-neutral-700">
+      <div className="mt-8 space-y-6 text-sm leading-relaxed text-text-secondary">
         <Block n="1" title="Общие положения">
           Настоящая Политика определяет порядок обработки и защиты персональных
           данных физических лиц (далее — Пользователи), оставляющих заявку или
@@ -89,7 +89,7 @@ export default function PrivacyPage() {
         </Block>
       </div>
 
-      <p className="mt-10 text-xs text-neutral-400">
+      <p className="mt-10 text-xs text-text-muted">
         Документ носит шаблонный характер. Перед публичным использованием реквизиты
         Оператора, срок хранения и контактные данные должны быть заполнены под
         конкретное юридическое лицо и проверены юристом.
@@ -109,7 +109,7 @@ function Block({
 }) {
   return (
     <section>
-      <h2 className="font-semibold text-neutral-900">
+      <h2 className="font-semibold text-text-primary">
         {n}. {title}
       </h2>
       <p className="mt-2">{children}</p>

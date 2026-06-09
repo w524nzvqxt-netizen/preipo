@@ -112,7 +112,7 @@ export function PortfolioBuilder({ rounds }: { rounds: Round[] }) {
                     <span
                       className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${
                         active
-                          ? "border-brand bg-brand text-white"
+                          ? "border-brand bg-brand text-bg"
                           : "border-border bg-surface"
                       }`}
                     >
@@ -283,7 +283,7 @@ export function PortfolioBuilder({ rounds }: { rounds: Round[] }) {
 
             <Link
               href="/#contact"
-              className="block rounded-control bg-brand px-5 py-3 text-center font-semibold text-white transition-colors hover:bg-brand-hover"
+              className="block rounded-control bg-brand px-5 py-3 text-center font-semibold text-bg transition-colors hover:brightness-110"
             >
               Обсудить портфель
             </Link>

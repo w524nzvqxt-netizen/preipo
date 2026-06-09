@@ -55,7 +55,7 @@ export default async function ExitsPage() {
   const outperform = idx.sp500Mult > 0 ? idx.preIpoMult / idx.sp500Mult : 0;
 
   return (
-    <div className="island min-h-screen">
+    <div className="min-h-screen">
       <header className="sticky top-0 z-40 border-b border-border bg-surface">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-5">
           <Link href="/" className="flex items-center gap-2 text-lg font-bold text-text-primary">

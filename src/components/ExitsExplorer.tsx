@@ -214,7 +214,7 @@ export function ExitsExplorer({ companies }: { companies: ExitCompany[] }) {
                       className="flex items-center gap-3 text-left"
                     >
                       <span
-                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${active ? "border-brand bg-brand text-white" : "border-border bg-surface"}`}
+                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${active ? "border-brand bg-brand text-bg" : "border-border bg-surface"}`}
                       >
                         {active ? "✓" : ""}
                       </span>

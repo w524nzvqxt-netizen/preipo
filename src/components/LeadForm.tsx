@@ -79,7 +79,7 @@ export function LeadForm({
       <button
         type="submit"
         disabled={pending}
-        className="w-full rounded-control bg-brand px-4 py-2.5 font-semibold text-white transition-colors hover:bg-brand-hover disabled:opacity-60"
+        className="w-full rounded-control bg-brand px-4 py-2.5 font-semibold text-bg transition-colors hover:brightness-110 disabled:opacity-60"
       >
         {pending ? "Отправляем…" : "Оставить заявку"}
       </button>
