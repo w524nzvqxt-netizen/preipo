@@ -8,21 +8,18 @@ import { SplitReveal } from "@/components/motion/SplitReveal";
 import { MagneticButton } from "@/components/motion/MagneticButton";
 import { DataCanvas } from "@/components/motion/DataCanvas";
 import { Candlesticks } from "@/components/motion/Candlesticks";
-import { Sun } from "@/components/motion/Sun";
-
-const NODE_LABELS = [
-  "Cursor", "OpenEvidence", "Prometheus", "Tamara", "Cashea", "SpaceX",
-  "Anthropic", "Revolut", "Stripe",
-];
+import { SolarSystem, type Planet } from "@/components/motion/SolarSystem";
 
 export function Hero({
   dealCount,
   closedCount,
   avgReturn,
+  planets = [],
 }: {
   dealCount: number;
   closedCount: number;
   avgReturn: number;
+  planets?: Planet[];
 }) {
   // Параллакс от курсора — слойный: звёзды смещаются слабо, свет-орб — сильно
   // и навстречу курсору, поэтому глубина читается.
@@ -47,7 +44,7 @@ export function Hero({
     >
       {/* Дальний слой — звёздное небо + свечи (мягкий параллакс) */}
       <motion.div style={{ x: farX, y: farY, scale: 1.08 }} className="pointer-events-none absolute inset-0">
-        <DataCanvas labels={NODE_LABELS} className="absolute inset-0 opacity-90" />
+        <DataCanvas className="absolute inset-0 opacity-60" />
         <div className="grid-overlay absolute inset-0" />
         {/* Японские свечи — крупная живая лента снизу */}
         <div className="absolute inset-x-0 bottom-0 h-[60%]">
@@ -56,8 +53,8 @@ export function Hero({
         </div>
         <div className="scene-vignette absolute inset-0" />
       </motion.div>
-      {/* Солнце — параллакс от курсора, разгорается на движении, садится на скролле */}
-      <Sun />
+      {/* Солнечная система компаний: жёлтое солнце + планеты по капитализации */}
+      <SolarSystem planets={planets} className="pointer-events-none absolute inset-0 z-0" />
 
       <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 px-6 py-24 lg:grid-cols-12">
         {/* Левая колонка */}

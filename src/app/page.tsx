@@ -51,6 +51,12 @@ export default async function HomePage() {
       )
     : 0;
 
+  // Планеты для солнечной системы в hero: компании по капитализации (оценке)
+  const planets = all
+    .filter((p) => p.valuation != null)
+    .map((p) => ({ name: p.name, cap: p.valuation as number }))
+    .sort((a, b) => b.cap - a.cap);
+
   return (
     <div className="relative bg-bg">
       {/* Тикер котировок — edge-to-edge */}
@@ -79,7 +85,7 @@ export default async function HomePage() {
       </header>
 
       {/* HERO — full-bleed обсерватория */}
-      <Hero dealCount={all.length} closedCount={closedDeals.length} avgReturn={avgReturn} />
+      <Hero dealCount={all.length} closedCount={closedDeals.length} avgReturn={avgReturn} planets={planets} />
 
       <main className="mx-auto w-full max-w-7xl px-6 pb-28">
         {/* Баннер индекса vs S&P 500 — наезжает на hero */}
