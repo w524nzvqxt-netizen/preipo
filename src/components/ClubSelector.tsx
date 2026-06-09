@@ -172,7 +172,7 @@ function Crest({ item, center }: { item: ClubItem; center: boolean }) {
       >
         {item.logoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={item.logoUrl} alt={item.name} className="h-full w-full object-contain p-2" />
+          <img src={item.logoUrl} alt={item.name} className="h-14 w-14 object-contain" />
         ) : (
           <span className="text-4xl font-bold text-text-muted">{item.name.charAt(0)}</span>
         )}
