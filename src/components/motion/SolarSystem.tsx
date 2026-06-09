@@ -123,16 +123,33 @@ export function SolarSystem({ planets, className = "" }: { planets: Planet[]; cl
       }
       ctx!.restore();
 
-      // Диск: фото NASA, медленное вращение
+      // Диск: фото NASA (плазма 171Å) + «живой» слой → шевелящаяся поверхность
       if (sunImg.complete && sunImg.naturalWidth > 0) {
+        const s = r * 2.16;
         ctx!.save();
         ctx!.beginPath(); ctx!.arc(cx, cy, r, 0, Math.PI * 2); ctx!.clip();
+
+        // базовый слой, медленно вращается
+        ctx!.save();
         ctx!.translate(cx, cy);
         if (!reduce) ctx!.rotate(t * 0.02);
-        const s = r * 2.16;
         ctx!.drawImage(sunImg, -s / 2, -s / 2, s, s);
         ctx!.restore();
-        ctx!.strokeStyle = `rgba(255,205,100,${0.5 * g})`;
+
+        // живой слой: аддитивно, в противофазе и пульсирует — плазма «дышит»
+        if (!reduce) {
+          ctx!.save();
+          ctx!.globalCompositeOperation = "lighter";
+          ctx!.globalAlpha = 0.22 + 0.12 * Math.sin(t * 1.3);
+          ctx!.translate(cx, cy);
+          ctx!.rotate(-t * 0.014);
+          const s2 = s * (1.05 + 0.03 * Math.sin(t * 0.9));
+          ctx!.drawImage(sunImg, -s2 / 2, -s2 / 2, s2, s2);
+          ctx!.restore();
+        }
+        ctx!.restore();
+
+        ctx!.strokeStyle = `rgba(255,190,80,${0.5 * g})`;
         ctx!.lineWidth = 2;
         ctx!.beginPath(); ctx!.arc(cx, cy, r, 0, Math.PI * 2); ctx!.stroke();
       } else {
