@@ -105,22 +105,6 @@ export function SolarSystem({ planets, className = "" }: { planets: Planet[]; cl
       ctx!.fillStyle = c1;
       ctx!.beginPath(); ctx!.arc(cx, cy, coronaR, 0, Math.PI * 2); ctx!.fill();
 
-      if (!reduce) {
-        ctx!.save();
-        ctx!.translate(cx, cy);
-        ctx!.rotate(t * 0.03);
-        for (let i = 0; i < 14; i++) {
-          ctx!.rotate((Math.PI * 2) / 14);
-          const ray = ctx!.createLinearGradient(0, 0, 0, -coronaR * 1.25);
-          ray.addColorStop(0, `rgba(255,205,90,${0.07 * g})`);
-          ray.addColorStop(1, "rgba(255,205,90,0)");
-          ctx!.fillStyle = ray;
-          ctx!.beginPath();
-          ctx!.moveTo(-r * 0.16, 0); ctx!.lineTo(r * 0.16, 0); ctx!.lineTo(0, -coronaR * 1.25);
-          ctx!.closePath(); ctx!.fill();
-        }
-        ctx!.restore();
-      }
       ctx!.restore();
 
       // Диск: фото NASA (плазма 171Å) + «живой» слой → шевелящаяся поверхность
