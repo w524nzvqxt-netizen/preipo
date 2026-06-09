@@ -54,7 +54,7 @@ export function Hero({
         <div className="scene-vignette absolute inset-0" />
       </motion.div>
       {/* Солнечная система компаний: жёлтое солнце + планеты по капитализации */}
-      <SolarSystem planets={planets} className="pointer-events-none absolute inset-0 z-0" />
+      <SolarSystem planets={planets} className="pointer-events-none absolute inset-0 z-0 opacity-60 sm:opacity-100" />
 
       <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 px-6 py-24 lg:grid-cols-12">
         {/* Левая колонка */}

@@ -194,12 +194,15 @@ export function SolarSystem({ planets, className = "" }: { planets: Planet[]; cl
         ctx!.fill();
         ctx!.restore();
 
-        ctx!.fillStyle = "rgba(236,241,244,0.92)";
-        ctx!.font = "600 13px Manrope, sans-serif";
-        ctx!.fillText(b.name, x + b.size + 7, y + 1);
-        ctx!.fillStyle = "rgba(157,172,182,0.85)";
-        ctx!.font = "600 11px Manrope, sans-serif";
-        ctx!.fillText(b.label, x + b.size + 7, y + 15);
+        // подписи скрываем на узких экранах (чтобы не налезали на текст)
+        if (w >= 620) {
+          ctx!.fillStyle = "rgba(236,241,244,0.92)";
+          ctx!.font = "600 13px Manrope, sans-serif";
+          ctx!.fillText(b.name, x + b.size + 7, y + 1);
+          ctx!.fillStyle = "rgba(157,172,182,0.85)";
+          ctx!.font = "600 11px Manrope, sans-serif";
+          ctx!.fillText(b.label, x + b.size + 7, y + 15);
+        }
       }
     }
 

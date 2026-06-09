@@ -4,7 +4,7 @@
 // центральной карточкой-гербом, по бокам — уменьшенные с поворотом; снизу —
 // панель с информацией о выбранной компании. Управление: стрелки, клик по
 // боковой карточке, свайп, клавиши ←/→. Плавные анимации (Framer Motion).
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 
@@ -24,6 +24,21 @@ export function ClubSelector({ items }: { items: ClubItem[] }) {
   const [active, setActive] = useState(0);
   const [dir, setDir] = useState(1);
   const reduce = useReducedMotion();
+
+  // адаптивные размеры карточек/шага под ширину контейнера
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [w, setW] = useState(680);
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setW(e.contentRect.width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const cardW = Math.min(210, Math.max(150, w * 0.58));
+  const cardH = cardW * 1.26;
+  const spacing = Math.min(195, Math.max(118, w * 0.4));
+
   const n = items.length;
   if (n === 0) return null;
 
@@ -41,7 +56,11 @@ export function ClubSelector({ items }: { items: ClubItem[] }) {
       className="relative outline-none"
     >
       {/* Сцена-коверфлоу */}
-      <div className="relative mx-auto h-[300px] w-full max-w-3xl [perspective:1300px] sm:h-[340px]">
+      <div
+        ref={stageRef}
+        className="relative mx-auto w-full max-w-3xl overflow-hidden [perspective:1300px]"
+        style={{ height: cardH + 36 }}
+      >
         {/* свет за центральной карточкой */}
         <div className="pointer-events-none absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/15 blur-[90px]" />
         {/* вспышка при смене карточки */}
@@ -75,7 +94,7 @@ export function ClubSelector({ items }: { items: ClubItem[] }) {
                 type="button"
                 onClick={() => (isCenter ? null : select(i))}
                 animate={{
-                  x: off * 200,
+                  x: off * spacing,
                   z: reduce ? 0 : isCenter ? 70 : -Math.abs(off) * 50,
                   scale: isCenter ? 1 : 0.7,
                   rotateY: reduce ? 0 : off * -30,
@@ -84,8 +103,14 @@ export function ClubSelector({ items }: { items: ClubItem[] }) {
                   zIndex: 10 - Math.abs(off),
                 }}
                 transition={{ type: "spring", stiffness: 340, damping: 26 }}
-                className="absolute left-1/2 top-1/2 -ml-[110px] -mt-[140px] h-[280px] w-[220px] cursor-pointer"
-                style={{ transformStyle: "preserve-3d" }}
+                className="absolute left-1/2 top-1/2 cursor-pointer"
+                style={{
+                  width: cardW,
+                  height: cardH,
+                  marginLeft: -cardW / 2,
+                  marginTop: -cardH / 2,
+                  transformStyle: "preserve-3d",
+                }}
               >
                 <Crest item={it} center={isCenter} />
               </motion.button>
@@ -178,20 +203,20 @@ export function ClubSelector({ items }: { items: ClubItem[] }) {
 function Crest({ item, center }: { item: ClubItem; center: boolean }) {
   return (
     <div
-      className={`flex h-full w-full flex-col items-center justify-center gap-4 rounded-card border bg-surface p-6 transition-colors ${
+      className={`flex h-full w-full flex-col items-center justify-center gap-3 rounded-card border bg-surface p-4 transition-colors ${
         center ? "border-brand shadow-[var(--shadow-card-hover)]" : "border-border"
       }`}
     >
       <div
-        className={`flex h-28 w-28 items-center justify-center overflow-hidden rounded-2xl border bg-surface-alt ${
+        className={`flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border bg-surface-alt ${
           center ? "border-brand/40" : "border-border"
         }`}
       >
         {item.logoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={item.logoUrl} alt={item.name} className="h-14 w-14 object-contain" />
+          <img src={item.logoUrl} alt={item.name} className="h-11 w-11 object-contain" />
         ) : (
-          <span className="text-4xl font-bold text-text-muted">{item.name.charAt(0)}</span>
+          <span className="text-3xl font-bold text-text-muted">{item.name.charAt(0)}</span>
         )}
       </div>
       <span className="line-clamp-1 text-center text-base font-semibold text-text-primary">{item.name}</span>
