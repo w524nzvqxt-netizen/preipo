@@ -85,12 +85,18 @@ export default async function HomePage() {
           <Link href="/" className="flex items-center gap-2 text-lg font-bold text-text-primary">
             <span className="text-brand">◆</span> Pre-IPO
           </Link>
-          <div className="flex items-center gap-3 sm:gap-5">
-            <Link href="/exits" className="text-xs font-medium text-text-secondary hover:text-brand sm:text-sm">
-              Уже на бирже
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link
+              href="/exits"
+              className="rounded-control border border-border bg-surface/70 px-3 py-2 text-xs font-semibold text-text-primary transition-all hover:border-brand hover:text-brand sm:px-4 sm:text-sm"
+            >
+              📈 Уже на бирже
             </Link>
-            <Link href="/portfolio" className="text-xs font-medium text-text-secondary hover:text-brand sm:text-sm">
-              Портфель
+            <Link
+              href="/portfolio"
+              className="rounded-control border border-brand/50 bg-brand-subtle px-3 py-2 text-xs font-semibold text-brand transition-all hover:border-brand hover:brightness-110 sm:px-4 sm:text-sm"
+            >
+              📊 Портфель
             </Link>
             <div className="hidden sm:block">
               <ContactButtons size="sm" />
