@@ -22,11 +22,13 @@ export type ClubItem = {
 
 export function ClubSelector({ items }: { items: ClubItem[] }) {
   const [active, setActive] = useState(0);
+  const [dir, setDir] = useState(1);
   const reduce = useReducedMotion();
   const n = items.length;
   if (n === 0) return null;
 
-  const go = (d: number) => setActive((a) => (a + d + n) % n);
+  const go = (d: number) => { setDir(d); setActive((a) => (a + d + n) % n); };
+  const select = (i: number) => { setDir(i >= active ? 1 : -1); setActive(i); };
   const cur = items[active];
 
   return (
@@ -42,6 +44,14 @@ export function ClubSelector({ items }: { items: ClubItem[] }) {
       <div className="relative mx-auto h-[300px] w-full max-w-3xl [perspective:1300px] sm:h-[340px]">
         {/* свет за центральной карточкой */}
         <div className="pointer-events-none absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/15 blur-[90px]" />
+        {/* вспышка при смене карточки */}
+        <motion.div
+          key={active}
+          initial={reduce ? false : { opacity: 0.55, scale: 0.5 }}
+          animate={reduce ? {} : { opacity: 0, scale: 1.5 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/40 blur-2xl"
+        />
 
         <motion.div
           className="absolute inset-0 [transform-style:preserve-3d]"
@@ -63,16 +73,17 @@ export function ClubSelector({ items }: { items: ClubItem[] }) {
               <motion.button
                 key={it.id}
                 type="button"
-                onClick={() => (isCenter ? null : setActive(i))}
+                onClick={() => (isCenter ? null : select(i))}
                 animate={{
-                  x: off * 190,
-                  scale: isCenter ? 1 : 0.72,
-                  rotateY: reduce ? 0 : off * -26,
-                  opacity: Math.abs(off) === 2 ? 0.3 : isCenter ? 1 : 0.6,
-                  filter: isCenter ? "blur(0px)" : "blur(2px)",
+                  x: off * 200,
+                  z: reduce ? 0 : isCenter ? 70 : -Math.abs(off) * 50,
+                  scale: isCenter ? 1 : 0.7,
+                  rotateY: reduce ? 0 : off * -30,
+                  opacity: Math.abs(off) === 2 ? 0.25 : isCenter ? 1 : 0.55,
+                  filter: isCenter ? "blur(0px) brightness(1)" : "blur(2.5px) brightness(0.72)",
                   zIndex: 10 - Math.abs(off),
                 }}
-                transition={{ type: "spring", stiffness: 260, damping: 30 }}
+                transition={{ type: "spring", stiffness: 340, damping: 26 }}
                 className="absolute left-1/2 top-1/2 -ml-[110px] -mt-[140px] h-[280px] w-[220px] cursor-pointer"
                 style={{ transformStyle: "preserve-3d" }}
               >
@@ -103,13 +114,19 @@ export function ClubSelector({ items }: { items: ClubItem[] }) {
 
       {/* Панель информации о выбранной компании */}
       <div className="mx-auto mt-2 max-w-2xl">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" custom={dir}>
           <motion.div
             key={cur.id}
-            initial={reduce ? false : { opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={reduce ? undefined : { opacity: 0, y: -14 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            custom={dir}
+            variants={{
+              enter: (d: number) => ({ opacity: 0, x: reduce ? 0 : d * 70 }),
+              center: { opacity: 1, x: 0 },
+              exit: (d: number) => ({ opacity: 0, x: reduce ? 0 : -d * 70 }),
+            }}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="flex items-center justify-center gap-3">
               <h3 className="text-center text-2xl font-bold text-text-primary sm:text-3xl">{cur.name}</h3>
@@ -146,7 +163,7 @@ export function ClubSelector({ items }: { items: ClubItem[] }) {
               key={it.id}
               type="button"
               aria-label={it.name}
-              onClick={() => setActive(i)}
+              onClick={() => select(i)}
               className={`h-2.5 rounded-full transition-all ${
                 i === active ? "w-7 bg-brand" : "w-2.5 bg-border hover:bg-text-muted"
               }`}
