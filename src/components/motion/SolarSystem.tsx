@@ -145,6 +145,7 @@ export function SolarSystem({ planets, className = "" }: { planets: Planet[]; cl
       glow += (glowTarget - glow) * 0.08;
       const { cx, cy } = skyPos();
       const r = Math.min(w, h) * 0.085;
+      const reach = Math.max(w, h) * 0.95;
 
       // орбиты
       ctx!.lineWidth = 1;
@@ -153,18 +154,46 @@ export function SolarSystem({ planets, className = "" }: { planets: Planet[]; cl
         ctx!.beginPath(); ctx!.arc(cx, cy, b.orbit, 0, Math.PI * 2); ctx!.stroke();
       }
 
+      // Свет солнца разливается по всей системе (аддитивно)
+      ctx!.save();
+      ctx!.globalCompositeOperation = "lighter";
+      const wash = ctx!.createRadialGradient(cx, cy, r * 0.8, cx, cy, reach);
+      wash.addColorStop(0, `rgba(255,200,90,${0.12 * glow})`);
+      wash.addColorStop(0.5, `rgba(255,170,60,${0.045 * glow})`);
+      wash.addColorStop(1, "rgba(255,150,30,0)");
+      ctx!.fillStyle = wash;
+      ctx!.fillRect(0, 0, w, h);
+      ctx!.restore();
+
       drawSun(cx, cy, r);
 
-      // планеты
+      // планеты — освещённые солнцем (ярче вблизи + тёплый блик с его стороны)
       for (const b of bodies) {
         const ang = reduce ? b.a0 : b.a0 + t * b.speed;
         const x = cx + Math.cos(ang) * b.orbit;
         const y = cy + Math.sin(ang) * b.orbit;
+        const dx = cx - x, dy = cy - y;
+        const dist = Math.hypot(dx, dy);
+        const lit = 0.5 + 0.5 * Math.max(0, 1 - dist / (reach * 0.7));
+
         ctx!.save();
-        ctx!.shadowBlur = 14; ctx!.shadowColor = b.color;
+        ctx!.shadowBlur = 16 * lit;
+        ctx!.shadowColor = b.color;
+        ctx!.globalAlpha = 0.55 + 0.45 * lit;
         ctx!.fillStyle = b.color;
         ctx!.beginPath(); ctx!.arc(x, y, b.size, 0, Math.PI * 2); ctx!.fill();
         ctx!.restore();
+
+        // тёплый блик со стороны солнца
+        const a2 = Math.atan2(dy, dx);
+        ctx!.save();
+        ctx!.globalCompositeOperation = "lighter";
+        ctx!.fillStyle = `rgba(255,240,200,${0.55 * lit})`;
+        ctx!.beginPath();
+        ctx!.arc(x + Math.cos(a2) * b.size * 0.35, y + Math.sin(a2) * b.size * 0.35, b.size * 0.5, 0, Math.PI * 2);
+        ctx!.fill();
+        ctx!.restore();
+
         ctx!.fillStyle = "rgba(236,241,244,0.92)";
         ctx!.font = "600 13px Manrope, sans-serif";
         ctx!.fillText(b.name, x + b.size + 7, y + 1);
