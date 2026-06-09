@@ -1,12 +1,14 @@
 import { bundle } from "@remotion/bundler";
 import { selectComposition, renderMedia } from "@remotion/renderer";
 import { execFileSync } from "node:child_process";
+import { mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
 import ffpath from "ffmpeg-static";
 
 const FF = ffpath as unknown as string;
 const FPS = 30;
-const OUT = "/Users/pirskiyka/Desktop/pre ipo/Prometheus_Видео.mp4";
+const TMP = path.resolve(".video-tmp/prom-full.mp4");
+const OUT = path.resolve("public/uploads/prometheus-video.mp4");
 
 function frames(file: string): number {
   let stderr = "";
@@ -59,16 +61,24 @@ const SC = [
     inputProps: { scenes },
   });
 
-  console.log("Рендер (может скачать headless-браузер при первом запуске)...");
+  mkdirSync(path.dirname(TMP), { recursive: true });
+
+  console.log("Рендер (супер-сэмплинг ×1.5 → 2880×1620, crf 15)...");
   await renderMedia({
     composition,
     serveUrl,
     codec: "h264",
-    outputLocation: OUT,
+    crf: 15,
+    scale: 1.5,
+    outputLocation: TMP,
     inputProps: { scenes },
-    concurrency: 2,
+    concurrency: null,
   });
-  console.log("Готово:", OUT);
+
+  // Ремукс под веб (faststart) без повторного сжатия
+  execFileSync(FF, ["-y", "-i", TMP, "-c", "copy", "-movflags", "+faststart", OUT]);
+  rmSync(TMP, { force: true });
+  console.log("Готово (prometheus, 1080p+):", OUT);
   process.exit(0);
 })().catch((e) => {
   console.error("ОШИБКА:", e instanceof Error ? e.message : e);

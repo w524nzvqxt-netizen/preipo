@@ -1,12 +1,13 @@
 import { bundle } from "@remotion/bundler";
 import { selectComposition, renderMedia } from "@remotion/renderer";
 import { execFileSync } from "node:child_process";
+import { mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
 import ffpath from "ffmpeg-static";
 
 const FF = ffpath as unknown as string;
 const FPS = 30;
-const TMP = "/Users/pirskiyka/Desktop/pre ipo/.exp_tmp.mp4";
+const TMP = path.resolve(".video-tmp/exp-full.mp4");
 const OUT = path.resolve("public/uploads/main-pre-ipo.mp4");
 
 function frames(file: string): number {
@@ -47,14 +48,27 @@ const SEG = [
   const total = scenes.reduce((a, s) => a + s.durationInFrames, 0);
   console.log("Сцен:", scenes.length, "| ~", Math.round(total / FPS), "сек");
 
+  mkdirSync(path.dirname(TMP), { recursive: true });
+
   const serveUrl = await bundle({ entryPoint: path.resolve("remotion/index.ts") });
   const composition = await selectComposition({ serveUrl, id: "CompanyVideo", inputProps: { scenes } });
-  await renderMedia({ composition, serveUrl, codec: "h264", outputLocation: TMP, inputProps: { scenes }, concurrency: 2 });
 
-  // сжатие для веба (главная страница)
-  execFileSync(FF, ["-y", "-i", TMP, "-vf", "scale=1280:720", "-c:v", "libx264", "-crf", "25", "-preset", "medium", "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart", OUT]);
-  execFileSync("rm", ["-f", TMP]);
-  console.log("Готово (главная):", OUT);
+  // Супер-сэмплинг ×1.5 (→ 2880×1620): резкая графика/текст; crf 15 ≈ без потерь
+  await renderMedia({
+    composition,
+    serveUrl,
+    codec: "h264",
+    crf: 15,
+    scale: 1.5,
+    outputLocation: TMP,
+    inputProps: { scenes },
+    concurrency: null,
+  });
+
+  // Только ремукс под веб (faststart) — БЕЗ повторного сжатия, качество сохраняется
+  execFileSync(FF, ["-y", "-i", TMP, "-c", "copy", "-movflags", "+faststart", OUT]);
+  rmSync(TMP, { force: true });
+  console.log("Готово (главная, 1080p):", OUT);
   process.exit(0);
 })().catch((e) => {
   console.error("ОШИБКА:", e instanceof Error ? e.message : e);

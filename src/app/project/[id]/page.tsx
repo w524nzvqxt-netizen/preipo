@@ -404,6 +404,16 @@ export default async function ProjectPage({
         </div>
       </section>
 
+      {/* Возврат к витрине */}
+      <div className="mt-10 flex justify-center">
+        <Link
+          href="/"
+          className="rounded-control border border-border bg-surface px-6 py-3 text-sm font-semibold text-text-primary transition-colors hover:border-brand hover:text-brand"
+        >
+          &larr; Вернуться к проектам
+        </Link>
+      </div>
+
       <footer className="mt-12 border-t border-border pt-6">
         <Disclaimer />
         <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-text-muted">

@@ -54,7 +54,7 @@ export function Hero({
             text="Инвестируйте в гигантов до IPO"
             highlight={["IPO"]}
             delay={0.15}
-            className="text-display mt-5 text-[clamp(36px,8vw,104px)] font-extrabold leading-[1.0]"
+            className="mt-5 text-[clamp(36px,8vw,104px)] font-extrabold leading-[1.0] text-text-primary [text-shadow:0_2px_40px_rgba(0,0,0,0.85)]"
           />
 
           <motion.p
