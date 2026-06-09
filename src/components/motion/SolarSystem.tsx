@@ -73,9 +73,10 @@ export function SolarSystem({ planets, className = "" }: { planets: Planet[]; cl
       ctx!.clearRect(0, 0, w, h);
       glow += (glowTarget - glow) * 0.08;
 
-      const cx = w * 0.5 + nx * 36;
-      const descend = Math.min(scrollY, 900) / 900 * (h * 0.5);
-      const cy = h * 0.42 + ny * 22 + descend;
+      // Солнце в левом верхнем углу; спускается вместе с прокруткой (закат).
+      // cy растёт быстрее скролла, поэтому в окне солнце реально едет вниз.
+      const cx = w * 0.18 + nx * 30;
+      const cy = h * 0.2 + ny * 18 + scrollY * 1.5;
 
       // орбиты
       ctx!.lineWidth = 1;
