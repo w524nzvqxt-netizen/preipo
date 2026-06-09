@@ -167,7 +167,7 @@ export default async function HomePage() {
           ) : (
             <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {projects.map((p, i) => (
-                <Reveal key={p.id} delay={(i % 3) * 0.06}>
+                <Reveal key={p.id} delay={(i % 3) * 0.06} className="h-full">
                   <ProjectCard project={p} />
                 </Reveal>
               ))}
@@ -185,7 +185,7 @@ export default async function HomePage() {
             </p>
             <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {closedDeals.map((p, i) => (
-                <Reveal key={p.id} delay={(i % 3) * 0.06}>
+                <Reveal key={p.id} delay={(i % 3) * 0.06} className="h-full">
                   <ProjectCard project={p} />
                 </Reveal>
               ))}

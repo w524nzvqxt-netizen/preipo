@@ -8,6 +8,7 @@ import { SplitReveal } from "@/components/motion/SplitReveal";
 import { MagneticButton } from "@/components/motion/MagneticButton";
 import { DataCanvas } from "@/components/motion/DataCanvas";
 import { Candlesticks } from "@/components/motion/Candlesticks";
+import { Sun } from "@/components/motion/Sun";
 
 const NODE_LABELS = [
   "Cursor", "OpenEvidence", "Prometheus", "Tamara", "Cashea", "SpaceX",
@@ -32,8 +33,6 @@ export function Hero({
   const py = useSpring(my, { stiffness: 80, damping: 18, mass: 0.3 });
   const farX = useTransform(px, (v) => v * 30);
   const farY = useTransform(py, (v) => v * 30);
-  const orbX = useTransform(px, (v) => v * -110);
-  const orbY = useTransform(py, (v) => v * -110);
   function onMove(e: React.MouseEvent<HTMLElement>) {
     if (reduce) return;
     const r = e.currentTarget.getBoundingClientRect();
@@ -57,11 +56,8 @@ export function Hero({
         </div>
         <div className="scene-vignette absolute inset-0" />
       </motion.div>
-      {/* Ближний слой — свет-орб (сильный параллакс навстречу курсору) */}
-      <motion.div
-        style={{ x: orbX, y: orbY }}
-        className="pointer-events-none absolute left-[8%] top-[14%] h-[420px] w-[420px] rounded-full bg-brand/10 blur-[140px]"
-      />
+      {/* Солнце — параллакс от курсора, разгорается на движении, садится на скролле */}
+      <Sun />
 
       <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 px-6 py-24 lg:grid-cols-12">
         {/* Левая колонка */}

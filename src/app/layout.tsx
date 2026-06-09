@@ -3,6 +3,7 @@ import { Manrope } from "next/font/google";
 import "./globals.css";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { ScrollProgress } from "@/components/motion/ScrollProgress";
+import { CustomCursor } from "@/components/motion/CustomCursor";
 
 // Manrope — современный геометричный гротеск, премиальный вид, полная кириллица
 const manrope = Manrope({
@@ -51,6 +52,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <SmoothScroll />
         <ScrollProgress />
+        <CustomCursor />
         {children}
       </body>
     </html>
