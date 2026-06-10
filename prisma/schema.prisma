@@ -100,6 +100,21 @@ model PublicCompany {
   createdAt           DateTime @default(now())
 }
 
+// Новость по теме pre-IPO (генерирует ИИ-агент + правит оператор).
+// summary — ОРИГИНАЛЬНЫЙ краткий пересказ (не копия статьи), со ссылкой на источник.
+model NewsItem {
+  id          String   @id @default(cuid())
+  title       String
+  summary     String // оригинальный краткий пересказ (2–4 предложения)
+  category    String? // напр. "IPO", "Раунд", "Оценка", "Рынок"
+  sourceName  String? // напр. "Bloomberg", "Reuters"
+  sourceUrl   String?
+  isHot       Boolean  @default(true)
+  isActive    Boolean  @default(true)
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+}
+
 // Заявка от посетителя — лид, с которым связывается оператор
 model Lead {
   id        String   @id @default(cuid())
@@ -110,4 +125,90 @@ model Lead {
   project   Project? @relation(fields: [projectId], references: [id])
   status    String   @default("new") // new | in_progress | done
   createdAt DateTime @default(now())
+}
+
+// === Личный кабинет агента (закрытый раздел /agent) ===
+
+// Агент-продавец pre-IPO. Логин + scrypt-хэш пароля. isActive — мгновенный отзыв доступа.
+model Agent {
+  id           String           @id @default(cuid())
+  username     String           @unique // логин (email/ник)
+  name         String // Отображаемое имя
+  passwordHash String // формат scrypt$salt$hash
+  telegramId   String?          @unique // привязанный Telegram-аккаунт (для бота)
+  isActive     Boolean          @default(true)
+  createdAt    DateTime         @default(now())
+  clients      Client[]
+  sales        Sale[]
+  documents    ClientDocument[]
+}
+
+// Одноразовый код входа на сайт через Telegram-бота.
+// Сайт создаёт код, бот подтверждает (ставит agentId), сайт логинит и удаляет код.
+model LoginCode {
+  code      String   @id
+  agentId   String? // заполняется ботом при подтверждении
+  createdAt DateTime @default(now())
+}
+
+// Клиент агента
+model Client {
+  id        String           @id @default(cuid())
+  agentId   String
+  agent     Agent            @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  name      String
+  contact   String? // телефон/email/@tg
+  notes     String?
+  createdAt DateTime         @default(now())
+  sales     Sale[]
+  documents ClientDocument[]
+
+  @@index([agentId])
+}
+
+// Продажа pre-IPO клиенту: что, сколько, комиссия
+model Sale {
+  id             String   @id @default(cuid())
+  agentId        String
+  agent          Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  clientId       String
+  client         Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  projectId      String? // id проекта из витрины (без жёсткой связи)
+  companyName    String // название компании (фиксируем на момент сделки)
+  round          String? // раунд входа (Seed / Series A-F / Pre-IPO / Secondary)
+  expMultiple    Float? // ожидаемый мультипликатор на выходе (×), для прогноза прибыли
+  yearsToExit    Float? // лет до IPO + окончания лок-апа (для рентабельности агента)
+  amount         Float // сумма инвестиции клиента
+  units          Float? // кол-во долей/акций
+  pricePerUnit   Float?
+  currency       String   @default("USD")
+  entryFee       Float    @default(0) // комиссия за вход (5% от суммы входа)
+  commission     Float    @default(0) // доля партнёра в success fee (¼ от SF)
+  sf             Float    @default(0) // success fee (20% от прибыли клиента)
+  commissionPaid Boolean  @default(false) // выплачен ли заработок партнёру
+  status         String   @default("closed") // closed | pending
+  soldAt         DateTime @default(now())
+  note           String?
+
+  @@index([agentId])
+  @@index([clientId])
+}
+
+// Документ/видео по клиенту. Файл лежит ВНЕ /public, отдаётся через защищённый роут.
+model ClientDocument {
+  id        String   @id @default(cuid())
+  agentId   String
+  agent     Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  title     String
+  kind      String   @default("doc") // doc | video | contract
+  filePath  String // путь в приватной папке agent-files/
+  fileName  String
+  mimeType  String   @default("application/octet-stream")
+  sizeBytes Int
+  createdAt DateTime @default(now())
+
+  @@index([agentId])
+  @@index([clientId])
 }

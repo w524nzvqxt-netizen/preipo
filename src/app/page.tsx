@@ -72,6 +72,13 @@ export default async function HomePage() {
   const selectorItems = projects.map(toClubItem);
   const closedSelectorItems = closedDeals.map(toClubItem);
 
+  // Свежие новости рынка (топ-3 горячих)
+  const news = await prisma.newsItem.findMany({
+    where: { isActive: true },
+    orderBy: [{ isHot: "desc" }, { publishedAt: "desc" }],
+    take: 3,
+  });
+
   return (
     <div className="relative bg-bg">
       {/* Тикер котировок — edge-to-edge */}
@@ -87,6 +94,12 @@ export default async function HomePage() {
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
+              href="/news"
+              className="rounded-control border border-border bg-surface/70 px-3 py-2 text-xs font-semibold text-text-primary transition-all hover:border-brand hover:text-brand sm:px-4 sm:text-sm"
+            >
+              📰 Новости
+            </Link>
+            <Link
               href="/exits"
               className="rounded-control border border-border bg-surface/70 px-3 py-2 text-xs font-semibold text-text-primary transition-all hover:border-brand hover:text-brand sm:px-4 sm:text-sm"
             >
@@ -97,6 +110,12 @@ export default async function HomePage() {
               className="rounded-control border border-brand/50 bg-brand-subtle px-3 py-2 text-xs font-semibold text-brand transition-all hover:border-brand hover:brightness-110 sm:px-4 sm:text-sm"
             >
               📊 Портфель
+            </Link>
+            <Link
+              href="/agent"
+              className="hidden rounded-control border border-border bg-surface/70 px-3 py-2 text-xs font-semibold text-text-primary transition-all hover:border-brand hover:text-brand sm:block sm:px-4 sm:text-sm"
+            >
+              Партнёрам
             </Link>
             <div className="hidden sm:block">
               <ContactButtons size="sm" />
@@ -212,13 +231,76 @@ export default async function HomePage() {
           </section>
         )}
 
-        {/* 04 — Контакт: тёмная панель + светлый остров с формой */}
+        {/* Новости рынка */}
+        {news.length > 0 && (
+          <section className="mt-28">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <SectionHead n="04" kicker="Лента рынка · ежедневно" title="Новости pre-IPO" />
+              <Link
+                href="/news"
+                className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-bg transition-all hover:brightness-110"
+              >
+                Все новости →
+              </Link>
+            </div>
+            <div className="mt-8 grid gap-5 sm:grid-cols-3">
+              {news.map((n) => (
+                <Link
+                  key={n.id}
+                  href="/news"
+                  className="flex flex-col rounded-card border border-border bg-surface p-5 transition-colors hover:border-brand"
+                >
+                  <div className="flex items-center gap-2">
+                    {n.isHot && (
+                      <span className="kicker rounded-full border border-warning/40 bg-warning/10 px-2 py-0.5 text-warning">Горячее</span>
+                    )}
+                    {n.category && <span className="kicker text-text-muted">{n.category}</span>}
+                  </div>
+                  <h3 className="mt-3 font-bold leading-tight text-text-primary">{n.title}</h3>
+                  <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-text-secondary">{n.summary}</p>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Партнёрам — вход в портал */}
+        <section className="mt-28">
+          <div className="glass relative overflow-hidden rounded-card p-8 sm:p-12">
+            <div className="absolute right-[6%] top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-brand/10 blur-[120px]" />
+            <div className="relative flex flex-wrap items-center justify-between gap-6">
+              <div className="max-w-2xl">
+                <p className="kicker kicker-gold">Партнёрская программа</p>
+                <h2 className="text-display mt-2 text-2xl font-bold sm:text-4xl">Продавайте pre-IPO своим клиентам</h2>
+                <p className="mt-3 text-text-secondary">
+                  Личный кабинет партнёра: ведите клиентов и сделки, отслеживайте комиссии и
+                  выплаты, считайте доходность и рентабельность портфеля, формируйте отчёты —
+                  на сайте и в Telegram-боте.
+                </p>
+                <div className="mt-5 flex flex-wrap gap-3 text-sm text-text-muted">
+                  <span className="hairline rounded-control px-3 py-1.5">Клиенты и сделки</span>
+                  <span className="hairline rounded-control px-3 py-1.5">Комиссии и SF</span>
+                  <span className="hairline rounded-control px-3 py-1.5">Доходность vs S&amp;P 500</span>
+                  <span className="hairline rounded-control px-3 py-1.5">Отчёты PDF</span>
+                </div>
+              </div>
+              <Link
+                href="/agent"
+                className="glow-brand shrink-0 rounded-control bg-brand px-7 py-3.5 font-semibold text-bg transition-all hover:brightness-110"
+              >
+                Войти в кабинет →
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* 06 — Контакт: тёмная панель + светлый остров с формой */}
         <section id="contact" className="mt-28">
           <Reveal>
             <div className="hairline overflow-hidden rounded-card">
               <div className="grid sm:grid-cols-2">
                 <div className="p-8 sm:p-10">
-                  <SectionHead n="04" kicker="Связаться" title="Войдите в сделку" />
+                  <SectionHead n="06" kicker="Связаться" title="Войдите в сделку" />
                   <p className="mt-4 max-w-md text-text-secondary">
                     Оставьте заявку или напишите напрямую — ответим и подберём проект под
                     ваши задачи.
@@ -243,6 +325,8 @@ export default async function HomePage() {
             <Link href="/privacy" className="text-text-muted underline hover:text-text-secondary">
               Политика обработки персональных данных
             </Link>
+            <Link href="/news" className="text-text-muted underline hover:text-text-secondary">Новости</Link>
+            <Link href="/agent" className="text-text-muted underline hover:text-text-secondary">Партнёрам</Link>
           </div>
         </footer>
       </main>
