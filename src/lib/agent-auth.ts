@@ -4,7 +4,7 @@
 // — на каждом запросе проверяем подпись, срок и что агент ещё isActive.
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { createHmac, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 
 const COOKIE = "agent_session";
@@ -12,8 +12,12 @@ const TTL = 60 * 60 * 12; // 12 часов
 
 function secret(): string {
   const s = process.env.AGENT_SESSION_SECRET;
-  // fail-closed: без секрета сессии не подписываются (вход невозможен)
-  return s && s.length >= 16 ? s : "";
+  if (s && s.length >= 16) return s;
+  // Запасной секрет из ADMIN_PASSWORD — чтобы портал работал на проде без
+  // отдельной переменной. Fail-closed, только если нет вообще ничего.
+  const adm = process.env.ADMIN_PASSWORD;
+  if (adm && adm.length >= 6) return createHash("sha256").update("agent-session:" + adm).digest("hex");
+  return "";
 }
 
 // --- Пароли (scrypt) ---
