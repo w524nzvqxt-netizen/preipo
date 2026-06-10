@@ -60,3 +60,6 @@ backups/
 
 # Временные мастера видео
 .video-tmp/
+
+# Журнал бота правок (общий с Claude Code-сессией)
+bot/activity.log

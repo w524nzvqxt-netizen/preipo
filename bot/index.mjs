@@ -7,6 +7,20 @@ import { query } from "@anthropic-ai/claude-agent-sdk";
 import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+// Самозагрузка .env (чтобы работало и при запуске `node bot/index.mjs` без --env-file)
+{
+  const dir = path.dirname(fileURLToPath(import.meta.url));
+  for (const p of [path.join(dir, "..", ".env"), path.resolve(".env")]) {
+    try {
+      for (const line of fs.readFileSync(p, "utf8").split("\n")) {
+        const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/);
+        if (m && process.env[m[1]] === undefined) process.env[m[1]] = m[2];
+      }
+    } catch {}
+  }
+}
 
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const OWNER = String(process.env.AUTHORIZED_CHAT_ID || "");
@@ -44,10 +58,18 @@ const SYSTEM = `Ты — инженер сайта pre-ipo.pro (Next.js 16, Tail
 3. Проверь сборку: npm run build — должно быть без ошибок TypeScript. Если падает — почини.
 4. Закоммить по-русски и запушь: git add -A (без .env), git commit, git push origin main.
 5. Кратко отчитайся 1-3 предложениями: что сделал. Если не уверен в правке — уточни, не ломая прод.
+6. После пуша допиши ОДНУ строку в файл bot/activity.log: дата в ISO, кратко что сделал, и хэш коммита (git rev-parse --short HEAD). Файл bot/activity.log — в .gitignore, его НЕ коммить.
+
+Совместная работа: над этим же репозиторием параллельно работает Claude Code-сессия разработчика (другой Клод). Поэтому ВСЕГДА делай git pull --ff-only перед правкой — чтобы видеть его изменения и не разойтись. Загляни в bot/activity.log и git log, чтобы понять недавний контекст. Если правки могут пересечься — действуй аккуратно, маленькими коммитами.
 Никогда не коммить .env/секреты. Не пушить при падающем билде. Все суммы/цифры — только проверенные.`;
 
+console.log(`Конфиг: токен ${TOKEN ? "есть" : "НЕТ"}, владелец ${OWNER || "(не задан)"}, repo ${REPO_DIR}, модель ${MODEL}`);
 console.log("Подготовка репозитория…");
-ensureRepo();
+try {
+  ensureRepo();
+} catch (e) {
+  console.error("ensureRepo (не критично):", e.message);
+}
 
 const bot = new Bot(TOKEN);
 
@@ -58,8 +80,9 @@ bot.command("start", (ctx) =>
 );
 
 bot.on("message:text", async (ctx) => {
-  if (OWNER && String(ctx.chat.id) !== OWNER) {
-    return ctx.reply(`Доступ запрещён. Твой chat id: ${ctx.chat.id} — впиши его в AUTHORIZED_CHAT_ID.`);
+  // fail-closed: без заданного владельца команды не выполняются (только выдаём chat id)
+  if (!OWNER || String(ctx.chat.id) !== OWNER) {
+    return ctx.reply(`Доступ ещё не настроен или запрещён.\nТвой chat id: ${ctx.chat.id}\nВпиши его в AUTHORIZED_CHAT_ID и перезапусти бота.`);
   }
   const task = ctx.message.text;
   if (task.startsWith("/")) return;
