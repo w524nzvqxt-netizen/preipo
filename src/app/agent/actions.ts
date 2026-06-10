@@ -10,6 +10,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import {
+  hashPassword,
   verifyPassword,
   setAgentSession,
   clearAgentSession,
@@ -72,6 +73,28 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
 export async function logout() {
   await clearAgentSession();
   redirect("/agent/login");
+}
+
+// --- Регистрация агента (самостоятельная) ---
+export type RegisterState = { error?: string };
+
+export async function registerAgent(_prev: RegisterState, formData: FormData): Promise<RegisterState> {
+  const name = String(formData.get("name") || "").trim();
+  const username = String(formData.get("username") || "").trim().toLowerCase();
+  const password = String(formData.get("password") || "");
+
+  if (!name) return { error: "Укажите имя." };
+  if (!/^[a-z0-9_.@-]{3,40}$/.test(username)) return { error: "Логин: 3–40 символов (латиница, цифры, _ . @ -)." };
+  if (password.length < 8) return { error: "Пароль минимум 8 символов." };
+
+  const exists = await prisma.agent.findUnique({ where: { username } });
+  if (exists) return { error: "Такой логин уже занят." };
+
+  const agent = await prisma.agent.create({
+    data: { username, name, passwordHash: hashPassword(password) },
+  });
+  await setAgentSession(agent.id);
+  redirect("/agent");
 }
 
 // --- Вход через Telegram (подтверждение ботом) ---
