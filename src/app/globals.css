@@ -5,33 +5,45 @@
 @theme {
   --font-sans: var(--font-manrope);
 
-  /* Тёмная сцена */
-  --color-bg: #070B0E;
-  --color-surface: #0E141A;
-  --color-surface-alt: #141C24;
-  --color-glass: rgba(20, 28, 36, 0.55);
-  --color-border: #1E2A34;
-  --color-border-strong: #2A3A47;
+  /* Dark private-markets terminal: золото/платина — дорогой акцент, зелёный — только рост,
+     amber — предупреждение, красный — высокий риск. Никакого крипто-сине-фиолетового. */
+  --color-bg: #070A0F;
+  --color-surface: #0D111A;
+  --color-surface-alt: #111722;
+  --color-glass: rgba(17, 23, 34, 0.58);
+  --color-border: #232B3A;
+  --color-border-strong: #313B4E;
 
-  --color-text-primary: #ECF1F4;
-  --color-text-secondary: #9DACB6;
-  /* Поднят с #6B7A85 (контраст 4.18) до ≥4.5 на фоне #070B0E — читаемость кикеров/подписей */
-  --color-text-muted: #8C9BA5;
+  --color-text-primary: #F3F4F6;
+  --color-text-secondary: #9CA3AF;
+  /* ≥4.5 контраст на #070A0F — читаемость кикеров/подписей */
+  --color-text-muted: #8A93A1;
 
-  --color-brand: #27E0A8;
-  --color-brand-deep: #15715E;
-  --color-brand-subtle: #11221C;
-  --color-accent: #7FD9FF;
-  --color-accent-subtle: #102530;
-  --color-gold: #C9A227;
+  /* Бренд = золото/платина (главный акцент и CTA) */
+  --color-brand: #D6B56D;
+  --color-brand-deep: #A8863F;
+  --color-brand-subtle: #1A1710;
+  --color-accent: #E0C690;
+  --color-accent-subtle: #181510;
+  --color-gold: #D6B56D;
 
-  --color-positive: #34E5A0;
-  --color-negative: #F0616D;
-  --color-warning: #E0A93B;
+  --color-positive: #4ADE80;
+  --color-negative: #EF4444;
+  --color-warning: #F59E0B;
 
   --radius-control: 12px;
   --radius-card: 16px;
   --radius-pill: 999px;
+
+  /* Элевация без «цифровой плоскости»: мягкие слоистые тени для тёмной сцены.
+     Раньше эти токены использовались в ProjectCard, но не были определены → тени не рисовались. */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 28px -16px rgba(0, 0, 0, 0.65);
+  --shadow-card-hover: 0 2px 4px rgba(0, 0, 0, 0.5), 0 28px 56px -20px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(214, 181, 109, 0.14);
+  --shadow-elevated: 0 1px 0 rgba(255, 255, 255, 0.04), 0 32px 72px -24px rgba(0, 0, 0, 0.85);
+
+  /* Премиальные easing-кривые анимаций */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Светлый «data-остров» — для таблиц, калькуляторов, форм (читаемость).
@@ -46,13 +58,17 @@
   --color-text-primary: #15140F;
   --color-text-secondary: #57534A;
   --color-text-muted: #857F73;
-  --color-brand: #0E6B58;
-  --color-brand-subtle: #E8F1ED;
-  --color-accent: #1F6F8B;
-  --color-accent-subtle: #E7F0F4;
-  --color-positive: #1E7A55;
+  --color-brand: #8A6D2F;
+  --color-brand-subtle: #F3ECDA;
+  --color-accent: #8A6D2F;
+  --color-accent-subtle: #F3ECDA;
+  --color-positive: #15803D;
   --color-negative: #B23B36;
-  --color-warning: #9A6B1E;
+  --color-warning: #B45309;
+  /* Светлые тени для data-островов */
+  --shadow-card: 0 1px 2px rgba(21, 20, 15, 0.05), 0 12px 28px -18px rgba(21, 20, 15, 0.22);
+  --shadow-card-hover: 0 2px 6px rgba(21, 20, 15, 0.08), 0 24px 48px -22px rgba(21, 20, 15, 0.3), 0 0 0 1px rgba(138, 109, 47, 0.2);
+  --shadow-elevated: 0 24px 64px -28px rgba(21, 20, 15, 0.28);
   background-color: var(--color-bg);
   color: var(--color-text-primary);
 }
@@ -65,6 +81,21 @@ body {
   color: var(--color-text-primary);
   font-family: var(--font-manrope), Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Премиальное выделение текста — бренд, не системный синий */
+::selection {
+  background: rgba(214, 181, 109, 0.26);
+  color: var(--color-text-primary);
+}
+
+/* Единое фокус-кольцо вместо разнобоя браузерных аутлайнов */
+:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-brand) 70%, transparent);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 /* Lenis smooth scroll */
@@ -95,11 +126,21 @@ html.lenis, html.lenis body { height: auto; }
 /* Глубина без теней: хайрлайны / стекло / inset */
 .hairline { border: 1px solid var(--color-border); }
 .glass {
+  position: relative;
   background: var(--color-glass);
-  backdrop-filter: blur(20px) saturate(1.2);
-  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  backdrop-filter: blur(24px) saturate(1.35);
+  -webkit-backdrop-filter: blur(24px) saturate(1.35);
   border: 1px solid var(--color-border);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), var(--shadow-elevated);
+}
+/* Тонкий верхний блик — стекло «ловит свет» по верхней кромке */
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 40%);
 }
 .inset-panel {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), inset 0 -1px 0 rgba(0, 0, 0, 0.4);
@@ -107,10 +148,41 @@ html.lenis, html.lenis body { height: auto; }
 
 /* Glow — только на живых данных */
 .glow-brand {
-  box-shadow: 0 0 0 1px rgba(39, 224, 168, 0.18), 0 0 40px -8px rgba(39, 224, 168, 0.30);
+  box-shadow: 0 0 0 1px rgba(214, 181, 109, 0.22), 0 8px 22px -12px rgba(214, 181, 109, 0.32);
 }
 .glow-pulse { animation: glowPulse 5s ease-in-out infinite; }
 @keyframes glowPulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+
+/* Премиальная карточка: мягкая элевация + скользящий бренд-блик при наведении */
+.card-premium {
+  position: relative;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.4s var(--ease-out-expo), box-shadow 0.4s var(--ease-out-expo), border-color 0.4s var(--ease-out-expo);
+}
+.card-premium::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-out-expo);
+  background: radial-gradient(120% 80% at 50% -20%, rgba(214, 181, 109, 0.1), transparent 60%);
+}
+.card-premium:hover::after { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .card-premium { transition: none; }
+}
+
+/* Единая глянцевая бренд-кнопка: верхний свет + бренд-glow.
+   Лёгкая light-кромка адаптируется к токену бренда (работает и в .island). */
+.btn-brand {
+  background-image: linear-gradient(180deg, color-mix(in srgb, var(--color-brand) 86%, white), var(--color-brand));
+  color: #1A1306;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 0 0 1px rgba(214, 181, 109, 0.18), 0 8px 20px -14px rgba(214, 181, 109, 0.4);
+  transition: filter 0.3s var(--ease-out-expo), transform 0.3s var(--ease-out-expo), box-shadow 0.3s var(--ease-out-expo);
+}
+.btn-brand:hover { filter: brightness(1.05); }
 
 /* Плёночное зерно — убивает «цифровую плоскость» */
 .grain::after {
@@ -122,8 +194,8 @@ html.lenis, html.lenis body { height: auto; }
 /* Тонкая сетка-оверлей для hero */
 .grid-overlay {
   background-image:
-    linear-gradient(rgba(39, 224, 168, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(39, 224, 168, 0.045) 1px, transparent 1px);
+    linear-gradient(rgba(214, 181, 109, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(214, 181, 109, 0.04) 1px, transparent 1px);
   background-size: 64px 64px;
   -webkit-mask-image: radial-gradient(circle at 30% 30%, black, transparent 80%);
   mask-image: radial-gradient(circle at 30% 30%, black, transparent 80%);

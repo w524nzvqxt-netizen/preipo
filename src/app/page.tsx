@@ -2,14 +2,14 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ContactButtons } from "@/components/ContactButtons";
-import { LeadForm } from "@/components/LeadForm";
+import { InvestorQuiz } from "@/components/InvestorQuiz";
 import { Hero } from "@/components/Hero";
 import { Ticker } from "@/components/Ticker";
 import { Reveal } from "@/components/motion/Reveal";
 import { Disclaimer } from "@/components/Disclaimer";
 import { ClubSelector } from "@/components/ClubSelector";
+import { ProjectCard } from "@/components/ProjectCard";
 import { contacts } from "@/lib/config";
-import { computeExitIndex, TICKET } from "@/lib/exit-index";
 import { formatMoney } from "@/lib/format";
 
 // Витрина всегда отражает актуальные данные из админки
@@ -24,32 +24,6 @@ export default async function HomePage() {
   // Открытые раунды (можно войти) и реализованные сделки (трек-рекорд)
   const projects = all.filter((p) => p.dealStatus !== "closed");
   const closedDeals = all.filter((p) => p.dealStatus === "closed");
-
-  // Индекс трек-рекорда (вышедшие на биржу компании)
-  const publicRows = await prisma.publicCompany.findMany();
-  const idx = computeExitIndex(
-    publicRows.map((r) => {
-      let rounds: { valuationUSD: number | null; year: number | null }[] = [];
-      try {
-        rounds = (JSON.parse(r.rounds ?? "[]") as { valuationUSD?: number | null; year?: number | null }[]).map(
-          (x) => ({ valuationUSD: x.valuationUSD ?? null, year: x.year ?? null })
-        );
-      } catch {
-        rounds = [];
-      }
-      return { currentMarketCapUSD: r.currentMarketCapUSD, rounds };
-    })
-  );
-  const outperform = idx.sp500Mult > 0 ? idx.preIpoMult / idx.sp500Mult : 0;
-
-  // KPI для hero
-  const withReturn = all.filter((p) => p.expectedReturn != null);
-  const avgReturn = withReturn.length
-    ? Math.round(
-        withReturn.reduce((s, p) => s + (p.expectedReturn ?? 0), 0) /
-          withReturn.length
-      )
-    : 0;
 
   // Планеты для солнечной системы в hero: компании по капитализации (оценке)
   const planets = all
@@ -69,8 +43,18 @@ export default async function HomePage() {
     potential: p.cocMultiple != null ? `×${p.cocMultiple.toFixed(1).replace(".", ",")}` : "—",
     isHot: p.isHot,
   });
-  const selectorItems = projects.map(toClubItem);
   const closedSelectorItems = closedDeals.map(toClubItem);
+
+  // Данные для deal-terminal на первом экране (значения без подтверждения — «по запросу»)
+  const terminalDeals = projects.slice(0, 4).map((p) => ({
+    name: p.name,
+    sector: p.sector || "Late-stage private",
+    horizon: p.expectedExit || "2–5 лет",
+    minTicket: p.minTicket != null ? formatMoney(p.minTicket, p.currency) : "по запросу",
+    status: "доступ ограничен",
+    liquidity: "низкая",
+    risk: "высокий",
+  }));
 
   // Свежие новости рынка (топ-3 горячих)
   const news = await prisma.newsItem.findMany({
@@ -89,43 +73,22 @@ export default async function HomePage() {
       {/* Стеклянная шапка */}
       <header className="full-bleed sticky top-0 z-50 glass">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-6 py-3">
-          <Link href="/" className="flex items-center gap-2 text-lg font-bold text-text-primary">
+          <Link href="/" className="flex items-center gap-2 text-lg font-bold tracking-tight text-text-primary">
             <span className="text-brand">◆</span> Pre-IPO
           </Link>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link
-              href="/news"
-              className="rounded-control border border-border bg-surface/70 px-3 py-2 text-xs font-semibold text-text-primary transition-all hover:border-brand hover:text-brand sm:px-4 sm:text-sm"
-            >
-              📰 Новости
-            </Link>
-            <Link
-              href="/exits"
-              className="rounded-control border border-border bg-surface/70 px-3 py-2 text-xs font-semibold text-text-primary transition-all hover:border-brand hover:text-brand sm:px-4 sm:text-sm"
-            >
-              📈 Уже на бирже
-            </Link>
-            <Link
-              href="/portfolio"
-              className="rounded-control border border-brand/50 bg-brand-subtle px-3 py-2 text-xs font-semibold text-brand transition-all hover:border-brand hover:brightness-110 sm:px-4 sm:text-sm"
-            >
-              📊 Портфель
-            </Link>
-            <Link
-              href="/agent"
-              className="hidden rounded-control border border-border bg-surface/70 px-3 py-2 text-xs font-semibold text-text-primary transition-all hover:border-brand hover:text-brand sm:block sm:px-4 sm:text-sm"
-            >
-              Партнёрам
-            </Link>
-            <div className="hidden sm:block">
-              <ContactButtons size="sm" />
-            </div>
-          </div>
+          <nav className="flex items-center gap-0.5 sm:gap-1">
+            <a href="#deals" className="rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary">Сделки</a>
+            <a href="#process" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary lg:block">Как это работает</a>
+            <a href="#risks" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary lg:block">Риски</a>
+            <Link href="/exits" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary sm:block">Аналитика</Link>
+            <Link href="/agent" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary sm:block">Партнёрам</Link>
+            <a href="#quiz" className="btn-brand ml-1 rounded-control px-3 py-2 text-xs font-semibold sm:px-4 sm:text-sm">Получить доступ</a>
+          </nav>
         </div>
       </header>
 
-      {/* HERO — full-bleed обсерватория */}
-      <Hero dealCount={all.length} closedCount={closedDeals.length} avgReturn={avgReturn} planets={planets} />
+      {/* HERO — full-bleed private deal terminal */}
+      <Hero planets={planets} deals={terminalDeals} />
 
       <main className="mx-auto w-full max-w-7xl px-6 pb-28">
         {/* Баннер индекса vs S&P 500 — наезжает на hero */}
@@ -135,23 +98,21 @@ export default async function HomePage() {
         >
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <p className="kicker kicker-gold">Трек-рекорд рынка · 21 компания от раунда до IPO</p>
-              <h2 className="mt-2 text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
-                {formatMoney(TICKET)} в каждый раунд →{" "}
-                <span className="nums text-positive">×{idx.preIpoMult.toFixed(1).replace(".", ",")}</span>
-                <span className="nums ml-2 text-lg font-semibold text-text-muted">
-                  vs S&amp;P 500 ×{idx.sp500Mult.toFixed(1).replace(".", ",")}
-                </span>
+              <p className="kicker text-text-muted">Аналитика рынка · 21 компания от раунда до IPO</p>
+              <h2 className="mt-2 text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
+                Трек-рекорд pre-IPO раундов против публичного рынка
               </h2>
               <p className="mt-2 max-w-2xl text-text-secondary">
-                Pre-IPO раунды известных компаний (и взлёты, и провалы) опередили бы
-                S&amp;P 500 примерно в{" "}
-                <b className="text-brand">{outperform.toFixed(1).replace(".", ",")}×</b>. Разбивка по
-                раундам, цена акций и калькулятор по точке входа.
+                Исторически равные вложения в pre-IPO раунды известных компаний — с учётом
+                и взлётов, и провалов — опережали S&amp;P 500. Внутри: разбивка по раундам,
+                цена акций и калькулятор по точке входа.
+              </p>
+              <p className="mt-2 text-xs text-text-muted">
+                Прошлые результаты не гарантируют будущих.
               </p>
             </div>
-            <span className="glow-brand shrink-0 rounded-control bg-brand px-5 py-3 font-semibold text-bg transition-all group-hover:brightness-110">
-              Смотреть трек-рекорд →
+            <span className="shrink-0 rounded-control border border-border px-5 py-3 font-semibold text-text-primary transition-colors group-hover:border-brand/50">
+              Открыть аналитику →
             </span>
           </div>
         </Link>
@@ -195,24 +156,45 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* 02 — Открытые раунды */}
-        <section id="projects" className="mt-28">
+        {/* Как проходит сделка — банковский процесс */}
+        <section id="process" className="mt-28 scroll-mt-24">
+          <p className="kicker kicker-gold">Процесс</p>
+          <h2 className="text-display mt-2 text-2xl font-bold sm:text-4xl">Как проходит сделка</h2>
+          <p className="mt-3 max-w-2xl text-text-secondary">
+            Прозрачный порядок — от заявки до события ликвидности. На каждом шаге вы видите
+            условия, документы и риски до принятия решения.
+          </p>
+          <div className="mt-10 grid gap-px overflow-hidden rounded-card border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
+            {PROCESS.map((s, i) => (
+              <div key={s.title} className="bg-surface p-6">
+                <span className="nums text-sm font-bold text-brand">{String(i + 1).padStart(2, "0")}</span>
+                <h3 className="mt-3 font-semibold text-text-primary">{s.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-text-secondary">{s.text}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Доступные сделки */}
+        <section id="deals" className="mt-28 scroll-mt-24">
           <div className="flex flex-wrap items-end justify-between gap-4">
-            <SectionHead n="02" kicker="Витрина" title="Доступные проекты" />
+            <SectionHead n="02" kicker="Сделки" title="Доступные сделки" />
             <Link
               href="/portfolio"
-              className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-bg transition-all hover:brightness-110"
+              className="rounded-control border border-border px-4 py-2 text-sm font-semibold text-text-secondary transition-colors hover:border-brand/50 hover:text-text-primary"
             >
               Собрать портфель →
             </Link>
           </div>
           {projects.length === 0 ? (
             <div className="mt-8 rounded-card border border-dashed border-border p-10 text-center text-text-muted">
-              Пока нет активных проектов.
+              Сделки открываются по запросу. Пройдите подбор — пришлём актуальный список.
             </div>
           ) : (
-            <div className="mt-10">
-              <ClubSelector items={selectorItems} />
+            <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {projects.map((p) => (
+                <ProjectCard key={p.id} project={p} />
+              ))}
             </div>
           )}
         </section>
@@ -238,7 +220,7 @@ export default async function HomePage() {
               <SectionHead n="04" kicker="Лента рынка · ежедневно" title="Новости pre-IPO" />
               <Link
                 href="/news"
-                className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-bg transition-all hover:brightness-110"
+                className="btn-brand rounded-control px-4 py-2 text-sm font-semibold"
               >
                 Все новости →
               </Link>
@@ -248,7 +230,7 @@ export default async function HomePage() {
                 <Link
                   key={n.id}
                   href="/news"
-                  className="flex flex-col rounded-card border border-border bg-surface p-5 transition-colors hover:border-brand"
+                  className="card-premium group flex flex-col overflow-hidden rounded-card border border-border bg-surface p-5 hover:-translate-y-1 hover:border-brand/60 hover:shadow-[var(--shadow-card-hover)] motion-reduce:hover:translate-y-0"
                 >
                   <div className="flex items-center gap-2">
                     {n.isHot && (
@@ -286,7 +268,7 @@ export default async function HomePage() {
               </div>
               <Link
                 href="/agent"
-                className="glow-brand shrink-0 rounded-control bg-brand px-7 py-3.5 font-semibold text-bg transition-all hover:brightness-110"
+                className="btn-brand shrink-0 rounded-control px-7 py-3.5 font-semibold"
               >
                 Войти в кабинет →
               </Link>
@@ -294,24 +276,129 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* 06 — Контакт: тёмная панель + светлый остров с формой */}
-        <section id="contact" className="mt-28">
+        {/* Сравнение инструментов */}
+        <section id="compare" className="mt-28 scroll-mt-24">
+          <p className="kicker kicker-gold">Контекст</p>
+          <h2 className="text-display mt-2 text-2xl font-bold sm:text-4xl">Где Pre-IPO среди других инструментов</h2>
+          <p className="mt-3 max-w-2xl text-text-secondary">
+            Честное место инструмента: высокий потенциал — но низкая ликвидность и длинный
+            горизонт. Pre-IPO дополняет портфель, а не заменяет его.
+          </p>
+          <div className="mt-8 overflow-x-auto rounded-card border border-border">
+            <table className="w-full min-w-[680px] border-collapse text-sm">
+              <thead>
+                <tr className="bg-surface-alt text-left">
+                  {["Инструмент", "Потенциал", "Риск", "Ликвидность", "Чек", "Горизонт"].map((h) => (
+                    <th key={h} className="kicker px-4 py-3 font-semibold text-text-muted">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { name: "Публичные акции", p: "средний", r: "средний", l: "высокая", c: "низкий", h: "любой" },
+                  { name: "IPO", p: "высокий", r: "высокий", l: "средняя", c: "средний", h: "6–24 мес" },
+                  { name: "Pre-IPO", p: "высокий", r: "высокий", l: "низкая", c: "высокий", h: "2–5 лет", hl: true },
+                  { name: "Венчур", p: "очень высокий", r: "очень высокий", l: "очень низкая", c: "высокий", h: "5–10 лет" },
+                ].map((row) => (
+                  <tr key={row.name} className={`border-t border-border ${row.hl ? "bg-brand-subtle" : "bg-surface"}`}>
+                    <td className={`px-4 py-3 font-semibold ${row.hl ? "text-brand" : "text-text-primary"}`}>{row.name}</td>
+                    <td className="nums px-4 py-3 text-text-secondary">{row.p}</td>
+                    <td className="nums px-4 py-3 text-text-secondary">{row.r}</td>
+                    <td className="nums px-4 py-3 text-text-secondary">{row.l}</td>
+                    <td className="nums px-4 py-3 text-text-secondary">{row.c}</td>
+                    <td className="nums px-4 py-3 text-text-secondary">{row.h}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* Риски — amber, без красного «ужаса» */}
+        <section id="risks" className="mt-28 scroll-mt-24">
+          <p className="kicker text-warning">Важно понимать</p>
+          <h2 className="text-display mt-2 text-2xl font-bold sm:text-4xl">Риски Pre-IPO</h2>
+          <p className="mt-3 max-w-2xl text-text-secondary">
+            Мы не продаём мечту, а открываем доступ к сложному инструменту и честно
+            показываем условия. Pre-IPO предполагает повышенный риск.
+          </p>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { t: "Низкая ликвидность", d: "Продать долю до IPO может быть сложно." },
+              { t: "Нет гарантии IPO", d: "Компания может отложить выход на биржу или не выйти вовсе." },
+              { t: "Высокий риск", d: "Стоимость актива может снизиться, возможна полная потеря капитала." },
+              { t: "Долгий горизонт", d: "Не подходит для денег, которые могут понадобиться в ближайшие месяцы." },
+              { t: "Ограниченная информация", d: "Частные компании раскрывают меньше данных, чем публичные." },
+              { t: "Сложная структура сделки", d: "SPV, опционы, фонды и secondary требуют понимания документов." },
+            ].map((r) => (
+              <div key={r.t} className="rounded-card border border-warning/25 border-l-2 border-l-warning bg-warning/5 p-6">
+                <h3 className="font-semibold text-text-primary">{r.t}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-text-secondary">{r.d}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Для кого подходит / не подходит */}
+        <section className="mt-20 grid gap-5 md:grid-cols-2">
+          <div className="rounded-card border border-positive/25 bg-positive/[0.06] p-6 sm:p-8">
+            <p className="kicker text-positive">Подходит</p>
+            <ul className="mt-4 space-y-3 text-sm leading-relaxed text-text-secondary">
+              {[
+                "Квалифицированным инвесторам",
+                "Тем, кто готов к горизонту 2–5 лет",
+                "Тем, кто понимает риск private equity",
+                "Кто хочет диверсификацию вне публичного рынка",
+              ].map((x) => (
+                <li key={x} className="flex gap-2.5">
+                  <span className="mt-0.5 text-positive">✓</span>
+                  <span>{x}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="rounded-card border border-warning/25 bg-warning/[0.05] p-6 sm:p-8">
+            <p className="kicker text-warning">Не подходит</p>
+            <ul className="mt-4 space-y-3 text-sm leading-relaxed text-text-secondary">
+              {[
+                "Если нужны гарантии доходности",
+                "Если деньги могут понадобиться через 3–6 месяцев",
+                "Если вы не готовы к полной потере капитала",
+                "Если вы хотите «быстрые иксы»",
+              ].map((x) => (
+                <li key={x} className="flex gap-2.5">
+                  <span className="mt-0.5 text-warning">—</span>
+                  <span>{x}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* Подбор сделок — квиз вместо обычной формы */}
+        <section id="quiz" className="mt-28 scroll-mt-24">
           <Reveal>
             <div className="hairline overflow-hidden rounded-card">
               <div className="grid sm:grid-cols-2">
                 <div className="p-8 sm:p-10">
-                  <SectionHead n="06" kicker="Связаться" title="Войдите в сделку" />
+                  <p className="kicker kicker-gold">Подбор сделок</p>
+                  <h2 className="text-display mt-2 text-2xl font-bold sm:text-4xl">
+                    Подберём сделки под ваш профиль
+                  </h2>
                   <p className="mt-4 max-w-md text-text-secondary">
-                    Оставьте заявку или напишите напрямую — ответим и подберём проект под
-                    ваши задачи.
+                    Ответьте на 4 вопроса — пришлём 3–5 подходящих сделок, условия входа и
+                    документы. Или свяжитесь напрямую.
                   </p>
                   <div className="mt-6">
                     <ContactButtons />
                   </div>
+                  <p className="mt-6 max-w-md text-xs leading-relaxed text-text-muted">
+                    Только для квалифицированных инвесторов. Информация на сайте не является
+                    индивидуальной инвестиционной рекомендацией.
+                  </p>
                 </div>
                 <div className="island p-8 sm:p-10">
-                  <p className="kicker mb-4 text-text-muted">Оставить заявку</p>
-                  <LeadForm />
+                  <InvestorQuiz />
                 </div>
               </div>
             </div>
@@ -335,10 +422,10 @@ export default async function HomePage() {
       <div className="glass fixed inset-x-0 bottom-0 z-50 p-3 sm:hidden">
         <div className="flex gap-2">
           <a
-            href="#contact"
-            className="glow-brand flex-1 rounded-control bg-brand py-3 text-center font-semibold text-bg"
+            href="#quiz"
+            className="btn-brand flex-1 rounded-control py-3 text-center font-semibold"
           >
-            Оставить заявку
+            Получить список сделок
           </a>
           {contacts.telegram && (
             <a
@@ -382,6 +469,16 @@ function SectionHead({
     </div>
   );
 }
+
+// Шаги сделки — спокойный банковский процесс
+const PROCESS: { title: string; text: string }[] = [
+  { title: "Заявка", text: "Оставляете заявку или проходите короткий подбор сделок." },
+  { title: "Проверка профиля инвестора", text: "Подтверждаем статус и соответствие требованиям к инвестору." },
+  { title: "Подбор доступных сделок", text: "Показываем сделки под ваш профиль, горизонт и сектор." },
+  { title: "Раскрытие условий и рисков", text: "Структура входа, deal memo, риски и документы — до решения." },
+  { title: "Документы и оплата", text: "Согласуем объём, подписываем документы, проводим оплату." },
+  { title: "Сопровождение до выхода", text: "Отчётность и поддержка до IPO, secondary или M&A." },
+];
 
 const FEATURES: {
   title: string;
@@ -427,7 +524,7 @@ function FeatureCard({
 
   return (
     <div
-      className={`group h-full rounded-card border border-border border-l-4 bg-surface p-6 transition-colors hover:border-brand ${borderAccent}`}
+      className={`card-premium group h-full overflow-hidden rounded-card border border-border border-l-4 bg-surface p-6 hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)] motion-reduce:hover:translate-y-0 ${borderAccent}`}
     >
       <p className="kicker mb-3 text-text-muted">{num}</p>
       <h3 className="text-lg font-semibold text-text-primary">{title}</h3>

@@ -63,3 +63,6 @@ backups/
 
 # Журнал бота правок (общий с Claude Code-сессией)
 bot/activity.log
+
+# Локальные настройки Claude Code
+.claude/settings.local.json
