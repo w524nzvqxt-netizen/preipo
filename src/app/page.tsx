@@ -127,9 +127,8 @@ export default async function HomePage() {
                 controls
                 preload="metadata"
                 playsInline
-                poster="/uploads/poster-main.jpg"
               >
-                <source src="/uploads/main-pre-ipo.mp4" type="video/mp4" />
+                <source src="/uploads/home-preipo-video.mp4" type="video/mp4" />
               </video>
             </div>
           </Reveal>
