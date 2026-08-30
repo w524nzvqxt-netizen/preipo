@@ -91,16 +91,20 @@ export function SolarSystem({ planets, className = "" }: { planets: Planet[]; cl
     function skyPos() {
       const now = new Date();
       const hour = now.getHours() + now.getMinutes() / 60;
-      const dayProg = Math.min(Math.max((hour - 6) / 13, 0), 1); // утро 0 … вечер 1
-      const elev = Math.sin(dayProg * Math.PI); // зенит в полдень
-      const cx = w * (0.16 + dayProg * 0.68) + nx * 28;
+      const night = hour < 6 || hour >= 20; // «стемнело» → Луна
+      // прогресс по небу: днём 6→20, ночью 20→6 (через полночь)
+      const prog = Math.min(Math.max(
+        night ? (hour >= 20 ? hour - 20 : hour + 4) / 10 : (hour - 6) / 14,
+        0), 1);
+      const elev = Math.sin(prog * Math.PI); // зенит в середине дня/ночи
+      const cx = w * (0.16 + prog * 0.68) + nx * 28;
 
-      const cyStart = h * (0.3 - elev * 0.16); // выше в полдень
+      const cyStart = h * (0.3 - elev * 0.16); // выше в зените
       const cyTarget = h * 0.9; // у границы второго раздела
       const p = Math.min(Math.max(scrollY / (h * 0.85), 0), 1);
       const eased = p * p * (3 - 2 * p); // smoothstep
       const cy = cyStart + eased * (cyTarget - cyStart) + ny * 16;
-      return { cx, cy };
+      return { cx, cy, night };
     }
 
     function drawSun(cx: number, cy: number, r: number) {
@@ -154,12 +158,54 @@ export function SolarSystem({ planets, className = "" }: { planets: Planet[]; cl
       }
     }
 
+    function drawMoon(cx: number, cy: number, r: number) {
+      const g = glow * (reduce ? 1 : 0.96 + 0.04 * Math.sin(t * 0.7));
+      const coronaR = r * 2.4;
+      // холодное лунное свечение (аддитивно)
+      ctx!.save();
+      ctx!.globalCompositeOperation = "lighter";
+      const c1 = ctx!.createRadialGradient(cx, cy, r * 0.5, cx, cy, coronaR);
+      c1.addColorStop(0, `rgba(200,220,255,${0.26 * g})`);
+      c1.addColorStop(0.5, `rgba(160,190,240,${0.09 * g})`);
+      c1.addColorStop(1, "rgba(140,170,230,0)");
+      ctx!.fillStyle = c1;
+      ctx!.beginPath(); ctx!.arc(cx, cy, coronaR, 0, Math.PI * 2); ctx!.fill();
+      ctx!.restore();
+
+      // серебристый диск
+      const disk = ctx!.createRadialGradient(cx - r * 0.3, cy - r * 0.3, r * 0.1, cx, cy, r);
+      disk.addColorStop(0, "#f6f8fc");
+      disk.addColorStop(0.6, "#ccd4e2");
+      disk.addColorStop(1, "#98a2b6");
+      ctx!.fillStyle = disk;
+      ctx!.beginPath(); ctx!.arc(cx, cy, r, 0, Math.PI * 2); ctx!.fill();
+
+      ctx!.save();
+      ctx!.beginPath(); ctx!.arc(cx, cy, r, 0, Math.PI * 2); ctx!.clip();
+      // кратеры
+      ctx!.fillStyle = "rgba(120,132,155,0.32)";
+      const craters: [number, number, number][] = [
+        [-0.26, -0.14, 0.18], [0.22, 0.12, 0.22], [0.06, -0.34, 0.12],
+        [0.34, -0.26, 0.10], [-0.32, 0.30, 0.14], [-0.04, 0.26, 0.09],
+      ];
+      for (const [dx, dy, cr] of craters) {
+        ctx!.beginPath(); ctx!.arc(cx + dx * r, cy + dy * r, cr * r, 0, Math.PI * 2); ctx!.fill();
+      }
+      // мягкий терминатор — затемнение дальнего края (объём)
+      const sh = ctx!.createRadialGradient(cx - r * 0.4, cy - r * 0.4, r * 0.2, cx, cy, r * 1.15);
+      sh.addColorStop(0, "rgba(10,14,28,0)");
+      sh.addColorStop(1, "rgba(8,12,26,0.5)");
+      ctx!.fillStyle = sh;
+      ctx!.beginPath(); ctx!.arc(cx, cy, r, 0, Math.PI * 2); ctx!.fill();
+      ctx!.restore();
+    }
+
     function draw() {
       ctx!.clearRect(0, 0, w, h);
       glow += (glowTarget - glow) * 0.06;
       nx += (tnx - nx) * 0.05; // плавный «доезд» параллакса
       ny += (tny - ny) * 0.05;
-      const { cx, cy } = skyPos();
+      const { cx, cy, night } = skyPos();
       const r = Math.min(w, h) * 0.085;
       const reach = Math.max(w, h) * 0.95;
 
@@ -174,14 +220,20 @@ export function SolarSystem({ planets, className = "" }: { planets: Planet[]; cl
       ctx!.save();
       ctx!.globalCompositeOperation = "lighter";
       const wash = ctx!.createRadialGradient(cx, cy, r * 0.8, cx, cy, reach);
-      wash.addColorStop(0, `rgba(255,200,90,${0.12 * glow})`);
-      wash.addColorStop(0.5, `rgba(255,170,60,${0.045 * glow})`);
-      wash.addColorStop(1, "rgba(255,150,30,0)");
+      if (night) {
+        wash.addColorStop(0, `rgba(150,180,255,${0.08 * glow})`);
+        wash.addColorStop(0.5, `rgba(130,165,240,${0.03 * glow})`);
+        wash.addColorStop(1, "rgba(120,150,230,0)");
+      } else {
+        wash.addColorStop(0, `rgba(255,200,90,${0.12 * glow})`);
+        wash.addColorStop(0.5, `rgba(255,170,60,${0.045 * glow})`);
+        wash.addColorStop(1, "rgba(255,150,30,0)");
+      }
       ctx!.fillStyle = wash;
       ctx!.fillRect(0, 0, w, h);
       ctx!.restore();
 
-      drawSun(cx, cy, r);
+      if (night) drawMoon(cx, cy, r); else drawSun(cx, cy, r);
 
       // планеты — объёмные сферы, освещённые солнцем
       for (const b of bodies) {
@@ -232,10 +284,10 @@ export function SolarSystem({ planets, className = "" }: { planets: Planet[]; cl
         ctx!.fillStyle = sphere;
         ctx!.beginPath(); ctx!.arc(x, y, b.size, 0, Math.PI * 2); ctx!.fill();
 
-        // Тёплый солнечный блик-кромка
+        // Блик-кромка со стороны светила (тёплый днём / холодный ночью)
         ctx!.save();
         ctx!.globalCompositeOperation = "lighter";
-        ctx!.fillStyle = `rgba(255,240,205,${0.5 * lit})`;
+        ctx!.fillStyle = night ? `rgba(210,225,255,${0.4 * lit})` : `rgba(255,240,205,${0.5 * lit})`;
         ctx!.beginPath();
         ctx!.arc(lx, ly, b.size * 0.4, 0, Math.PI * 2);
         ctx!.fill();
