@@ -212,3 +212,28 @@ model ClientDocument {
   @@index([agentId])
   @@index([clientId])
 }
+
+// База pre-IPO AI-компаний (информационный раздел «База», разбор бизнеса/планов).
+// Не сделка (без цен входа) — аналитический справочник.
+model KbCompany {
+  id             String   @id @default(cuid())
+  name           String
+  segment        String? // напр. "Foundation & LLM", "Physical AI & Robotics"
+  website        String? // домен для логотипа
+  logoUrl        String?
+  founded        String? // год основания
+  valuationUSD   Float? // последняя оценка (для сортировки)
+  valuationLabel String? // напр. "$965 млрд"
+  lastRound      String? // напр. "Series H · $13 млрд · май 2026"
+  rounds         String? // JSON истории раундов для графика: [{round,date:"YYYY-MM",valuationUSD}]
+  oneLiner       String? // суть в одном предложении
+  business       String? // чем занимается / как зарабатывает
+  plans          String? // что дальше / перспектива IPO
+  analysis       String? // инвест-разбор (сильные стороны + риски)
+  sourceName     String?
+  sourceUrl      String?
+  order          Int      @default(0)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
