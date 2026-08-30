@@ -1,0 +1,13 @@
+# Не тащим в Docker-контекст тяжёлое и лишнее
+.git
+node_modules
+.next
+.video-tmp
+.frames-tmp
+backups
+agent-files
+*.log
+# Локальные копии видео (не нужны в образе — на сайт идут из public/uploads)
+/finsight-video.mp4
+/ai-history-video.mp4
+FS Physical AI Fund Deck.pdf
