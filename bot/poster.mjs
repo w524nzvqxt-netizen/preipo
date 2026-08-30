@@ -144,6 +144,28 @@ function buildDealMessage(st) {
   return { caption, videoPath, name: p.name };
 }
 
+// --- Источник 4: компания из БАЗЫ pre-IPO (/base, все сектора) ---
+function buildKbMessage(st) {
+  const db = new Database(path.join(ROOT, "dev.db"), { readonly: true });
+  const rows = db.prepare(
+    "SELECT id,name,segment,valuationLabel,oneLiner,business,nextRound,lastNews FROM KbCompany WHERE isActive=1 ORDER BY valuationUSD DESC"
+  ).all();
+  db.close();
+  if (!rows.length) return null;
+  const idx = ((st.kbIndex ?? -1) + 1) % rows.length;
+  st.kbIndex = idx;
+  const p = rows[idx];
+  let caption = `🏛 <b>${toTgHtml(p.name)}</b>`;
+  const head = [p.segment, p.valuationLabel].filter(Boolean).map(toTgHtml).join(" · ");
+  if (head) caption += `\n${head}`;
+  const desc = p.oneLiner || (p.business ? p.business.split("\n")[0] : "");
+  if (desc) caption += `\n\n${toTgHtml(desc)}`;
+  if (p.nextRound) caption += `\n\n↗ ${toTgHtml(p.nextRound)}`;
+  if (p.lastNews) caption += `\n📰 ${toTgHtml(p.lastNews)}`;
+  caption += `\n\n<a href="${SITE}/base/${p.id}">Разбор и график оценки →</a>${FOOTER}`;
+  return { caption };
+}
+
 // --- Отправка ---
 async function send(text) {
   if (!TOKEN) throw new Error("Токен постера не задан (AGENT_BOT_TOKEN / POSTER_BOT_TOKEN) в .env");
@@ -228,6 +250,11 @@ async function sendVideo(videoPath, caption) {
     const d = buildDealMessage(st);
     if (!d) { log("Нет компаний в витрине — беру обучающий пост."); mode = "article"; }
     else post = { text: d.caption, videoPath: d.videoPath };
+  }
+  if (mode === "kb") {
+    const d = buildKbMessage(st);
+    if (!d) { log("База пуста — беру обучающий пост."); mode = "article"; }
+    else post = { text: d.caption };
   }
   if (mode === "article") post = { text: buildArticleMessage(st) };
 
