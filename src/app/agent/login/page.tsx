@@ -99,7 +99,7 @@ export default function AgentLoginPage() {
               </button>
             ) : (
               <div className="rounded-control border border-border bg-surface-alt p-4 text-center text-sm text-text-secondary">
-                <p>Подтвердите вход в боте @preipoprobot.</p>
+                <p>Подтвердите вход в боте @PIPatners_bot.</p>
                 <a href={tg.link} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block font-semibold text-[#229ED9]">
                   Открыть Telegram ↗
                 </a>

@@ -15,7 +15,7 @@ let bot: Bot | null = null;
 let handle: ((req: Request) => Promise<Response>) | null = null;
 
 function init() {
-  const token = process.env.AGENT_BOT_TOKEN;
+  const token = process.env.PARTNER_BOT_TOKEN;
   if (!token) return null;
   if (!handle) {
     bot = createAgentBot(prisma, token);
@@ -27,7 +27,7 @@ function init() {
 export async function POST(req: NextRequest) {
   const h = init();
   if (!h || !bot) {
-    return NextResponse.json({ error: "AGENT_BOT_TOKEN не настроен" }, { status: 503 });
+    return NextResponse.json({ error: "PARTNER_BOT_TOKEN не настроен" }, { status: 503 });
   }
   if (!bot.isInited()) await bot.init();
   try {
@@ -41,5 +41,5 @@ export async function POST(req: NextRequest) {
 
 // Диагностика: настроен ли токен на этом окружении (без утечки значений)
 export async function GET() {
-  return NextResponse.json({ ok: true, tokenConfigured: Boolean(process.env.AGENT_BOT_TOKEN) });
+  return NextResponse.json({ ok: true, tokenConfigured: Boolean(process.env.PARTNER_BOT_TOKEN) });
 }

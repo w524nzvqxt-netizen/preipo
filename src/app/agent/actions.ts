@@ -98,7 +98,7 @@ export async function registerAgent(_prev: RegisterState, formData: FormData): P
 }
 
 // --- Вход через Telegram (подтверждение ботом) ---
-const BOT_USERNAME = "preipoprobot";
+const BOT_USERNAME = "PIPatners_bot";
 
 export async function requestTgLogin(): Promise<{ code: string; link: string }> {
   // чистим протухшие коды (>5 мин), чтобы таблица не копила мусор

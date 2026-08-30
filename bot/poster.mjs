@@ -204,7 +204,7 @@ async function sendVideo(videoPath, caption) {
       `🏛 <b>09:45 · компания</b> — ${nextDeal ? toTgHtml(nextDeal.name) : "—"}${hasVid ? " 🎬 с видео" : ""}`,
       `📰 <b>13:00 · новость</b> — ${nextNews ? toTgHtml(nextNews.title) : "нет новых — выйдет обучающий пост"}`,
       "",
-      "Заменить — напиши мне.",
+      "Изменить план — боту правок @claudepreipobot.",
     ].join("\n");
     if (DRY) { console.log(txt.replace(/<\/?[^>]+>/g, "")); return; }
     const res = await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
