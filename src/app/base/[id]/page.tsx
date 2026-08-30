@@ -17,6 +17,7 @@ export default async function BaseCompany({ params }: { params: Promise<{ id: st
   const c = await prisma.kbCompany.findUnique({ where: { id } });
   if (!c || !c.isActive) notFound();
   const rounds = parseRounds(c.rounds);
+  const validRounds = rounds.filter((r) => r.valuationUSD != null && r.valuationUSD > 0);
 
   return (
     <main className="mx-auto w-full max-w-4xl px-5 py-10 sm:py-14">
@@ -61,19 +62,20 @@ export default async function BaseCompany({ params }: { params: Promise<{ id: st
       </Reveal>
 
       {/* График оценки по раундам */}
-      {rounds.length > 0 && (
+      {validRounds.length >= 2 && (
         <Section kicker="Оценка" title="Переоценка по раундам">
           <div className="rounded-card border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
             <ValuationChart rounds={rounds} />
           </div>
-          <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm">
+        </Section>
+      )}
+      {(c.lastRound || c.nextRound) && (
+        <Section kicker="Раунды" title="Раунды и намерения">
+          <div className="flex flex-wrap gap-x-6 gap-y-1.5 text-sm">
             {c.lastRound && <p className="text-text-muted">Последний раунд: <span className="text-text-secondary">{c.lastRound}</span></p>}
             {c.nextRound && <p className="text-text-muted">Намерения: <span className="text-brand">{c.nextRound}</span></p>}
           </div>
         </Section>
-      )}
-      {rounds.length === 0 && c.nextRound && (
-        <Section kicker="Раунд" title="Намерения по новому раунду"><p className="text-brand">{c.nextRound}</p></Section>
       )}
 
       {c.business && <Section kicker="Бизнес" title="Чем занимается"><Para text={c.business} /></Section>}
