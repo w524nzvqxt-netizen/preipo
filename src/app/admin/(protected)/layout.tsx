@@ -28,6 +28,12 @@ export default async function AdminLayout({
             Заявки
           </Link>
           <Link
+            href="/admin/agents"
+            className="text-neutral-500 hover:text-neutral-900"
+          >
+            Агенты
+          </Link>
+          <Link
             href="/admin/quotes"
             className="text-neutral-500 hover:text-neutral-900"
           >

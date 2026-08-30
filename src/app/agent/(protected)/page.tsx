@@ -4,6 +4,7 @@ import { requireAgent } from "@/lib/agent-auth";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/format";
 import { addClient } from "../actions";
+import { contacts } from "@/lib/config";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,9 @@ const input =
 
 export default async function AgentDashboard() {
   const agent = await requireAgent();
+
+  const tg = contacts.telegram;
+  const adminHref = tg ? (tg.startsWith("http") ? tg : `https://t.me/${tg.replace(/^@/, "")}`) : null;
 
   const clients = await prisma.client.findMany({
     where: { agentId: agent.id },
@@ -74,12 +78,24 @@ export default async function AgentDashboard() {
           <p className="kicker text-text-muted">Сводка</p>
           <h1 className="mt-1 text-2xl font-bold text-text-primary">Мои продажи</h1>
         </div>
-        <Link
-          href="/agent/report"
-          className="rounded-control border border-border bg-surface px-4 py-2 text-sm font-semibold text-text-primary transition-colors hover:border-brand hover:text-brand"
-        >
-          📄 Отчёт по портфелю
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          {adminHref && (
+            <a
+              href={adminHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-control border border-border bg-surface px-4 py-2 text-sm font-semibold text-text-primary transition-colors hover:border-brand hover:text-brand"
+            >
+              ✉️ Связь с админом
+            </a>
+          )}
+          <Link
+            href="/agent/report"
+            className="rounded-control border border-border bg-surface px-4 py-2 text-sm font-semibold text-text-primary transition-colors hover:border-brand hover:text-brand"
+          >
+            📄 Отчёт по портфелю
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-px overflow-hidden rounded-card border border-border bg-border lg:grid-cols-3">
