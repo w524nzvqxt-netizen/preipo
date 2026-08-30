@@ -6,7 +6,7 @@ import { motion, useMotionValue, useSpring, useTransform, useReducedMotion } fro
 import { SplitReveal } from "@/components/motion/SplitReveal";
 import { MagneticButton } from "@/components/motion/MagneticButton";
 import { DataCanvas } from "@/components/motion/DataCanvas";
-import { Candlesticks } from "@/components/motion/Candlesticks";
+import { MeshWave } from "@/components/motion/MeshWave";
 import { SolarSystem, type Planet } from "@/components/motion/SolarSystem";
 import { DealTerminal, type TerminalDeal } from "@/components/DealTerminal";
 
@@ -40,12 +40,11 @@ export function Hero({
     >
       {/* Дальний слой — звёздное небо + свечи (мягкий параллакс) */}
       <motion.div style={{ x: farX, y: farY, scale: 1.08 }} className="pointer-events-none absolute inset-0">
-        <DataCanvas className="absolute inset-0 opacity-60" />
-        <div className="grid-overlay absolute inset-0" />
-        {/* Японские свечи — крупная живая лента снизу */}
-        <div className="absolute inset-x-0 bottom-0 h-[60%]">
-          <Candlesticks className="h-full w-full" />
-          <div className="absolute inset-0 bg-gradient-to-t from-bg/70 via-transparent to-bg/80" />
+        <DataCanvas className="absolute inset-0 opacity-40" />
+        {/* Mesh-волна — перспективная сетка-«поверхность рынка» снизу */}
+        <div className="absolute inset-x-0 bottom-0 h-[68%]">
+          <MeshWave className="h-full w-full" />
+          <div className="absolute inset-0 bg-gradient-to-t from-bg/60 via-transparent to-bg" />
         </div>
         <div className="scene-vignette absolute inset-0" />
       </motion.div>

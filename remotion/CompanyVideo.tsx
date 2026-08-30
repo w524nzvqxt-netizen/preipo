@@ -17,14 +17,28 @@ const FONT = "Helvetica, Arial, sans-serif";
 const EMER = "#059669";
 const GREEN = "#0B3D2E";
 
+// Палитра колоды FinSight (private banking: тёмный фон + золото)
+const DARK = "#070710";
+const DARK2 = "#0E0E1A";
+const GOLD = "#D6B56D";
+const GOLD_SOFT = "#EAD8AE";
+const INK = "#F5F3EC";
+const MUTED = "#8C8578";
+
 export type Visual =
-  | { type: "video"; src: string; title?: string; subtitle?: string; caption?: string }
+  | { type: "video"; src: string; title?: string; subtitle?: string; caption?: string; accent?: string }
   | { type: "founders" }
   | { type: "metrics"; title: string; rows: [string, string][] }
   | {
       type: "scenarios";
       items: { k: string; val: number; mult: number; irr: string; color: string }[];
-    };
+    }
+  // Слайды колоды (тёмно-золотая тема)
+  | { type: "stat"; value: string; label: string; sub?: string; kicker?: string }
+  | { type: "timeline"; title: string; cols: { k: string; t: string; d: string; hot?: boolean }[] }
+  | { type: "list"; title: string; kicker?: string; items: string[] }
+  | { type: "bars"; title: string; unit?: string; items: { label: string; value: number; display: string; hot?: boolean }[] }
+  | { type: "grid"; title: string; kicker?: string; rows: [string, string][] };
 
 export type Scene = { durationInFrames: number; audio: string; visual: Visual };
 
@@ -61,6 +75,11 @@ const SceneView: React.FC<{ scene: Scene }> = ({ scene }) => {
   if (v.type === "video") return <VideoScene v={v} />;
   if (v.type === "founders") return <FoundersScene />;
   if (v.type === "metrics") return <MetricsScene v={v} />;
+  if (v.type === "stat") return <StatScene v={v} />;
+  if (v.type === "timeline") return <TimelineScene v={v} />;
+  if (v.type === "list") return <ListScene v={v} />;
+  if (v.type === "bars") return <BarsScene v={v} />;
+  if (v.type === "grid") return <GridScene v={v} />;
   return <ScenariosScene v={v} />;
 };
 
@@ -88,7 +107,7 @@ const VideoScene: React.FC<{ v: Extract<Visual, { type: "video" }> }> = ({ v }) 
               {v.title}
             </div>
             {v.subtitle && (
-              <div style={{ color: "#6EE7B7", fontSize: 40, marginTop: 18, ...rise(frame, 14, 16) }}>
+              <div style={{ color: v.accent || "#6EE7B7", fontSize: 40, marginTop: 18, ...rise(frame, 14, 16) }}>
                 {v.subtitle}
               </div>
             )}
@@ -98,7 +117,7 @@ const VideoScene: React.FC<{ v: Extract<Visual, { type: "video" }> }> = ({ v }) 
       {v.caption && (
         <AbsoluteFill style={{ justifyContent: "flex-end", padding: "0 0 90px 110px" }}>
           <div style={{ ...rise(frame, 6, 14) }}>
-            <div style={{ width: 90, height: 8, background: EMER, marginBottom: 22 }} />
+            <div style={{ width: 90, height: 8, background: v.accent || EMER, marginBottom: 22 }} />
             <div style={{ color: "#fff", fontSize: 52, fontWeight: 700, maxWidth: 1400 }}>
               {v.caption}
             </div>
@@ -219,5 +238,210 @@ const ScenariosScene: React.FC<{ v: Extract<Visual, { type: "scenarios" }> }> = 
         Горизонт ~3,6 года. Нетто: разводнение 35%, carry 20%, fee 5%. Не гарантия доходности.
       </div>
     </AbsoluteFill>
+  );
+};
+
+// ====== Слайды колоды (тёмно-золотая тема) ======
+
+// Фон слайда: тёмный + мягкое золотое свечение у горизонта
+const SlideBG: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <AbsoluteFill
+    style={{
+      background: `radial-gradient(120% 80% at 50% -10%, ${DARK2} 0%, ${DARK} 55%)`,
+      fontFamily: FONT,
+    }}
+  >
+    <AbsoluteFill
+      style={{
+        background: `radial-gradient(60% 40% at 50% 8%, rgba(214,181,109,0.10) 0%, rgba(214,181,109,0) 70%)`,
+      }}
+    />
+    {children}
+  </AbsoluteFill>
+);
+
+// Заголовок слайда: кикер + название + золотая линейка
+const SlideHead: React.FC<{ kicker?: string; title: string; frame: number }> = ({ kicker, title, frame }) => (
+  <div>
+    {kicker && (
+      <div style={{ fontSize: 26, letterSpacing: 6, textTransform: "uppercase", color: GOLD, ...rise(frame, 0, 12) }}>
+        {kicker}
+      </div>
+    )}
+    <div style={{ fontSize: 62, fontWeight: 800, color: INK, marginTop: kicker ? 14 : 0, lineHeight: 1.08, ...rise(frame, 2, 12) }}>
+      {title}
+    </div>
+    <div style={{ width: 180, height: 6, background: GOLD, marginTop: 22, borderRadius: 3 }} />
+  </div>
+);
+
+// Крупная цифра (демография, рынок, тайминг)
+const StatScene: React.FC<{ v: Extract<Visual, { type: "stat" }> }> = ({ v }) => {
+  const frame = useCurrentFrame();
+  return (
+    <SlideBG>
+      <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", padding: "0 120px", textAlign: "center" }}>
+        {v.kicker && (
+          <div style={{ fontSize: 28, letterSpacing: 6, textTransform: "uppercase", color: GOLD, marginBottom: 30, ...rise(frame, 2, 12) }}>
+            {v.kicker}
+          </div>
+        )}
+        <div
+          style={{
+            fontSize: 240,
+            fontWeight: 800,
+            color: GOLD,
+            lineHeight: 1,
+            textShadow: "0 0 60px rgba(214,181,109,0.35)",
+            ...rise(frame, 6, 18),
+          }}
+        >
+          {v.value}
+        </div>
+        <div style={{ fontSize: 46, fontWeight: 600, color: INK, marginTop: 40, maxWidth: 1500, ...rise(frame, 16, 16) }}>
+          {v.label}
+        </div>
+        {v.sub && (
+          <div style={{ fontSize: 30, color: MUTED, marginTop: 26, maxWidth: 1400, ...rise(frame, 26, 16) }}>
+            {v.sub}
+          </div>
+        )}
+      </AbsoluteFill>
+    </SlideBG>
+  );
+};
+
+// Три волны ИИ (или любой 3-колоночный таймлайн)
+const TimelineScene: React.FC<{ v: Extract<Visual, { type: "timeline" }> }> = ({ v }) => {
+  const frame = useCurrentFrame();
+  return (
+    <SlideBG>
+      <div style={{ padding: "80px 110px" }}>
+        <SlideHead title={v.title} frame={frame} />
+        <div style={{ display: "flex", gap: 36, marginTop: 80, alignItems: "stretch" }}>
+          {v.cols.map((c, i) => (
+            <div
+              key={i}
+              style={{
+                flex: 1,
+                background: c.hot ? "rgba(214,181,109,0.10)" : "rgba(255,255,255,0.03)",
+                border: `2px solid ${c.hot ? GOLD : "rgba(214,181,109,0.22)"}`,
+                borderRadius: 24,
+                padding: "44px 34px",
+                ...rise(frame, 16 + i * 12, 18),
+              }}
+            >
+              <div style={{ fontSize: 30, fontWeight: 700, color: c.hot ? GOLD : GOLD_SOFT, letterSpacing: 2 }}>
+                {c.k}
+              </div>
+              <div style={{ fontSize: 52, fontWeight: 800, color: INK, marginTop: 18 }}>{c.t}</div>
+              <div style={{ fontSize: 30, color: MUTED, marginTop: 20, lineHeight: 1.35 }}>{c.d}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </SlideBG>
+  );
+};
+
+// Список (таланты, сегменты)
+const ListScene: React.FC<{ v: Extract<Visual, { type: "list" }> }> = ({ v }) => {
+  const frame = useCurrentFrame();
+  return (
+    <SlideBG>
+      <div style={{ padding: "80px 110px" }}>
+        <SlideHead kicker={v.kicker} title={v.title} frame={frame} />
+        <div style={{ marginTop: 60 }}>
+          {v.items.map((it, i) => (
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 28,
+                padding: "22px 0",
+                borderBottom: "1px solid rgba(214,181,109,0.16)",
+                ...rise(frame, 16 + i * 8, 14),
+              }}
+            >
+              <div style={{ width: 14, height: 14, borderRadius: 7, background: GOLD, flexShrink: 0 }} />
+              <div style={{ fontSize: 40, fontWeight: 600, color: INK }}>{it}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </SlideBG>
+  );
+};
+
+// Столбчатая диаграмма (рост доли Physical AI в VC)
+const BarsScene: React.FC<{ v: Extract<Visual, { type: "bars" }> }> = ({ v }) => {
+  const frame = useCurrentFrame();
+  const max = Math.max(...v.items.map((it) => it.value));
+  const H = 560; // высота области графика
+  return (
+    <SlideBG>
+      <div style={{ padding: "80px 110px" }}>
+        <SlideHead title={v.title} frame={frame} />
+        <div style={{ display: "flex", gap: 30, alignItems: "flex-end", height: H, marginTop: 70 }}>
+          {v.items.map((it, i) => {
+            const grow = interpolate(frame, [14 + i * 4, 40 + i * 4], [0, 1], {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            });
+            const h = (it.value / max) * (H - 90) * grow;
+            return (
+              <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: "100%" }}>
+                <div style={{ fontSize: 30, fontWeight: 800, color: it.hot ? GOLD : GOLD_SOFT, marginBottom: 12, opacity: grow }}>
+                  {it.display}
+                </div>
+                <div
+                  style={{
+                    width: "100%",
+                    height: Math.max(h, 2),
+                    borderRadius: "10px 10px 0 0",
+                    background: it.hot
+                      ? `linear-gradient(180deg, ${GOLD} 0%, #B8945020 140%)`
+                      : "rgba(214,181,109,0.28)",
+                    boxShadow: it.hot ? "0 0 40px rgba(214,181,109,0.4)" : "none",
+                  }}
+                />
+                <div style={{ fontSize: 26, color: MUTED, marginTop: 16 }}>{it.label}</div>
+              </div>
+            );
+          })}
+        </div>
+        {v.unit && <div style={{ fontSize: 26, color: MUTED, marginTop: 24 }}>{v.unit}</div>}
+      </div>
+    </SlideBG>
+  );
+};
+
+// Сетка «условия / метрики» (тёмно-золотая, в отличие от зелёной MetricsScene)
+const GridScene: React.FC<{ v: Extract<Visual, { type: "grid" }> }> = ({ v }) => {
+  const frame = useCurrentFrame();
+  return (
+    <SlideBG>
+      <div style={{ padding: "80px 110px" }}>
+        <SlideHead kicker={v.kicker} title={v.title} frame={frame} />
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, marginTop: 70 }}>
+          {v.rows.map((r, i) => (
+            <div
+              key={i}
+              style={{
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(214,181,109,0.2)",
+                borderRadius: 20,
+                padding: "36px 40px",
+                ...rise(frame, 14 + i * 10, 16),
+              }}
+            >
+              <div style={{ fontSize: 30, color: GOLD_SOFT }}>{r[0]}</div>
+              <div style={{ fontSize: 68, fontWeight: 800, color: INK, marginTop: 10 }}>{r[1]}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </SlideBG>
   );
 };

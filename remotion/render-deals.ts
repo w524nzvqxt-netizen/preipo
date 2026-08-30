@@ -28,7 +28,12 @@ function frames(file: string): number {
   console.log("Бандл...");
   const serveUrl = await bundle({ entryPoint: path.resolve("remotion/index.ts") });
 
-  for (const d of DEALS) {
+  // Опциональный фильтр: `npx tsx remotion/render-deals.ts finsight` — рендерит только один slug
+  const only = process.argv[2];
+  const deals = only ? DEALS.filter((d) => d.slug === only) : DEALS;
+  if (only && deals.length === 0) throw new Error("нет сделки со slug: " + only);
+
+  for (const d of deals) {
     const scenes = d.scenes.map((s, i) => ({
       durationInFrames: frames(`public/uploads/v2/audio/${d.slug}-a${i}.mp3`),
       audio: `uploads/v2/audio/${d.slug}-a${i}.mp3`,

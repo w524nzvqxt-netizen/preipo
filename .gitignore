@@ -66,3 +66,7 @@ bot/activity.log
 
 # Локальные настройки Claude Code
 .claude/settings.local.json
+
+# Конфиденциальные материалы и локальные копии видео (не в репо)
+/FS Physical AI Fund Deck.pdf
+/finsight-video.mp4
