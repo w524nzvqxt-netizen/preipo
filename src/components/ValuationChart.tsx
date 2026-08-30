@@ -46,19 +46,31 @@ export function ValuationChart({ rounds }: { rounds: Round[] }) {
   const pts = clean(rounds);
   if (pts.length === 0) return null;
 
-  const W = 720, H = 300;
-  const padL = 44, padR = 52, padT = 40, padB = 46;
+  const W = 720, H = 280;
+  const padL = 20, padR = 64, padT = 34, padB = 30;
   const ts = pts.map((p) => p.t), vs = pts.map((p) => p.v);
   const t0 = Math.min(...ts), t1 = Math.max(...ts);
-  const vMax = Math.max(...vs) * 1.15;
+  const vMax = Math.max(...vs) * 1.12;
   const x = (t: number) => padL + (pts.length === 1 ? 0.5 : (t - t0) / (t1 - t0 || 1)) * (W - padL - padR);
   const y = (v: number) => H - padB - (v / vMax) * (H - padT - padB);
 
-  // горизонтальные грид-линии (3)
-  const grid = [0.25, 0.5, 0.75, 1].map((f) => ({ f, gv: vMax * f, gy: H - padB - f * (H - padT - padB) }));
+  // грид-линии без числовых подписей
+  const grid = [0.33, 0.66, 1].map((f) => H - padB - f * (H - padT - padB));
   const line = pts.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)} ${y(p.v).toFixed(1)}`).join(" ");
   const area = `${line} L${x(pts[pts.length - 1].t).toFixed(1)} ${H - padB} L${x(pts[0].t).toFixed(1)} ${H - padB} Z`;
   const yearFmt = (t: number) => String(Math.floor(t));
+
+  // прореживание дат, чтобы подписи не наезжали
+  const minGap = (W - padL - padR) / 6;
+  const showDate: boolean[] = [];
+  let lastLX = -1e9;
+  pts.forEach((p, i) => {
+    const px = x(p.t);
+    const show = i === 0 || i === pts.length - 1 || px - lastLX > minGap;
+    showDate.push(show);
+    if (show) lastLX = px;
+  });
+  const last = pts[pts.length - 1];
 
   return (
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Оценка компании по раундам" style={{ display: "block", overflow: "visible" }}>
@@ -69,14 +81,9 @@ export function ValuationChart({ rounds }: { rounds: Round[] }) {
         </linearGradient>
       </defs>
 
-      {/* грид + подписи оси Y */}
-      {grid.map((g) => (
-        <g key={g.f}>
-          <line x1={padL} y1={g.gy} x2={W - padR} y2={g.gy} stroke="var(--color-border)" strokeWidth={1} opacity={0.5} />
-          <text x={W - padR} y={g.gy - 4} textAnchor="end" fontSize={11} fill="var(--color-text-muted)">
-            {formatMoney(Math.round(g.gv), "USD")}
-          </text>
-        </g>
+      {/* грид без числовых подписей (шкалу и верхнее значение убрали) */}
+      {grid.map((gy, i) => (
+        <line key={i} x1={padL} y1={gy} x2={W - padR} y2={gy} stroke="var(--color-border)" strokeWidth={1} opacity={0.4} />
       ))}
 
       {pts.length > 1 && <path d={area} fill="url(#valfill)" />}
@@ -86,29 +93,26 @@ export function ValuationChart({ rounds }: { rounds: Round[] }) {
 
       {pts.map((p, i) => {
         const px = x(p.t), py = y(p.v);
-        const anchor = i === 0 ? "start" : i === pts.length - 1 ? "end" : "middle";
+        const isLast = i === pts.length - 1;
+        const anchor = i === 0 ? "start" : isLast ? "end" : "middle";
         return (
           <g key={i}>
-            <circle cx={px} cy={py} r={4.5} fill="var(--color-bg)" stroke="var(--color-brand)" strokeWidth={2.5}>
+            <circle cx={px} cy={py} r={isLast ? 5.5 : 4.5} fill="var(--color-bg)" stroke="var(--color-brand)" strokeWidth={2.5}>
               <title>{`${p.round || ""} · ${p.date || yearFmt(p.t)} · ${formatMoney(p.v, "USD")}`}</title>
             </circle>
-            {/* подпись значения у точки */}
-            <text x={px} y={py - 12} textAnchor={anchor} fontSize={12} fontWeight={700} fill="var(--color-text-primary)">
-              {formatMoney(p.v, "USD")}
-            </text>
-            {/* дата под осью */}
-            <text x={px} y={H - padB + 18} textAnchor={anchor} fontSize={11} fill="var(--color-text-muted)">
-              {p.date || yearFmt(p.t)}
-            </text>
-            {/* раунд мелко */}
-            {p.round && (
-              <text x={px} y={H - padB + 32} textAnchor={anchor} fontSize={10} fill="var(--color-text-muted)" opacity={0.75}>
-                {p.round.length > 16 ? p.round.slice(0, 15) + "…" : p.round}
+            {showDate[i] && (
+              <text x={px} y={H - padB + 18} textAnchor={anchor} fontSize={11} fill="var(--color-text-muted)">
+                {p.date || yearFmt(p.t)}
               </text>
             )}
           </g>
         );
       })}
+
+      {/* только последняя (текущая) оценка — крупно */}
+      <text x={x(last.t)} y={y(last.v) - 14} textAnchor="end" fontSize={15} fontWeight={800} fill="var(--color-text-primary)">
+        {formatMoney(last.v, "USD")}
+      </text>
     </svg>
   );
 }

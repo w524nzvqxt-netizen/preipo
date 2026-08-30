@@ -60,17 +60,17 @@ export default async function BasePage() {
               <Link
                 key={c.id}
                 href={`/base/${c.id}`}
-                className="card-premium group flex h-full flex-col rounded-card border border-border bg-surface p-5 transition-all hover:-translate-y-1 hover:border-brand/50 motion-reduce:hover:translate-y-0"
+                className="card-premium group relative flex h-full flex-col overflow-hidden rounded-card border border-border bg-surface p-5 transition-all hover:-translate-y-1 hover:border-brand/50 motion-reduce:hover:translate-y-0"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-3">
                     {c.logoUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={c.logoUrl} alt={c.name} className="h-9 w-9 shrink-0 rounded-control border border-border bg-surface object-contain p-1" />
+                      <img src={c.logoUrl} alt={c.name} className="h-11 w-11 shrink-0 rounded-control border border-border bg-white object-contain p-1.5" />
                     ) : (
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-control bg-surface-alt text-sm font-bold text-text-muted">{c.name.charAt(0)}</div>
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-control bg-brand-subtle text-base font-bold text-brand">{c.name.charAt(0)}</div>
                     )}
-                    <h3 className="truncate font-semibold text-text-primary">{c.name}</h3>
+                    <h3 className="truncate text-base font-semibold leading-tight text-text-primary">{c.name}</h3>
                   </div>
                   {c.valuationLabel && (
                     <span className="nums shrink-0 text-sm font-semibold text-brand">{c.valuationLabel}</span>

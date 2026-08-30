@@ -27,7 +27,7 @@ export default async function BaseCompany({ params }: { params: Promise<{ id: st
         <div className="flex flex-wrap items-start gap-4">
           {c.logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={c.logoUrl} alt={c.name} className="h-16 w-16 rounded-card border border-border bg-surface object-contain p-2 shadow-[var(--shadow-card)]" />
+            <img src={c.logoUrl} alt={c.name} className="h-16 w-16 rounded-card border border-border bg-white object-contain p-2 shadow-[var(--shadow-card)]" />
           ) : (
             <div className="flex h-16 w-16 items-center justify-center rounded-card bg-surface-alt text-2xl font-bold text-text-muted">{c.name.charAt(0)}</div>
           )}
