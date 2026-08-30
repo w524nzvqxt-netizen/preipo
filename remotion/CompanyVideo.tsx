@@ -35,10 +35,11 @@ export type Visual =
     }
   // Слайды колоды (тёмно-золотая тема)
   | { type: "stat"; value: string; label: string; sub?: string; kicker?: string }
-  | { type: "timeline"; title: string; cols: { k: string; t: string; d: string; hot?: boolean }[] }
-  | { type: "list"; title: string; kicker?: string; items: string[] }
-  | { type: "bars"; title: string; unit?: string; items: { label: string; value: number; display: string; hot?: boolean }[] }
-  | { type: "grid"; title: string; kicker?: string; rows: [string, string][] };
+  | { type: "timeline"; title: string; note?: string; cols: { k: string; t: string; d: string; hot?: boolean }[] }
+  | { type: "list"; title: string; kicker?: string; items: string[]; note?: string }
+  | { type: "bars"; title: string; unit?: string; items: { label: string; value: number; display: string; hot?: boolean }[]; note?: string }
+  | { type: "grid"; title: string; kicker?: string; rows: [string, string][]; note?: string }
+  | { type: "steps"; title: string; kicker?: string; items: { y: string; t: string; d?: string; hot?: boolean }[]; note?: string };
 
 export type Scene = { durationInFrames: number; audio: string; visual: Visual };
 
@@ -80,6 +81,7 @@ const SceneView: React.FC<{ scene: Scene }> = ({ scene }) => {
   if (v.type === "list") return <ListScene v={v} />;
   if (v.type === "bars") return <BarsScene v={v} />;
   if (v.type === "grid") return <GridScene v={v} />;
+  if (v.type === "steps") return <StepsScene v={v} />;
   return <ScenariosScene v={v} />;
 };
 
@@ -275,6 +277,16 @@ const SlideHead: React.FC<{ kicker?: string; title: string; frame: number }> = (
   </div>
 );
 
+// Строка-вывод внизу слайда — синхронна с ключевой мыслью озвучки
+const NoteBar: React.FC<{ text: string; frame: number; delay?: number }> = ({ text, frame, delay = 34 }) => (
+  <AbsoluteFill style={{ justifyContent: "flex-end", pointerEvents: "none" }}>
+    <div style={{ margin: "0 110px 66px", display: "flex", alignItems: "center", gap: 22, ...rise(frame, delay, 16) }}>
+      <div style={{ width: 8, height: 46, background: GOLD, borderRadius: 4, flexShrink: 0 }} />
+      <div style={{ fontSize: 36, fontWeight: 600, color: GOLD_SOFT, lineHeight: 1.25 }}>{text}</div>
+    </div>
+  </AbsoluteFill>
+);
+
 // Крупная цифра (демография, рынок, тайминг)
 const StatScene: React.FC<{ v: Extract<Visual, { type: "stat" }> }> = ({ v }) => {
   const frame = useCurrentFrame();
@@ -340,6 +352,7 @@ const TimelineScene: React.FC<{ v: Extract<Visual, { type: "timeline" }> }> = ({
           ))}
         </div>
       </div>
+      {v.note && <NoteBar text={v.note} frame={frame} />}
     </SlideBG>
   );
 };
@@ -370,6 +383,7 @@ const ListScene: React.FC<{ v: Extract<Visual, { type: "list" }> }> = ({ v }) =>
           ))}
         </div>
       </div>
+      {v.note && <NoteBar text={v.note} frame={frame} />}
     </SlideBG>
   );
 };
@@ -442,6 +456,47 @@ const GridScene: React.FC<{ v: Extract<Visual, { type: "grid" }> }> = ({ v }) =>
           ))}
         </div>
       </div>
+      {v.note && <NoteBar text={v.note} frame={frame} />}
+    </SlideBG>
+  );
+};
+
+// Вертикальный таймлайн (история/этапы): год + событие вдоль золотой линии
+const StepsScene: React.FC<{ v: Extract<Visual, { type: "steps" }> }> = ({ v }) => {
+  const frame = useCurrentFrame();
+  return (
+    <SlideBG>
+      <div style={{ padding: "70px 110px" }}>
+        <SlideHead kicker={v.kicker} title={v.title} frame={frame} />
+        <div style={{ position: "relative", marginTop: 54, paddingLeft: 60 }}>
+          {/* вертикальная линия */}
+          <div style={{ position: "absolute", left: 17, top: 6, bottom: 6, width: 3, background: "rgba(214,181,109,0.3)" }} />
+          {v.items.map((it, i) => (
+            <div key={i} style={{ position: "relative", marginBottom: v.items.length > 5 ? 26 : 38, ...rise(frame, 14 + i * 8, 14) }}>
+              {/* точка */}
+              <div
+                style={{
+                  position: "absolute",
+                  left: -51,
+                  top: 8,
+                  width: 20,
+                  height: 20,
+                  borderRadius: 10,
+                  background: it.hot ? GOLD : DARK,
+                  border: `3px solid ${GOLD}`,
+                  boxShadow: it.hot ? "0 0 24px rgba(214,181,109,0.6)" : "none",
+                }}
+              />
+              <div style={{ display: "flex", alignItems: "baseline", gap: 22 }}>
+                <div style={{ fontSize: 40, fontWeight: 800, color: GOLD, minWidth: 200 }}>{it.y}</div>
+                <div style={{ fontSize: 40, fontWeight: 700, color: INK }}>{it.t}</div>
+              </div>
+              {it.d && <div style={{ fontSize: 28, color: MUTED, marginTop: 6, marginLeft: 222 }}>{it.d}</div>}
+            </div>
+          ))}
+        </div>
+      </div>
+      {v.note && <NoteBar text={v.note} frame={frame} />}
     </SlideBG>
   );
 };
