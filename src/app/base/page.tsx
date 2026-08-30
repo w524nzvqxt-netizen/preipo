@@ -1,7 +1,6 @@
 // Раздел «База»: pre-IPO AI-компании за последний год с разбором и графиком оценки.
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { ValuationSpark, type Round } from "@/components/ValuationChart";
 import { Reveal } from "@/components/motion/Reveal";
 
 export const dynamic = "force-dynamic";
@@ -12,10 +11,6 @@ export const metadata = {
 };
 
 const SEG_ORDER = ["Foundation & LLM", "Physical AI & Robotics", "AI-инфраструктура", "AI-приложения", "AI для науки"];
-
-function parseRounds(s?: string | null): Round[] {
-  try { return JSON.parse(s ?? "[]") as Round[]; } catch { return []; }
-}
 
 export default async function BasePage() {
   const companies = await prisma.kbCompany.findMany({
@@ -60,34 +55,18 @@ export default async function BasePage() {
               <Link
                 key={c.id}
                 href={`/base/${c.id}`}
-                className="card-premium group relative flex h-full flex-col overflow-hidden rounded-card border border-border bg-surface p-5 transition-all hover:-translate-y-1 hover:border-brand/50 motion-reduce:hover:translate-y-0"
+                className="card-premium group relative flex items-center gap-3 rounded-card border border-border bg-surface p-4 transition-all hover:-translate-y-0.5 hover:border-brand/50 motion-reduce:hover:translate-y-0"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex min-w-0 items-center gap-3">
-                    {c.logoUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={c.logoUrl} alt={c.name} className="h-11 w-11 shrink-0 rounded-control border border-border bg-white object-contain p-1.5" />
-                    ) : (
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-control bg-brand-subtle text-base font-bold text-brand">{c.name.charAt(0)}</div>
-                    )}
-                    <h3 className="truncate text-base font-semibold leading-tight text-text-primary">{c.name}</h3>
-                  </div>
-                  {c.valuationLabel && (
-                    <span className="nums shrink-0 text-sm font-semibold text-brand">{c.valuationLabel}</span>
-                  )}
-                </div>
-
-                {c.oneLiner && <p className="mt-3 line-clamp-2 text-sm text-text-secondary">{c.oneLiner}</p>}
-                {(c.lastNews || c.nextRound) && (
-                  <p className="mt-2 line-clamp-1 text-xs font-medium text-brand/90">
-                    {c.lastNews ? `📰 ${c.lastNews}` : `↗ ${c.nextRound}`}
-                  </p>
+                {c.logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={c.logoUrl} alt={c.name} className="h-11 w-11 shrink-0 rounded-control border border-border bg-white object-contain p-1.5" />
+                ) : (
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-control bg-brand-subtle text-base font-bold text-brand">{c.name.charAt(0)}</div>
                 )}
-
-                <div className="mt-auto flex items-end justify-between pt-4">
-                  <span className="text-xs text-text-muted">{c.founded ? `с ${c.founded}` : ""}</span>
-                  <ValuationSpark rounds={parseRounds(c.rounds)} />
-                </div>
+                <h3 className="min-w-0 flex-1 truncate text-base font-semibold text-text-primary">{c.name}</h3>
+                {c.valuationLabel && (
+                  <span className="nums shrink-0 text-sm font-semibold text-brand">{c.valuationLabel}</span>
+                )}
               </Link>
             ))}
           </div>
