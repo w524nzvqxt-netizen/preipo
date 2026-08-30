@@ -1,0 +1,146 @@
+[
+  {
+    "name": "Anthropic",
+    "valuationLabel": "$965 млрд",
+    "valuationUSD": 965000000000,
+    "nextRound": "Конфиденциально подала заявку на IPO (июнь 2026); CFO ведёт встречи с инвесторами, в прессе ориентир — крупнейшее IPO"
+  },
+  {
+    "name": "OpenAI",
+    "valuationLabel": "$852 млрд",
+    "valuationUSD": 852000000000,
+    "nextRound": "Конфиденциально подала заявку на IPO (июнь 2026); планирует листинг в 2027 или раньше"
+  },
+  {
+    "name": "Databricks",
+    "valuationLabel": "$190 млрд",
+    "valuationUSD": 190000000000,
+    "nextRound": "После раунда $5 млрд при $190 млрд (авг 2026) аналитики ждут IPO; дата не объявлена"
+  },
+  {
+    "name": "Anduril Industries",
+    "valuationLabel": "$61 млрд",
+    "valuationUSD": 61000000000,
+    "nextRound": "Новый раунд не анонсирован; IPO не заявлено (последний раунд $5 млрд при $61 млрд, 2026)"
+  },
+  {
+    "name": "DeepSeek",
+    "valuationLabel": "~$74 млрд",
+    "valuationUSD": 74000000000,
+    "nextRound": "слухи: сообщают о подготовке листинга в материковом Китае не ранее 2027; компания раунды официально не подтверждала"
+  },
+  {
+    "name": "Figure AI",
+    "valuationLabel": "$39 млрд",
+    "valuationUSD": 39000000000,
+    "nextRound": "Новый раунд не анонсирован (Series C >$1 млрд при $39 млрд, сент. 2025); в прессе спекуляции об IPO, официально не подтверждено"
+  },
+  {
+    "name": "Moonshot AI",
+    "valuationLabel": "$35 млрд",
+    "valuationUSD": 35000000000,
+    "nextRound": "Закрыла раунд $3,5 млрд при $35 млрд (июль 2026); называют кандидатом на IPO в Китае, дата не заявлена"
+  },
+  {
+    "name": "Safe Superintelligence (SSI)",
+    "valuationLabel": "$32 млрд",
+    "valuationUSD": 32000000000,
+    "nextRound": "Nvidia вложила $5 млрд (июль 2026); новый раунд не анонсирован"
+  },
+  {
+    "name": "Cognition",
+    "valuationLabel": "$26 млрд",
+    "valuationUSD": 26000000000,
+    "nextRound": "Ведёт переговоры о раунде $1+ млрд при оценке выше $40 млрд (авг 2026)"
+  },
+  {
+    "name": "Perplexity",
+    "valuationLabel": "$30 млрд",
+    "valuationUSD": 30000000000,
+    "nextRound": "Nvidia ведёт переговоры об инвестиции при оценке выше $30 млрд (авг 2026)"
+  },
+  {
+    "name": "Fireworks AI",
+    "valuationLabel": "$17,5 млрд",
+    "valuationUSD": 17500000000,
+    "nextRound": "Новый раунд не анонсирован (Series D $1,5 млрд при $17,5 млрд, июль 2026)"
+  },
+  {
+    "name": "Sierra",
+    "valuationLabel": "$15 млрд",
+    "valuationUSD": 15000000000,
+    "nextRound": "Новый раунд не анонсирован (раунд $950 млн при $15+ млрд, май 2026)"
+  },
+  {
+    "name": "Nscale",
+    "valuationLabel": "оценка не раскрыта",
+    "valuationUSD": null,
+    "nextRound": "Готовит IPO в США с целью привлечь до $3 млрд (авг 2026)"
+  },
+  {
+    "name": "Mistral AI",
+    "valuationLabel": "€20 млрд (~$23 млрд)",
+    "valuationUSD": 23000000000,
+    "nextRound": "Новый раунд при €20 млрд; Samsung ведёт переговоры об инвестиции ~€1 млрд (2026)"
+  },
+  {
+    "name": "Skild AI",
+    "valuationLabel": "$14 млрд",
+    "valuationUSD": 14000000000,
+    "nextRound": "Новый раунд не анонсирован (раунд $1,4 млрд от SoftBank и Nvidia при $14 млрд, янв 2026)"
+  },
+  {
+    "name": "Lovable",
+    "valuationLabel": "$13,3 млрд",
+    "valuationUSD": 13300000000,
+    "nextRound": "Новый раунд не анонсирован (Series C $400 млн при $13,3 млрд, авг 2026)"
+  },
+  {
+    "name": "Baseten",
+    "valuationLabel": "$13 млрд",
+    "valuationUSD": 13000000000,
+    "nextRound": "Новый раунд не анонсирован (раунд $1,5 млрд при $13 млрд, 2026)"
+  },
+  {
+    "name": "Thinking Machines Lab",
+    "valuationLabel": "~$50 млрд",
+    "valuationUSD": 50000000000,
+    "nextRound": "В начале 2026 Nvidia вложилась при оценке ~$50 млрд (по сообщениям, обсуждалось до $60 млрд); новый раунд не анонсирован"
+  },
+  {
+    "name": "OpenEvidence",
+    "valuationLabel": "$12 млрд",
+    "valuationUSD": 12000000000,
+    "nextRound": "Ведёт переговоры о раунде ~$200 млн при оценке ~$20 млрд (июль 2026)"
+  },
+  {
+    "name": "Harvey",
+    "valuationLabel": "$15,5 млрд",
+    "valuationUSD": 15500000000,
+    "nextRound": "Ведёт переговоры о новом раунде от $500 млн (авг 2026)"
+  },
+  {
+    "name": "ElevenLabs",
+    "valuationLabel": "$11 млрд",
+    "valuationUSD": 11000000000,
+    "nextRound": "Переговоры о tender offer вдвое дороже — ~$22 млрд (июль 2026); заявляет курс на IPO"
+  },
+  {
+    "name": "Etched",
+    "valuationLabel": "$21 млрд",
+    "valuationUSD": 21000000000,
+    "nextRound": "Новый раунд не анонсирован (раунд $700 млн от Jane Street при $21 млрд, авг 2026)"
+  },
+  {
+    "name": "Crusoe",
+    "valuationLabel": "$10 млрд",
+    "valuationUSD": 10000000000,
+    "nextRound": "Ведёт переговоры о раунде ~$3 млрд (оценка может утроиться); в прессе ожидают IPO (2026)"
+  },
+  {
+    "name": "Mercor",
+    "valuationLabel": "$20 млрд",
+    "valuationUSD": 20000000000,
+    "nextRound": "Ведёт переговоры о раунде ~$500 млн при $20 млрд, интерес Nvidia (июль 2026)"
+  }
+]

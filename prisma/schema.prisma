@@ -225,6 +225,9 @@ model KbCompany {
   valuationUSD   Float? // последняя оценка (для сортировки)
   valuationLabel String? // напр. "$965 млрд"
   lastRound      String? // напр. "Series H · $13 млрд · май 2026"
+  nextRound      String? // намерения о новом раунде/IPO: "Готовит IPO H2 2026" / "Раунд ~$74 млрд в процессе"
+  lastNews       String? // последняя заметная новость (фраза + месяц)
+  lastNewsUrl    String? // ссылка на источник новости
   rounds         String? // JSON истории раундов для графика: [{round,date:"YYYY-MM",valuationUSD}]
   oneLiner       String? // суть в одном предложении
   business       String? // чем занимается / как зарабатывает

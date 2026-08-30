@@ -78,6 +78,11 @@ export default async function BasePage() {
                 </div>
 
                 {c.oneLiner && <p className="mt-3 line-clamp-2 text-sm text-text-secondary">{c.oneLiner}</p>}
+                {(c.lastNews || c.nextRound) && (
+                  <p className="mt-2 line-clamp-1 text-xs font-medium text-brand/90">
+                    {c.lastNews ? `📰 ${c.lastNews}` : `↗ ${c.nextRound}`}
+                  </p>
+                )}
 
                 <div className="mt-auto flex items-end justify-between pt-4">
                   <span className="text-xs text-text-muted">{c.founded ? `с ${c.founded}` : ""}</span>

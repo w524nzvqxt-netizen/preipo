@@ -1,0 +1,146 @@
+[
+  {
+    "name": "VAST Data",
+    "valuationLabel": "$30 млрд",
+    "valuationUSD": 30000000000,
+    "nextRound": "Новый раунд не анонсирован (Series F на $1 млрд при $30 млрд закрыта в апреле 2026)"
+  },
+  {
+    "name": "Replit",
+    "valuationLabel": "$9 млрд",
+    "valuationUSD": 9000000000,
+    "nextRound": "Новый раунд не анонсирован (в марте 2026 привлёк $400 млн при $9 млрд)"
+  },
+  {
+    "name": "Wayve",
+    "valuationLabel": "$8,6 млрд",
+    "valuationUSD": 8600000000,
+    "nextRound": "Новый раунд не анонсирован (Series D на $1,5 млрд закрыта в феврале 2026)"
+  },
+  {
+    "name": "Together AI",
+    "valuationLabel": "$8,3 млрд",
+    "valuationUSD": 8300000000,
+    "nextRound": "Новый раунд не анонсирован (Series C $800 млн при $8,3 млрд закрыта в июле 2026)"
+  },
+  {
+    "name": "Glean",
+    "valuationLabel": "$7,2 млрд",
+    "valuationUSD": 7200000000,
+    "nextRound": "Новый раунд не анонсирован (Series F при $7,2 млрд в июне 2025)"
+  },
+  {
+    "name": "Cohere",
+    "valuationLabel": "~$7 млрд",
+    "valuationUSD": 7000000000,
+    "nextRound": "Нарастает импульс к IPO (CNBC, февраль 2026); точная дата не названа"
+  },
+  {
+    "name": "1X Technologies",
+    "valuationLabel": "$6 млрд",
+    "valuationUSD": 6000000000,
+    "nextRound": "Авг 2026: SoftBank ведёт переговоры о покупке контрольной доли при оценке ~$6 млрд"
+  },
+  {
+    "name": "Nuro",
+    "valuationLabel": "$6 млрд",
+    "valuationUSD": 6000000000,
+    "nextRound": "Новый раунд не анонсирован (Series E закрыта в августе 2025)"
+  },
+  {
+    "name": "Lambda",
+    "valuationLabel": "≈$12 млрд (pre-IPO, обсуждается)",
+    "valuationUSD": 12000000000,
+    "nextRound": "Готовит IPO (наняла банки); авг 2026 — переговоры о pre-IPO раунде ~$3 млрд при ≈$12 млрд"
+  },
+  {
+    "name": "Physical Intelligence",
+    "valuationLabel": "$5,6 млрд",
+    "valuationUSD": 5600000000,
+    "nextRound": "Март 2026: переговоры о раунде ~$1 млрд при ≈$11 млрд (закрытие не подтверждено)"
+  },
+  {
+    "name": "Legora",
+    "valuationLabel": "$5,6 млрд",
+    "valuationUSD": 5600000000,
+    "nextRound": "Слухи (авг 2026): новый раунд при цели $10+ млрд вскоре после Series D"
+  },
+  {
+    "name": "Suno",
+    "valuationLabel": "$5,4 млрд",
+    "valuationUSD": 5400000000,
+    "nextRound": "Новый раунд не анонсирован (Series D $400 млн при $5,4 млрд в июне 2026)"
+  },
+  {
+    "name": "Apptronik",
+    "valuationLabel": "$5+ млрд",
+    "valuationUSD": 5000000000,
+    "nextRound": "Новый раунд не анонсирован (Series A расширена до $935 млн при $5+ млрд, февраль 2026)"
+  },
+  {
+    "name": "Abridge",
+    "valuationLabel": "$5,3 млрд",
+    "valuationUSD": 5300000000,
+    "nextRound": "CEO упоминал возможное IPO (2025); дата не названа"
+  },
+  {
+    "name": "Runway",
+    "valuationLabel": "$5,3 млрд",
+    "valuationUSD": 5300000000,
+    "nextRound": "Новый раунд не анонсирован (Series E $315 млн при $5,3 млрд, февраль 2026)"
+  },
+  {
+    "name": "Clay",
+    "valuationLabel": "$5 млрд",
+    "valuationUSD": 5000000000,
+    "nextRound": "IPO не анонсировано; ликвидность через вторичные tender offers ($5 млрд, январь 2026)"
+  },
+  {
+    "name": "Fal",
+    "valuationLabel": "$4,5 млрд",
+    "valuationUSD": 4500000000,
+    "nextRound": "Новый раунд не анонсирован (Series D $140 млн при $4,5 млрд, декабрь 2025)"
+  },
+  {
+    "name": "Hugging Face",
+    "valuationLabel": "$12,9 млрд",
+    "valuationUSD": 12900000000,
+    "nextRound": "Авг 2026: Nvidia договорилась о поглощении за $12,9 млрд (не IPO)"
+  },
+  {
+    "name": "Decagon",
+    "valuationLabel": "$4,5 млрд",
+    "valuationUSD": 4500000000,
+    "nextRound": "Новый раунд не анонсирован (Series D $250 млн при $4,5 млрд, январь 2026)"
+  },
+  {
+    "name": "Lightmatter",
+    "valuationLabel": "$4,4 млрд",
+    "valuationUSD": 4400000000,
+    "nextRound": "Заявляла о планах IPO (2024); свежих раундов нет, IPO чип-стартапов на паузе (авг 2026)"
+  },
+  {
+    "name": "Groq",
+    "valuationLabel": "$3,5 млрд (down-round)",
+    "valuationUSD": 3500000000,
+    "nextRound": "Авг 2026: раунд $350 млн при $3,5 млрд (down-round) после лицензионной сделки с Nvidia (~$20 млрд); пивот в inference-облако"
+  },
+  {
+    "name": "Luma AI",
+    "valuationLabel": "$4 млрд",
+    "valuationUSD": 4000000000,
+    "nextRound": "Новый раунд не анонсирован (Series C $900 млн при $4 млрд, ноябрь 2025)"
+  },
+  {
+    "name": "Waabi",
+    "valuationLabel": "$3 млрд",
+    "valuationUSD": 3000000000,
+    "nextRound": "Новый раунд не анонсирован (Series C $1 млрд при $3 млрд, январь 2026)"
+  },
+  {
+    "name": "Poolside",
+    "valuationLabel": "$12 млрд",
+    "valuationUSD": 12000000000,
+    "nextRound": "Авг 2026: Nvidia лицензирует модель и нанимает команду (~$6 млрд) + инвестирует $1 млрд; поднят раунд ~$1 млрд при ≈$12 млрд"
+  }
+]

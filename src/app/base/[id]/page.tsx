@@ -48,6 +48,16 @@ export default async function BaseCompany({ params }: { params: Promise<{ id: st
           )}
         </div>
         {c.oneLiner && <p className="mt-5 text-lg text-text-secondary">{c.oneLiner}</p>}
+        {c.lastNews && (
+          <p className="mt-3 text-sm text-text-muted">
+            📰{" "}
+            {c.lastNewsUrl ? (
+              <a href={c.lastNewsUrl} target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">{c.lastNews}</a>
+            ) : (
+              <span className="text-text-secondary">{c.lastNews}</span>
+            )}
+          </p>
+        )}
       </Reveal>
 
       {/* График оценки по раундам */}
@@ -56,8 +66,14 @@ export default async function BaseCompany({ params }: { params: Promise<{ id: st
           <div className="rounded-card border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
             <ValuationChart rounds={rounds} />
           </div>
-          {c.lastRound && <p className="mt-3 text-sm text-text-muted">Последний раунд: {c.lastRound}</p>}
+          <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm">
+            {c.lastRound && <p className="text-text-muted">Последний раунд: <span className="text-text-secondary">{c.lastRound}</span></p>}
+            {c.nextRound && <p className="text-text-muted">Намерения: <span className="text-brand">{c.nextRound}</span></p>}
+          </div>
         </Section>
+      )}
+      {rounds.length === 0 && c.nextRound && (
+        <Section kicker="Раунд" title="Намерения по новому раунду"><p className="text-brand">{c.nextRound}</p></Section>
       )}
 
       {c.business && <Section kicker="Бизнес" title="Чем занимается"><Para text={c.business} /></Section>}
