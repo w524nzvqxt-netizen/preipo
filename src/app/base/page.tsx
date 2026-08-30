@@ -6,11 +6,15 @@ import { Reveal } from "@/components/motion/Reveal";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "База pre-IPO AI-компаний — оценки, раунды, разбор",
-  description: "Частные лидеры ИИ за последний год: бизнес, планы, оценки по раундам и инвест-разбор. Без хайпа.",
+  title: "База pre-IPO компаний — оценки, раунды, разбор",
+  description: "Частные лидеры pre-IPO: ИИ, финтех, инфраструктура и другие сектора. Бизнес, планы, оценки по раундам и инвест-разбор. Без хайпа.",
 };
 
-const SEG_ORDER = ["Foundation & LLM", "Physical AI & Robotics", "AI-инфраструктура", "AI-приложения", "AI для науки"];
+const SEG_ORDER = [
+  "Foundation & LLM", "Physical AI & Robotics", "AI-инфраструктура", "AI-приложения", "AI для науки",
+  "Финтех", "Финтех (крипто)", "Маркетплейсы & потреб", "Инфраструктура & данные",
+  "Кибербезопасность", "Автоматизация & AI (RPA)", "Прогноз-рынки",
+];
 
 export default async function BasePage() {
   const companies = await prisma.kbCompany.findMany({
@@ -34,13 +38,13 @@ export default async function BasePage() {
       <Link href="/" className="text-sm text-text-muted transition-colors hover:text-text-primary">&larr; На главную</Link>
 
       <Reveal className="mt-6">
-        <p className="kicker text-brand">База · Pre-IPO AI</p>
+        <p className="kicker text-brand">База · Pre-IPO</p>
         <h1 className="mt-2 text-3xl font-bold text-text-primary sm:text-4xl">
-          Частные лидеры ИИ за последний год
+          Частные лидеры pre-IPO
         </h1>
         <p className="mt-3 max-w-2xl text-text-secondary">
-          {companies.length} компаний, которые ещё не вышли на биржу: чем занимаются, куда идут,
-          как менялась оценка по раундам и наш разбор — без хайпа и «иксов».
+          {companies.length} компаний, которые ещё не вышли на биржу — ИИ, финтех, инфраструктура и другие
+          сектора: чем занимаются, куда идут, как менялась оценка по раундам и наш разбор — без хайпа и «иксов».
         </p>
       </Reveal>
 

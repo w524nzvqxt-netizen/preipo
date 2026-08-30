@@ -74,3 +74,7 @@ bot/activity.log
 
 # Временные файлы Office
 ~$*
+
+# Экспорт TG-канала FinSight (тяжёлый, не в репо)
+/ChatExport_2026-08-31/
+/docs/finsight-channel.txt
