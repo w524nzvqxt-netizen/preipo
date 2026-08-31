@@ -47,7 +47,8 @@ export default async function PartnerReport() {
         чистая доходность клиентов {pct(p.clientAnnual)} (S&P 500 {pct(p.sp500Annual)})
       </p>
 
-      <table className="mt-6 w-full text-sm">
+      <div className="mt-6 overflow-x-auto">
+      <table className="w-full min-w-[560px] text-sm print:min-w-0">
         <thead>
           <tr className="border-b border-neutral-300 text-left text-neutral-500">
             <th className="py-2 font-medium">Клиент</th>
@@ -74,6 +75,7 @@ export default async function PartnerReport() {
           })}
         </tbody>
       </table>
+      </div>
 
       <p className="mt-6 text-xs leading-relaxed text-neutral-500">
         Прогнозные значения основаны на ожидаемой оценке выхода компаний и не являются гарантией.
