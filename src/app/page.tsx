@@ -9,6 +9,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { Disclaimer } from "@/components/Disclaimer";
 import { ClubSelector } from "@/components/ClubSelector";
 import { ProjectCard } from "@/components/ProjectCard";
+import { MobileNav } from "@/components/MobileNav";
 import { contacts } from "@/lib/config";
 import { formatMoney } from "@/lib/format";
 
@@ -77,14 +78,15 @@ export default async function HomePage() {
             <span className="text-brand">◆</span> Pre-IPO
           </Link>
           <nav className="flex items-center gap-0.5 sm:gap-1">
-            <a href="#deals" className="rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary">Сделки</a>
+            <a href="#deals" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary lg:block">Сделки</a>
             <a href="#process" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary lg:block">Как это работает</a>
             <a href="#risks" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary lg:block">Риски</a>
-            <Link href="/exits" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary sm:block">Аналитика</Link>
-            <Link href="/base" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary sm:block">Будущие гиганты</Link>
+            <Link href="/exits" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary lg:block">Аналитика</Link>
+            <Link href="/base" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary lg:block">Будущие гиганты</Link>
             <Link href="/academy" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary lg:block">Академия</Link>
-            <Link href="/agent" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary sm:block">Партнёрам</Link>
+            <Link href="/agent" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary lg:block">Партнёрам</Link>
             <a href="#quiz" className="btn-brand ml-1 rounded-control px-3 py-2 text-xs font-semibold sm:px-4 sm:text-sm">Получить доступ</a>
+            <MobileNav />
           </nav>
         </div>
       </header>
@@ -420,7 +422,7 @@ export default async function HomePage() {
       </main>
 
       {/* Липкий мобильный CTA */}
-      <div className="glass fixed inset-x-0 bottom-0 z-50 p-3 sm:hidden">
+      <div className="glass fixed inset-x-0 bottom-0 z-50 px-3 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:hidden">
         <div className="flex gap-2">
           <a
             href="#quiz"

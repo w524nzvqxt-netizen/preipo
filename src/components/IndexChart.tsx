@@ -51,14 +51,14 @@ export function IndexChart({ series }: { series: IndexPoint[] }) {
         {gridVals.map((gv) => (
           <g key={gv}>
             <line x1={padL} x2={W - padR} y1={y(gv)} y2={y(gv)} stroke="var(--color-border)" strokeWidth="1" />
-            <text x={padL - 8} y={y(gv) + 4} textAnchor="end" fontSize="11" fill="var(--color-text-muted)">
+            <text x={padL - 8} y={y(gv) + 4} textAnchor="end" fontSize="16" fill="var(--color-text-muted)">
               {fmt(gv)}
             </text>
           </g>
         ))}
         {/* подписи X (годы) */}
         {series.filter((_, i) => i % 2 === 0 || i === series.length - 1).map((p) => (
-          <text key={p.year} x={x(p.year)} y={H - 12} textAnchor="middle" fontSize="11" fill="var(--color-text-muted)">
+          <text key={p.year} x={x(p.year)} y={H - 12} textAnchor="middle" fontSize="16" fill="var(--color-text-muted)">
             {p.year}
           </text>
         ))}
@@ -68,11 +68,11 @@ export function IndexChart({ series }: { series: IndexPoint[] }) {
         <polyline points={line("preIpo")} fill="none" stroke="var(--color-brand)" strokeWidth="2.5" />
         {/* точки на конце + подписи */}
         <circle cx={x(last.year)} cy={y(last.preIpo)} r="3.5" fill="var(--color-brand)" />
-        <text x={x(last.year) + 8} y={y(last.preIpo) + 4} fontSize="12" fontWeight="700" fill="var(--color-positive)">
+        <text x={x(last.year) + 8} y={y(last.preIpo) + 4} fontSize="16" fontWeight="700" fill="var(--color-positive)">
           {fmt(last.preIpo)}
         </text>
         <circle cx={x(last.year)} cy={y(last.sp500)} r="3.5" fill="var(--color-text-muted)" />
-        <text x={x(last.year) + 8} y={y(last.sp500) + 4} fontSize="12" fontWeight="700" fill="var(--color-text-secondary)">
+        <text x={x(last.year) + 8} y={y(last.sp500) + 4} fontSize="16" fontWeight="700" fill="var(--color-text-secondary)">
           {fmt(last.sp500)}
         </text>
       </svg>

@@ -83,6 +83,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  /* Страховка от горизонтального скролла (напр. full-bleed 100vw).
+     clip, а не hidden — не ломает position: sticky у шапки. */
+  overflow-x: clip;
 }
 
 /* Премиальное выделение текста — бренд, не системный синий */

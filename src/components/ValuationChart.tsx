@@ -101,7 +101,7 @@ export function ValuationChart({ rounds }: { rounds: Round[] }) {
               <title>{`${p.round || ""} · ${p.date || yearFmt(p.t)} · ${formatMoney(p.v, "USD")}`}</title>
             </circle>
             {showDate[i] && (
-              <text x={px} y={H - padB + 18} textAnchor={anchor} fontSize={11} fill="var(--color-text-muted)">
+              <text x={px} y={H - padB + 18} textAnchor={anchor} fontSize={16} fill="var(--color-text-muted)">
                 {p.date || yearFmt(p.t)}
               </text>
             )}
@@ -110,7 +110,7 @@ export function ValuationChart({ rounds }: { rounds: Round[] }) {
       })}
 
       {/* только последняя (текущая) оценка — крупно */}
-      <text x={x(last.t)} y={y(last.v) - 14} textAnchor="end" fontSize={15} fontWeight={800} fill="var(--color-text-primary)">
+      <text x={x(last.t)} y={y(last.v) - 14} textAnchor="end" fontSize={20} fontWeight={800} fill="var(--color-text-primary)">
         {formatMoney(last.v, "USD")}
       </text>
     </svg>
