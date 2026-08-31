@@ -49,8 +49,10 @@ async function notifyOperator(lead: {
   message: string;
   projectId: string | null;
 }) {
-  const token = process.env.TELEGRAM_NOTIFY_TOKEN;
-  const chat = process.env.TELEGRAM_NOTIFY_CHAT;
+  // Фолбэк на уже настроенные переменные бота-ассистента, чтобы заявки
+  // доходили до владельца в Telegram даже без отдельных NOTIFY-переменных.
+  const token = process.env.TELEGRAM_NOTIFY_TOKEN || process.env.AGENT_BOT_TOKEN;
+  const chat = process.env.TELEGRAM_NOTIFY_CHAT || process.env.AUTHORIZED_CHAT_ID;
   if (!token || !chat) return;
   let project = "";
   if (lead.projectId) {
