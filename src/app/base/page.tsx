@@ -69,9 +69,7 @@ export default async function BasePage() {
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-control bg-brand-subtle text-base font-bold text-brand">{c.name.charAt(0)}</div>
                   )}
                   <h3 className="min-w-0 flex-1 truncate text-base font-semibold text-text-primary">{c.name}</h3>
-                  {c.valuationLabel && (
-                    <span className="nums shrink-0 text-sm font-semibold text-brand">{c.valuationLabel}</span>
-                  )}
+                  <span className="nums shrink-0 text-sm font-semibold text-brand">{c.valuationLabel || "$?"}</span>
                 </div>
                 {c.oneLiner && <p className="mt-3 line-clamp-2 text-sm text-text-secondary">{c.oneLiner}</p>}
               </Link>
