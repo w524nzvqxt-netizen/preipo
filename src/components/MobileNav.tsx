@@ -1,7 +1,7 @@
 "use client";
 
-// Мобильная навигация: бургер + полноэкранная панель со ВСЕМИ разделами.
-// Нужна, потому что в шапке пункты скрыты на узких экранах (hidden lg:block).
+// Мобильная навигация: бургер + СПЛОШНАЯ полноэкранная панель со всеми разделами.
+// Фон непрозрачный (не .glass) — чтобы текст всегда был читаем на телефоне.
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -27,53 +27,60 @@ export function MobileNav() {
 
   return (
     <div className="lg:hidden">
+      {/* Кнопка-бургер */}
       <button
         type="button"
-        aria-label={open ? "Закрыть меню" : "Открыть меню"}
+        aria-label="Открыть меню"
         aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-        className="relative z-[70] flex h-10 w-10 items-center justify-center rounded-control border border-border text-text-primary transition-colors hover:border-brand/50"
+        onClick={() => setOpen(true)}
+        className="flex h-11 w-11 items-center justify-center rounded-control border border-border-strong bg-surface text-text-primary"
       >
-        <span className="relative block h-4 w-5">
-          <span
-            className={`absolute left-0 block h-0.5 w-5 bg-current transition-all duration-300 ${
-              open ? "top-1.5 rotate-45" : "top-0"
-            }`}
-          />
-          <span
-            className={`absolute left-0 top-1.5 block h-0.5 w-5 bg-current transition-all duration-200 ${
-              open ? "opacity-0" : "opacity-100"
-            }`}
-          />
-          <span
-            className={`absolute left-0 block h-0.5 w-5 bg-current transition-all duration-300 ${
-              open ? "top-1.5 -rotate-45" : "top-3"
-            }`}
-          />
-        </span>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
       </button>
 
+      {/* Полноэкранная панель */}
       {open && (
-        <div className="fixed inset-0 z-[60]">
-          <div
-            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-            onClick={() => setOpen(false)}
-          />
-          <nav className="glass absolute inset-x-0 top-0 flex flex-col gap-1 px-6 pb-6 pt-20">
+        <div className="fixed inset-0 z-[100] flex flex-col bg-[#070A0F]">
+          {/* Верхняя строка: бренд + закрыть */}
+          <div className="flex items-center justify-between border-b border-border px-5 py-4">
+            <span className="text-lg font-bold tracking-tight text-text-primary">
+              <span className="text-brand">◆</span> Pre-IPO
+            </span>
+            <button
+              type="button"
+              aria-label="Закрыть меню"
+              onClick={() => setOpen(false)}
+              className="flex h-11 w-11 items-center justify-center rounded-control border border-border-strong bg-surface text-text-primary"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <line x1="6" y1="6" x2="18" y2="18" />
+                <line x1="18" y1="6" x2="6" y2="18" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Ссылки */}
+          <nav className="flex flex-1 flex-col overflow-y-auto px-5 py-3">
             {LINKS.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
-                className="flex min-h-12 items-center rounded-control px-3 text-base font-medium text-text-secondary transition-colors hover:bg-surface-alt hover:text-text-primary"
+                className="flex min-h-14 items-center justify-between border-b border-border/70 text-lg font-semibold text-text-primary active:text-brand"
               >
                 {l.label}
+                <span className="text-brand">→</span>
               </Link>
             ))}
+
             <a
               href="#quiz"
               onClick={() => setOpen(false)}
-              className="btn-brand mt-2 flex min-h-12 items-center justify-center rounded-control px-4 text-base font-semibold"
+              className="btn-brand mt-6 flex min-h-14 items-center justify-center rounded-control text-base font-semibold"
             >
               Получить доступ
             </a>
