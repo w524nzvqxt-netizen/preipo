@@ -81,7 +81,7 @@ export default async function HomePage() {
             <a href="#process" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary lg:block">Как это работает</a>
             <a href="#risks" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary lg:block">Риски</a>
             <Link href="/exits" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary sm:block">Аналитика</Link>
-            <Link href="/base" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary sm:block">База AI</Link>
+            <Link href="/base" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary sm:block">Будущие гиганты</Link>
             <Link href="/agent" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary sm:block">Партнёрам</Link>
             <a href="#quiz" className="btn-brand ml-1 rounded-control px-3 py-2 text-xs font-semibold sm:px-4 sm:text-sm">Получить доступ</a>
           </nav>

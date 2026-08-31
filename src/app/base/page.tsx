@@ -6,8 +6,8 @@ import { Reveal } from "@/components/motion/Reveal";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "База pre-IPO компаний — оценки, раунды, разбор",
-  description: "Частные лидеры pre-IPO: ИИ, финтех, инфраструктура и другие сектора. Бизнес, планы, оценки по раундам и инвест-разбор. Без хайпа.",
+  title: "Будущие гиганты — pre-IPO компании: оценки, раунды, разбор",
+  description: "Будущие гиганты: частные лидеры pre-IPO — ИИ, финтех, инфраструктура и другие сектора. Бизнес, планы, оценки по раундам и инвест-разбор. Без хайпа.",
 };
 
 const SEG_ORDER = [
@@ -38,9 +38,9 @@ export default async function BasePage() {
       <Link href="/" className="text-sm text-text-muted transition-colors hover:text-text-primary">&larr; На главную</Link>
 
       <Reveal className="mt-6">
-        <p className="kicker text-brand">База · Pre-IPO</p>
+        <p className="kicker text-brand">Pre-IPO · до биржи</p>
         <h1 className="mt-2 text-3xl font-bold text-text-primary sm:text-4xl">
-          Частные лидеры pre-IPO
+          Будущие гиганты
         </h1>
         <p className="mt-3 max-w-2xl text-text-secondary">
           {companies.length} компаний, которые ещё не вышли на биржу — ИИ, финтех, инфраструктура и другие

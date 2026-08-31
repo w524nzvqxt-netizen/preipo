@@ -21,7 +21,7 @@ export default async function BaseCompany({ params }: { params: Promise<{ id: st
 
   return (
     <main className="mx-auto w-full max-w-4xl px-5 py-10 sm:py-14">
-      <Link href="/base" className="text-sm text-text-muted transition-colors hover:text-text-primary">&larr; Вся база</Link>
+      <Link href="/base" className="text-sm text-text-muted transition-colors hover:text-text-primary">&larr; Будущие гиганты</Link>
 
       {/* Шапка */}
       <Reveal className="mt-6">
@@ -99,7 +99,7 @@ export default async function BaseCompany({ params }: { params: Promise<{ id: st
 
       <div className="mt-10 flex justify-center">
         <Link href="/base" className="rounded-control border border-border bg-surface px-6 py-3 text-sm font-semibold text-text-primary transition-colors hover:border-brand hover:text-brand">
-          &larr; Вся база
+          &larr; Будущие гиганты
         </Link>
       </div>
 
