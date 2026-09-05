@@ -200,6 +200,29 @@ function buildKbMessage(st) {
   return { caption };
 }
 
+// --- Источник 5: разбор публичной компании (docs/public-analyses.json) ---
+function buildAnalysisMessage(st) {
+  let store;
+  try { store = JSON.parse(fs.readFileSync(path.join(ROOT, "docs", "public-analyses.json"), "utf8")); } catch { return null; }
+  const keys = Object.keys(store);
+  if (!keys.length) return null;
+  const idx = ((st.analysisIndex ?? -1) + 1) % keys.length;
+  st.analysisIndex = idx;
+  const a = store[keys[idx]];
+  if (!a) return null;
+  // Компактный пост под лимит Telegram (полный разбор — в docs/public-analyses.json / на сайте)
+  const risks = (a.risks || []).slice(0, 3).map((r) => `• ${toTgHtml(r)}`).join("\n");
+  let t = `🏦 <b>${toTgHtml(a.name)}</b> (${toTgHtml(a.ticker)}) · ${toTgHtml(a.sector || "")}`;
+  if (a.asOf) t += `\n<i>Данные: ${toTgHtml(a.asOf)}</i>`;
+  if (a.snapshot) t += `\n\n${toTgHtml(a.snapshot)}`;
+  if (a.financials) t += `\n\n<b>Финансы</b>\n${toTgHtml(a.financials)}`;
+  if (a.valuation) t += `\n\n<b>Оценка</b>\n${toTgHtml(a.valuation)}`;
+  if (risks) t += `\n\n<b>Ключевые риски</b>\n${risks}`;
+  if (a.verdict) t += `\n\n<b>Вывод</b>\n${toTgHtml(a.verdict)}`;
+  t += `\n\n<i>Не индивидуальная инвестиционная рекомендация.</i>${FOOTER}`;
+  return t.length > 4050 ? t.slice(0, 4040).replace(/\s+\S*$/, "") + "…" + FOOTER : t;
+}
+
 // --- Презентация книг (текст) ---
 const BOOKS = [
   {
@@ -405,6 +428,11 @@ async function sendVideo(videoPath, caption) {
     const d = buildKbMessage(st);
     if (!d) { log("База пуста — беру обучающий пост."); mode = "article"; }
     else post = { text: d.caption };
+  }
+  if (mode === "analysis") {
+    const t = buildAnalysisMessage(st);
+    if (!t) { log("Нет разборов публичных компаний — беру обучающий пост."); mode = "article"; }
+    else post = { text: t };
   }
   if (mode === "article") post = { text: buildArticleMessage(st) };
 

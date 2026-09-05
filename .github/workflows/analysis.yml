@@ -1,0 +1,68 @@
+# Агент-аналитик публичных AI/compute-компаний (Nebius, IREN, CoreWeave, …).
+# Раз в день делает СУПЕР-ГЛУБОКИЙ разбор следующей компании (ротация),
+# коммитит docs/public-analyses.json и постит разбор в канал.
+name: Аналитик публичных компаний
+
+on:
+  schedule:
+    - cron: "30 15 * * *" # 18:30 MSK — вечерний разбор
+  workflow_dispatch:
+    inputs:
+      company:
+        description: "Тикер или имя (пусто = следующая по ротации; all = все)"
+        default: ""
+
+concurrency:
+  group: preipo-content
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Глубокий разбор компании
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node scripts/analyze-public.mjs ${{ github.event.inputs.company }}
+      - name: Закоммитить аналитику
+        run: |
+          git config user.name "preipo-analyst"
+          git config user.email "analyst@pre-ipo.pro"
+          git add docs/public-analyses.json
+          if git diff --cached --quiet; then
+            echo "Аналитика не изменилась."
+          else
+            git commit -m "Авто: разбор публичной компании"
+            git pull --rebase --autostash origin main || true
+            git push origin main
+          fi
+      - name: Опубликовать разбор в канал
+        env:
+          AGENT_BOT_TOKEN: ${{ secrets.AGENT_BOT_TOKEN }}
+          POSTER_BOT_TOKEN: ${{ secrets.POSTER_BOT_TOKEN }}
+          TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
+          SITE_URL: ${{ secrets.SITE_URL }}
+        run: node bot/poster.mjs analysis
+      - name: Сохранить состояние постера
+        run: |
+          git config user.name "preipo-bot"
+          git config user.email "bot@pre-ipo.pro"
+          git add -f bot/poster-state.json
+          if git diff --cached --quiet; then
+            echo "Состояние не изменилось."
+          else
+            git commit -m "Авто: состояние постера (analysis)"
+            git pull --rebase --autostash origin main || true
+            git push origin main
+          fi
