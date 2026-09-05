@@ -208,6 +208,7 @@ const BOOKS = [
     facts: "6 частей · 25 глав · ~230 страниц",
     pdf: "preipo-book/Do-birzhi.pdf", epub: "preipo-book/Do-birzhi.epub",
     nicePdf: "До биржи.pdf", niceEpub: "До биржи.epub",
+    cover: "public/uploads/cover-do-birzhi.png",
   },
   {
     emoji: "📘", title: "Разум машин",
@@ -215,6 +216,7 @@ const BOOKS = [
     facts: "6 частей · 40 глав · десятки схем · ~350 страниц",
     pdf: "ai-textbook/Razum-mashin.pdf", epub: "ai-textbook/Razum-mashin.epub",
     nicePdf: "Разум машин.pdf", niceEpub: "Разум машин.epub",
+    cover: "public/uploads/cover-razum-mashin.png",
   },
 ];
 function buildBooksMessage() {
@@ -243,6 +245,28 @@ async function sendDocsGroup(files) {
   const res = await fetch(`https://api.telegram.org/bot${TOKEN}/sendMediaGroup`, { method: "POST", body: form });
   const j = await res.json();
   if (!j.ok) throw new Error("Telegram sendMediaGroup: " + JSON.stringify(j));
+  return (j.result || []).map((m) => m.message_id);
+}
+
+// --- Отправка группы фото (обложки книг) ---
+async function sendPhotosGroup(files, caption) {
+  if (!TOKEN) throw new Error("Токен постера не задан");
+  if (!CHANNEL) throw new Error("TELEGRAM_CHANNEL_ID не задан");
+  const form = new FormData();
+  form.append("chat_id", CHANNEL);
+  const media = files.map((f, i) => ({
+    type: "photo",
+    media: `attach://p${i}`,
+    ...(i === 0 && caption ? { caption: caption.slice(0, 1024), parse_mode: "HTML" } : {}),
+  }));
+  form.append("media", JSON.stringify(media));
+  for (let i = 0; i < files.length; i++) {
+    const buf = fs.readFileSync(files[i].path);
+    form.append(`p${i}`, new Blob([buf], { type: files[i].type || "image/png" }), files[i].filename);
+  }
+  const res = await fetch(`https://api.telegram.org/bot${TOKEN}/sendMediaGroup`, { method: "POST", body: form });
+  const j = await res.json();
+  if (!j.ok) throw new Error("Telegram sendMediaGroup(photo): " + JSON.stringify(j));
   return (j.result || []).map((m) => m.message_id);
 }
 
@@ -325,11 +349,26 @@ async function sendVideo(videoPath, caption) {
     if (DRY) {
       console.log(`── [books] предпросмотр (${text.length} симв.) ──\n`);
       console.log(text.replace(/<\/?[^>]+>/g, ""));
-      for (const b of BOOKS) for (const [k, disk, nice] of [["PDF", b.pdf, b.nicePdf], ["EPUB", b.epub, b.niceEpub]]) {
-        const p = path.join(ROOT, disk);
-        console.log(`  ${fs.existsSync(p) ? "✔" : "✗ НЕТ"} ${k}: ${nice}  (${disk})`);
+      for (const b of BOOKS) {
+        const c = b.cover ? path.join(ROOT, b.cover) : null;
+        console.log(`  ${c && fs.existsSync(c) ? "✔" : "✗ НЕТ"} ОБЛОЖКА: ${b.title}  (${b.cover || "—"})`);
+        for (const [k, disk, nice] of [["PDF", b.pdf, b.nicePdf], ["EPUB", b.epub, b.niceEpub]]) {
+          const p = path.join(ROOT, disk);
+          console.log(`  ${fs.existsSync(p) ? "✔" : "✗ НЕТ"} ${k}: ${nice}  (${disk})`);
+        }
       }
       return;
+    }
+    // Обложки — фото-альбомом (визуальный хук перед текстом)
+    const covers = BOOKS
+      .map((b) => (b.cover ? { path: path.join(ROOT, b.cover), filename: path.basename(b.cover) } : null))
+      .filter((c) => c && fs.existsSync(c.path));
+    if (covers.length) {
+      try {
+        const capt = `📚 <b>Книги проекта pre-IPO</b> — обложки\nАвтор: <b>Канал pre-ipo.pro</b>`;
+        const cids = await sendPhotosGroup(covers.map((c) => ({ path: c.path, filename: c.filename, type: "image/png" })), capt);
+        log(`✅ Обложки отправлены: ${cids.join(", ")}`);
+      } catch (e) { log("⚠ обложки не отправлены: " + (e instanceof Error ? e.message : e)); }
     }
     const tid = await send(text);
     log(`✅ Презентация книг (текст) опубликована, message_id=${tid}`);
