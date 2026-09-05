@@ -10,7 +10,30 @@ import { ProjectVideo, type VideoScene } from "@/components/ProjectVideo";
 import { Reveal } from "@/components/motion/Reveal";
 import { Disclaimer, RiskNote } from "@/components/Disclaimer";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300; // ISR: кэш 5 мин, быстрый TTFB, устойчивость к холодному старту
+
+export async function generateMetadata(
+  { params }: { params: Promise<{ id: string }> }
+): Promise<import("next").Metadata> {
+  const { id } = await params;
+  const p = await prisma.project.findUnique({
+    where: { id },
+    select: { name: true, sector: true, stage: true, description: true, isActive: true },
+  });
+  if (!p || !p.isActive) return { title: "Проект не найден — Pre-IPO Витрина", robots: { index: false } };
+  const sub = [p.sector, p.stage].filter(Boolean).join(" · ");
+  const title = `${p.name} — pre-IPO${sub ? `: ${sub}` : ""}`;
+  const description =
+    p.description?.replace(/\s+/g, " ").slice(0, 155) ||
+    `${p.name}: инвестиции до IPO — оценка, условия входа, прогноз выхода, доходность и риски.`;
+  const url = `/project/${id}`;
+  return {
+    title, description,
+    alternates: { canonical: url },
+    openGraph: { type: "article", title, description, url, siteName: "Pre-IPO Витрина", locale: "ru_RU" },
+    twitter: { card: "summary_large_image", title, description },
+  };
+}
 
 // Разбивает многострочный текст в массив пунктов
 function toList(s?: string | null): string[] {
@@ -166,7 +189,7 @@ export default async function ProjectPage({
               href="#lead"
               className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-bg transition-colors hover:brightness-110"
             >
-              Оставить заявку
+              {project.dealStatus === "closed" ? "Похожие сделки →" : "Оставить заявку"}
             </a>
           </div>
         </div>
@@ -392,9 +415,13 @@ export default async function ProjectPage({
 
       {/* 8. Заявка */}
       <section id="lead" className="mt-10 rounded-card border border-border bg-surface p-6 sm:p-8">
-        <h2 className="text-xl font-bold text-text-primary">Заинтересовал проект?</h2>
+        <h2 className="text-xl font-bold text-text-primary">
+          {project.dealStatus === "closed" ? "Раунд закрыт" : "Заинтересовал проект?"}
+        </h2>
         <p className="mt-2 text-sm text-text-secondary">
-          Оставьте заявку или напишите напрямую — расскажем условия входа.
+          {project.dealStatus === "closed"
+            ? "Этот раунд уже закрыт. Оставьте контакт — сообщим о похожих открытых сделках и условиях входа."
+            : "Оставьте заявку или напишите напрямую — расскажем условия входа."}
         </p>
         <div className="mt-5">
           <ContactButtons />

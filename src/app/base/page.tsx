@@ -1,13 +1,20 @@
 // Раздел «База»: pre-IPO AI-компании за последний год с разбором и графиком оценки.
 import Link from "next/link";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { Reveal } from "@/components/motion/Reveal";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300; // ISR: кэш 5 мин, быстрый TTFB, устойчивость к холодному старту
 
-export const metadata = {
-  title: "Будущие гиганты — pre-IPO компании: оценки, раунды, разбор",
-  description: "Будущие гиганты: частные лидеры pre-IPO — ИИ, финтех, инфраструктура и другие сектора. Бизнес, планы, оценки по раундам и инвест-разбор. Без хайпа.",
+const TITLE = "Будущие гиганты — pre-IPO компании: оценки, раунды, разбор";
+const DESC = "Будущие гиганты: частные лидеры pre-IPO — ИИ, финтех, инфраструктура и другие сектора. Бизнес, планы, оценки по раундам и инвест-разбор. Без хайпа.";
+
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESC,
+  alternates: { canonical: "/base" },
+  openGraph: { type: "website", title: TITLE, description: DESC, url: "/base", siteName: "Pre-IPO Витрина", locale: "ru_RU" },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESC },
 };
 
 const SEG_ORDER = [
@@ -38,8 +45,8 @@ export default async function BasePage() {
       <Link href="/" className="text-sm text-text-muted transition-colors hover:text-text-primary">&larr; На главную</Link>
 
       <Reveal className="mt-6">
-        <p className="kicker text-brand">Pre-IPO · до биржи</p>
-        <h1 className="mt-2 text-3xl font-bold text-text-primary sm:text-4xl">
+        <p className="kicker kicker-gold">Pre-IPO · до биржи</p>
+        <h1 className="text-display mt-2 text-3xl font-bold sm:text-5xl">
           Будущие гиганты
         </h1>
         <p className="mt-3 max-w-2xl text-text-secondary">
@@ -64,7 +71,7 @@ export default async function BasePage() {
                 <div className="flex items-center gap-3">
                   {c.logoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={c.logoUrl} alt={c.name} className="h-11 w-11 shrink-0 rounded-control border border-border bg-white object-contain p-1.5" />
+                    <img src={c.logoUrl} alt={c.name} width={44} height={44} loading="lazy" decoding="async" className="h-11 w-11 shrink-0 rounded-control border border-border bg-white object-contain p-1.5" />
                   ) : (
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-control bg-brand-subtle text-base font-bold text-brand">{c.name.charAt(0)}</div>
                   )}
