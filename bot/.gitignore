@@ -1,5 +1,8 @@
 node_modules
 repo
 .env
+activity.log
+bot.log
 poster.log
-poster-state.json
+# poster-state.json — теперь коммитим: авто-постинг в GitHub Actions хранит здесь
+# дедуп/ротацию, иначе облако постило бы повторы при каждом запуске.

@@ -1,0 +1,32 @@
+# Авто-обновление базы «Будущие гиганты» (scripts/kb-refresh.mjs).
+# Скрипт сам обновляет оценки/новости компаний и при изменениях коммитит+пушит dev.db.
+name: База pre-IPO — авто-обновление
+
+on:
+  schedule:
+    - cron: "0 3,15 * * *" # 06:00 и 18:00 MSK (каждые 12ч)
+  workflow_dispatch: {}
+
+concurrency:
+  group: preipo-content
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  kb:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Обновить базу (скрипт сам коммитит и пушит при изменениях)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node scripts/kb-refresh.mjs

@@ -5,6 +5,8 @@
 // Запуск:
 //   node bot/poster.mjs article      — следующий обучающий пост (ротация)
 //   node bot/poster.mjs news         — свежая ещё не опубликованная новость
+//   node bot/poster.mjs digest       — дайджест: несколько свежих новостей одним постом
+//   node bot/poster.mjs books        — презентация двух книг + файлы (PDF+EPUB)
 //   node bot/poster.mjs              — авто: чередует news / article
 //   добавь --dry-run                 — показать текст, НЕ отправлять
 //
@@ -105,6 +107,36 @@ function buildNewsMessage(st) {
   return `${cat}<b>${toTgHtml(next.title)}</b>\n\n${toTgHtml(next.summary)}${src}${FOOTER}`;
 }
 
+// --- Дайджест: несколько свежих новостей одним постом ---
+function firstSentence(s) {
+  const t = (s || "").trim();
+  const m = t.match(/^.*?[.!?](?=\s|$)/);
+  return (m ? m[0] : t).trim();
+}
+function buildDigestMessage() {
+  const db = new Database(path.join(ROOT, "dev.db"), { readonly: true });
+  const rows = db.prepare(
+    "SELECT title,summary,category,sourceName,sourceUrl,publishedAt FROM NewsItem WHERE isActive=1 ORDER BY publishedAt DESC, isHot DESC LIMIT 40"
+  ).all();
+  db.close();
+  if (!rows.length) return null;
+  // берём свежее «окно»: последние 10 дней от самой свежей новости, но не больше 7 пунктов
+  const ms = (v) => new Date(v).getTime();
+  const newest = ms(rows[0].publishedAt);
+  const WINDOW = 10 * 24 * 3600 * 1000;
+  let items = rows.filter((r) => newest - ms(r.publishedAt) <= WINDOW).slice(0, 7);
+  if (items.length < 3) items = rows.slice(0, 5); // если свежих мало — берём топ-5
+  const dfmt = new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric" });
+  const head = `📰 <b>Дайджест pre-IPO · ${dfmt.format(new Date(newest))}</b>\n\nГлавное на частных рынках за последние дни:`;
+  const lines = items.map((r, i) => {
+    const cat = r.category ? ` <i>#${r.category.replace(/\s+/g, "_")}</i>` : "";
+    const gloss = firstSentence(r.summary);
+    const src = r.sourceUrl ? ` <a href="${r.sourceUrl}">${toTgHtml(r.sourceName || "источник")} ↗</a>` : "";
+    return `${i + 1}. <b>${toTgHtml(r.title)}</b>${cat}\n${toTgHtml(gloss)}${src}`;
+  });
+  return `${head}\n\n${lines.join("\n\n")}${FOOTER}`;
+}
+
 // --- Источник 3: компания из витрины (с видео, если есть) ---
 function money(v) {
   if (v == null) return null;
@@ -148,22 +180,70 @@ function buildDealMessage(st) {
 function buildKbMessage(st) {
   const db = new Database(path.join(ROOT, "dev.db"), { readonly: true });
   const rows = db.prepare(
-    "SELECT id,name,segment,valuationLabel,oneLiner,business,nextRound,lastNews FROM KbCompany WHERE isActive=1 ORDER BY valuationUSD DESC"
+    "SELECT id,name,segment,valuationLabel,oneLiner,business,plans,nextRound,lastNews,analysis FROM KbCompany WHERE isActive=1 ORDER BY valuationUSD DESC"
   ).all();
   db.close();
   if (!rows.length) return null;
   const idx = ((st.kbIndex ?? -1) + 1) % rows.length;
   st.kbIndex = idx;
   const p = rows[idx];
+  // Полноценный разбор: чем занимается + перспективы (+ взгляд), из полей базы.
   let caption = `🏛 <b>${toTgHtml(p.name)}</b>`;
   const head = [p.segment, p.valuationLabel].filter(Boolean).map(toTgHtml).join(" · ");
   if (head) caption += `\n${head}`;
-  const desc = p.oneLiner || (p.business ? p.business.split("\n")[0] : "");
-  if (desc) caption += `\n\n${toTgHtml(desc)}`;
-  if (p.nextRound) caption += `\n\n↗ ${toTgHtml(p.nextRound)}`;
-  if (p.lastNews) caption += `\n📰 ${toTgHtml(p.lastNews)}`;
-  caption += `\n\n<a href="${SITE}/base/${p.id}">Разбор и график оценки →</a>${FOOTER}`;
+  const business = p.business || p.oneLiner;
+  if (business) caption += `\n\n<b>Чем занимается</b>\n${toTgHtml(business)}`;
+  if (p.plans) caption += `\n\n<b>Перспективы</b>\n${toTgHtml(p.plans)}`;
+  if (p.nextRound) caption += `\n↗ ${toTgHtml(p.nextRound)}`;
+  if (p.analysis) caption += `\n\n<b>Взгляд</b>\n${toTgHtml(p.analysis)}`;
+  caption += `\n\n<a href="${SITE}/base/${p.id}">Полный разбор и график оценки →</a>${FOOTER}`;
   return { caption };
+}
+
+// --- Презентация книг (текст) ---
+const BOOKS = [
+  {
+    emoji: "📕", title: "До биржи",
+    sub: "Практический учебник по инвестициям в частные компании. История и этапы частных рынков, методы оценки непубличных компаний, разбор громких провалов и взлётов — и, главное, как честно встроить pre-IPO в портфель: доля, риск, ликвидность.",
+    facts: "6 частей · 25 глав · ~230 страниц",
+    pdf: "preipo-book/Do-birzhi.pdf", epub: "preipo-book/Do-birzhi.epub",
+    nicePdf: "До биржи.pdf", niceEpub: "До биржи.epub",
+  },
+  {
+    emoji: "📘", title: "Разум машин",
+    sub: "Иллюстрированный учебник по искусственному интеллекту — с нуля до уверенного понимания: что такое ИИ и что им не является, как он устроен внутри, кто и где его создаёт и куда всё движется. Без магии и без паники.",
+    facts: "6 частей · 40 глав · десятки схем · ~350 страниц",
+    pdf: "ai-textbook/Razum-mashin.pdf", epub: "ai-textbook/Razum-mashin.epub",
+    nicePdf: "Разум машин.pdf", niceEpub: "Разум машин.epub",
+  },
+];
+function buildBooksMessage() {
+  const head = "📚 <b>Две книги проекта pre-IPO</b>\n\nДва иллюстрированных учебника — честно и без хайпа о силах, которые формируют рынки будущего. С чертежами, реальными фактами и живым языком.";
+  const blocks = BOOKS.map((b) => `${b.emoji} <b>${b.title}</b>\n${toTgHtml(b.sub)}\n<i>${toTgHtml(b.facts)}</i>`);
+  const tail = "Оба учебника — в PDF (готово к печати) и EPUB (для читалок и Kindle). Файлы — ниже 👇";
+  return `${head}\n\n${blocks.join("\n\n")}\n\n${tail}\n\n🌐 <a href="${SITE}">pre-ipo.pro</a>`;
+}
+
+// --- Отправка группы документов (медиагруппа) ---
+async function sendDocsGroup(files) {
+  if (!TOKEN) throw new Error("Токен постера не задан");
+  if (!CHANNEL) throw new Error("TELEGRAM_CHANNEL_ID не задан");
+  const form = new FormData();
+  form.append("chat_id", CHANNEL);
+  const media = files.map((f, i) => ({
+    type: "document",
+    media: `attach://f${i}`,
+    ...(f.caption ? { caption: f.caption.slice(0, 1024), parse_mode: "HTML" } : {}),
+  }));
+  form.append("media", JSON.stringify(media));
+  for (let i = 0; i < files.length; i++) {
+    const buf = fs.readFileSync(files[i].path);
+    form.append(`f${i}`, new Blob([buf], { type: files[i].type || "application/octet-stream" }), files[i].filename);
+  }
+  const res = await fetch(`https://api.telegram.org/bot${TOKEN}/sendMediaGroup`, { method: "POST", body: form });
+  const j = await res.json();
+  if (!j.ok) throw new Error("Telegram sendMediaGroup: " + JSON.stringify(j));
+  return (j.result || []).map((m) => m.message_id);
 }
 
 // --- Отправка ---
@@ -239,11 +319,42 @@ async function sendVideo(videoPath, caption) {
     return;
   }
 
+  // Режим books — презентация книг: текстовый пост + файлы (PDF+EPUB) по каждой книге
+  if (mode === "books") {
+    const text = buildBooksMessage();
+    if (DRY) {
+      console.log(`── [books] предпросмотр (${text.length} симв.) ──\n`);
+      console.log(text.replace(/<\/?[^>]+>/g, ""));
+      for (const b of BOOKS) for (const [k, disk, nice] of [["PDF", b.pdf, b.nicePdf], ["EPUB", b.epub, b.niceEpub]]) {
+        const p = path.join(ROOT, disk);
+        console.log(`  ${fs.existsSync(p) ? "✔" : "✗ НЕТ"} ${k}: ${nice}  (${disk})`);
+      }
+      return;
+    }
+    const tid = await send(text);
+    log(`✅ Презентация книг (текст) опубликована, message_id=${tid}`);
+    for (const b of BOOKS) {
+      const files = [];
+      const pdf = path.join(ROOT, b.pdf), epub = path.join(ROOT, b.epub);
+      if (fs.existsSync(pdf)) files.push({ path: pdf, filename: b.nicePdf, type: "application/pdf", caption: `${b.emoji} <b>${toTgHtml(b.title)}</b> · ${toTgHtml(b.facts)}\nPDF (для печати) и EPUB (для читалок)` });
+      if (fs.existsSync(epub)) files.push({ path: epub, filename: b.niceEpub, type: "application/epub+zip" });
+      if (!files.length) { log(`⚠ нет файлов для «${b.title}» — пропуск`); continue; }
+      const ids = await sendDocsGroup(files);
+      log(`✅ Файлы «${b.title}» отправлены: ${ids.join(", ")}`);
+    }
+    return;
+  }
+
   // Собираем пост: { text, videoPath? }
   let post = null;
   if (mode === "news") {
     const t = buildNewsMessage(st);
     if (!t) { log("Новых новостей нет — беру обучающий пост."); mode = "article"; }
+    else post = { text: t };
+  }
+  if (mode === "digest") {
+    const t = buildDigestMessage();
+    if (!t) { log("Нет новостей для дайджеста — беру обучающий пост."); mode = "article"; }
     else post = { text: t };
   }
   if (mode === "deal") {

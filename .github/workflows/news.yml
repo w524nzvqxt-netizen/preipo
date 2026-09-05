@@ -1,0 +1,45 @@
+# Ежедневная ИИ-генерация новостей «Вестник» (prisma/gen-news.ts).
+# Пишет свежие NewsItem в dev.db и коммитит его в репо → прод подхватывает.
+name: Вестник — генерация новостей
+
+on:
+  schedule:
+    - cron: "30 5 * * *" # 08:30 MSK (UTC+3)
+  workflow_dispatch: {} # можно запустить вручную из вкладки Actions
+
+# Не пересекаемся с другими контент-джобами, которые тоже пушат dev.db
+concurrency:
+  group: preipo-content
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  news:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Сгенерировать новости
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: npx tsx prisma/gen-news.ts
+      - name: Закоммитить свежие новости
+        run: |
+          git config user.name "preipo-news"
+          git config user.email "news@pre-ipo.pro"
+          git add dev.db
+          if git diff --cached --quiet; then
+            echo "Новых новостей нет — коммит не нужен."
+            exit 0
+          fi
+          git commit -m "Авто: свежие новости (Вестник)"
+          git pull --rebase --autostash origin main || true
+          git push origin main

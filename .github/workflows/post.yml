@@ -1,0 +1,63 @@
+# Авто-постинг в Telegram-канал (bot/poster.mjs).
+# Контент берётся из dev.db (без вызова AI на этом шаге), состояние ротации/дедупа
+# хранится в bot/poster-state.json и коммитится обратно, чтобы не постить повторы.
+name: Канал — авто-постинг
+
+on:
+  schedule:
+    - cron: "45 6 * * *" # 09:45 MSK — разбор компании из базы (kb)
+    - cron: "0 10 * * *" # 13:00 MSK — свежая новость (news)
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Режим постера: news / deal / kb / digest / article"
+        default: news
+
+concurrency:
+  group: preipo-content
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Определить режим
+        id: mode
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "mode=${{ github.event.inputs.mode }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "45 6 * * *" ]; then
+            echo "mode=kb" >> "$GITHUB_OUTPUT"
+          else
+            echo "mode=news" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Опубликовать пост
+        env:
+          AGENT_BOT_TOKEN: ${{ secrets.AGENT_BOT_TOKEN }}
+          POSTER_BOT_TOKEN: ${{ secrets.POSTER_BOT_TOKEN }}
+          TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
+          SITE_URL: ${{ secrets.SITE_URL }}
+        run: node bot/poster.mjs ${{ steps.mode.outputs.mode }}
+      - name: Сохранить состояние постера (дедуп/ротация)
+        run: |
+          git config user.name "preipo-bot"
+          git config user.email "bot@pre-ipo.pro"
+          git add -f bot/poster-state.json
+          if git diff --cached --quiet; then
+            echo "Состояние не изменилось."
+            exit 0
+          fi
+          git commit -m "Авто: состояние постера (${{ steps.mode.outputs.mode }})"
+          git pull --rebase --autostash origin main || true
+          git push origin main
