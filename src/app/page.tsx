@@ -46,9 +46,10 @@ export default async function HomePage() {
     risk: "высокий",
   }));
 
-  // Bento-витрина: спотлайт горячей сделки + прочие открытые + трек-рекорд
-  const spotlight = projects[0] ?? null;
-  const openRest = projects.slice(1);
+  // Bento-витрина: только закрытые сделки (трек-рекорд) — спотлайт лучшей + тайлы.
+  const spotlight =
+    [...closedDeals].sort((a, b) => (b.cocMultiple ?? 0) - (a.cocMultiple ?? 0))[0] ?? null;
+  const dealTiles = closedDeals.filter((p) => p.id !== spotlight?.id);
   const bestCoc = closedDeals.reduce(
     (m, p) => (p.cocMultiple != null && p.cocMultiple > m ? p.cocMultiple : m),
     0
@@ -180,7 +181,7 @@ export default async function HomePage() {
         {/* 02 — Bento-витрина: открытые сделки, трек-рекорд, новости */}
         <section id="deals" className="mt-28 scroll-mt-24">
           <div className="flex flex-wrap items-end justify-between gap-4">
-            <SectionHead n="02" kicker="Витрина" title="Сделки и трек-рекорд" />
+            <SectionHead n="02" kicker="Трек-рекорд" title="Закрытые сделки" gold />
             <Link
               href="/portfolio"
               className="rounded-control border border-border px-4 py-2 text-sm font-semibold text-text-secondary transition-colors hover:border-brand/50 hover:text-text-primary"
@@ -199,11 +200,10 @@ export default async function HomePage() {
                 <div className="pointer-events-none absolute right-[-20%] top-[-30%] h-64 w-64 rounded-full bg-brand/10 blur-[100px]" />
                 <div className="relative flex items-center justify-between gap-3">
                   <p className="kicker kicker-gold">
-                    {spotlight.isHot ? "Горячая сделка" : "Открытая сделка"}
-                    {spotlight.sector ? ` · ${spotlight.sector}` : ""}
+                    Закрытая сделка{spotlight.sector ? ` · ${spotlight.sector}` : ""}
                   </p>
-                  <span className="kicker shrink-0 rounded-pill border border-brand/40 bg-brand-subtle px-2.5 py-1 text-brand">
-                    Доступно
+                  <span className="kicker shrink-0 rounded-pill border border-border bg-surface-alt px-2.5 py-1 text-text-muted">
+                    Закрыто
                   </span>
                 </div>
                 <div className="relative">
@@ -213,14 +213,25 @@ export default async function HomePage() {
                   </p>
                 </div>
                 <div className="relative">
-                  <p className="kicker text-text-muted">Оценка входа</p>
-                  <p className="nums text-3xl font-extrabold text-text-primary sm:text-4xl">
-                    {formatMoney(spotlight.valuation)}
-                  </p>
+                  <div className="flex flex-wrap items-end justify-between gap-4">
+                    <div>
+                      <p className="kicker text-text-muted">Оценка входа</p>
+                      <p className="nums text-3xl font-extrabold text-text-primary sm:text-4xl">
+                        {formatMoney(spotlight.valuation)}
+                      </p>
+                    </div>
+                    {spotlight.cocMultiple != null && (
+                      <div className="text-right">
+                        <p className="kicker text-text-muted">Результат</p>
+                        <p className="nums text-3xl font-extrabold text-brand sm:text-4xl">
+                          ×{spotlight.cocMultiple.toFixed(1).replace(".", ",")}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                   <div className="mt-4 flex flex-wrap gap-x-8 gap-y-3 border-t border-border pt-4">
                     <Stat k="Доходность" v={spotlight.expectedReturn != null ? `+${Math.round(spotlight.expectedReturn)}%/год` : "—"} pos />
                     <Stat k="Прогноз выхода" v={spotlight.expectedExit || "—"} />
-                    <Stat k="Мин. чек" v={spotlight.minTicket != null ? formatMoney(spotlight.minTicket, spotlight.currency) : "по запросу"} />
                   </div>
                 </div>
               </Link>
@@ -249,13 +260,8 @@ export default async function HomePage() {
               </div>
             )}
 
-            {/* Прочие открытые сделки */}
-            {openRest.map((p) => (
-              <BentoDeal key={p.id} p={p} />
-            ))}
-
-            {/* Трек-рекорд — закрытые раунды */}
-            {closedDeals.map((p) => (
+            {/* Закрытые сделки (трек-рекорд) */}
+            {dealTiles.map((p) => (
               <BentoClosed key={p.id} p={p} />
             ))}
 
@@ -279,7 +285,6 @@ export default async function HomePage() {
 
             {/* Статы витрины */}
             <div className="flex flex-col justify-center gap-3.5 rounded-card border border-border bg-surface-alt p-6">
-              <Stat k="Открытых сделок" v={String(projects.length)} big />
               <Stat k="Закрытых раундов" v={String(closedDeals.length)} big />
               {bestMultiple && <Stat k="Лучший результат" v={bestMultiple} big gold />}
             </div>
@@ -544,29 +549,6 @@ function Stat({
         {v}
       </p>
     </div>
-  );
-}
-
-// Открытая сделка — компактный bento-тайл
-function BentoDeal({ p }: { p: Project }) {
-  return (
-    <Link
-      href={`/project/${p.id}`}
-      className="card-premium group flex flex-col justify-between overflow-hidden rounded-card border border-border bg-surface p-5 hover:-translate-y-1 hover:border-brand/50 hover:shadow-[var(--shadow-card-hover)] motion-reduce:hover:translate-y-0"
-    >
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="text-base font-semibold leading-tight text-text-primary">{p.name}</h3>
-        <span className="kicker shrink-0 rounded-pill border border-brand/40 bg-brand-subtle px-2 py-0.5 text-brand">Доступно</span>
-      </div>
-      <p className="mt-1 text-xs text-text-muted">{p.sector || "Late-stage private"}</p>
-      <div className="mt-3 border-t border-border pt-3">
-        <p className="nums text-lg font-extrabold text-text-primary">{formatMoney(p.valuation)}</p>
-        <p className="nums mt-0.5 text-xs text-text-secondary">
-          {p.expectedReturn != null ? `+${Math.round(p.expectedReturn)}%/год` : "—"}
-          {p.expectedExit ? ` · ${p.expectedExit}` : ""}
-        </p>
-      </div>
-    </Link>
   );
 }
 
