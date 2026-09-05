@@ -7,14 +7,17 @@ import { Hero } from "@/components/Hero";
 import { Ticker } from "@/components/Ticker";
 import { Reveal } from "@/components/motion/Reveal";
 import { Disclaimer } from "@/components/Disclaimer";
-import { ClubSelector } from "@/components/ClubSelector";
-import { ProjectCard } from "@/components/ProjectCard";
 import { MobileNav } from "@/components/MobileNav";
 import { contacts } from "@/lib/config";
 import { formatMoney } from "@/lib/format";
+import type { Project } from "@/generated/prisma/client";
 
 // Витрина всегда отражает актуальные данные из админки
-export const dynamic = "force-dynamic";
+// ISR: страница кэшируется и переgenerируется не чаще раза в 5 минут.
+// Даёт мгновенный TTFB и устойчивость к холодному старту (иначе Lighthouse
+// на «спящем» Railway ловит таймаут — «страница не отвечает»). Контент в dev.db
+// меняется через админку и подхватывается в течение интервала / при деплое.
+export const revalidate = 300;
 
 export default async function HomePage() {
   const all = await prisma.project.findMany({
@@ -32,20 +35,6 @@ export default async function HomePage() {
     .map((p) => ({ name: p.name, cap: p.valuation as number }))
     .sort((a, b) => b.cap - a.cap);
 
-  // Карточки в стиле «выбора клуба FIFA» — общий маппер
-  const toClubItem = (p: (typeof all)[number]) => ({
-    id: p.id,
-    name: p.name,
-    sector: [p.sector, p.stage].filter(Boolean).join(" · ") || "Pre-IPO",
-    logoUrl: p.logoUrl ?? null,
-    valuation: p.valuation != null ? formatMoney(p.valuation) : "—",
-    ret: p.expectedReturn != null ? `${Math.round(p.expectedReturn)}%/год` : "—",
-    exit: p.expectedExit || "—",
-    potential: p.cocMultiple != null ? `×${p.cocMultiple.toFixed(1).replace(".", ",")}` : "—",
-    isHot: p.isHot,
-  });
-  const closedSelectorItems = closedDeals.map(toClubItem);
-
   // Данные для deal-terminal на первом экране (значения без подтверждения — «по запросу»)
   const terminalDeals = projects.slice(0, 4).map((p) => ({
     name: p.name,
@@ -56,6 +45,15 @@ export default async function HomePage() {
     liquidity: "низкая",
     risk: "высокий",
   }));
+
+  // Bento-витрина: спотлайт горячей сделки + прочие открытые + трек-рекорд
+  const spotlight = projects[0] ?? null;
+  const openRest = projects.slice(1);
+  const bestCoc = closedDeals.reduce(
+    (m, p) => (p.cocMultiple != null && p.cocMultiple > m ? p.cocMultiple : m),
+    0
+  );
+  const bestMultiple = bestCoc > 0 ? `×${bestCoc.toFixed(1).replace(".", ",")}` : null;
 
   // Свежие новости рынка (топ-3 горячих)
   const news = await prisma.newsItem.findMany({
@@ -77,7 +75,7 @@ export default async function HomePage() {
           <Link href="/" className="flex items-center gap-2 text-lg font-bold tracking-tight text-text-primary">
             <span className="text-brand">◆</span> Pre-IPO
           </Link>
-          <nav className="flex items-center gap-0.5 sm:gap-1">
+          <nav aria-label="Основная навигация" className="flex items-center gap-0.5 sm:gap-1">
             <a href="#deals" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary lg:block">Сделки</a>
             <a href="#process" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary lg:block">Как это работает</a>
             <a href="#risks" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary lg:block">Риски</a>
@@ -94,7 +92,7 @@ export default async function HomePage() {
       {/* HERO — full-bleed private deal terminal */}
       <Hero planets={planets} deals={terminalDeals} />
 
-      <main className="mx-auto w-full max-w-7xl px-6 pb-28">
+      <main id="main" className="mx-auto w-full max-w-7xl px-6 pb-28">
         {/* Баннер индекса vs S&P 500 — наезжает на hero */}
         <Link
           href="/exits"
@@ -130,6 +128,7 @@ export default async function HomePage() {
                 className="aspect-video w-full bg-surface"
                 controls
                 preload="metadata"
+                poster="/uploads/poster-main.jpg"
                 playsInline
               >
                 <source src="/uploads/home-preipo-video.mp4" type="video/mp4" />
@@ -178,10 +177,10 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Доступные сделки */}
+        {/* 02 — Bento-витрина: открытые сделки, трек-рекорд, новости */}
         <section id="deals" className="mt-28 scroll-mt-24">
           <div className="flex flex-wrap items-end justify-between gap-4">
-            <SectionHead n="02" kicker="Сделки" title="Доступные сделки" />
+            <SectionHead n="02" kicker="Витрина" title="Сделки и трек-рекорд" />
             <Link
               href="/portfolio"
               className="rounded-control border border-border px-4 py-2 text-sm font-semibold text-text-secondary transition-colors hover:border-brand/50 hover:text-text-primary"
@@ -189,65 +188,112 @@ export default async function HomePage() {
               Собрать портфель →
             </Link>
           </div>
-          {projects.length === 0 ? (
-            <div className="mt-8 rounded-card border border-dashed border-border p-10 text-center text-text-muted">
-              Сделки открываются по запросу. Пройдите подбор — пришлём актуальный список.
-            </div>
-          ) : (
-            <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {projects.map((p) => (
-                <ProjectCard key={p.id} project={p} />
-              ))}
-            </div>
-          )}
-        </section>
 
-        {/* 03 — Закрытые раунды (золотой акцент) */}
-        {closedDeals.length > 0 && (
-          <section id="track-record" className="mt-28">
-            <SectionHead n="03" kicker="Трек-рекорд" title="Закрытые раунды" gold />
-            <p className="mt-3 max-w-2xl text-text-secondary">
-              Раунды, которые мы уже закрыли для инвесторов. Параметры — на момент входа
-              в сделку.
-            </p>
-            <div className="mt-10">
-              <ClubSelector items={closedSelectorItems} />
-            </div>
-          </section>
-        )}
-
-        {/* Новости рынка */}
-        {news.length > 0 && (
-          <section className="mt-28">
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <SectionHead n="04" kicker="Лента рынка · ежедневно" title="Новости pre-IPO" />
+          <div className="mt-10 grid grid-flow-row-dense grid-cols-2 gap-4 [grid-auto-rows:minmax(150px,auto)] lg:grid-cols-4">
+            {/* Спотлайт горячей открытой сделки */}
+            {spotlight && (
               <Link
-                href="/news"
-                className="btn-brand rounded-control px-4 py-2 text-sm font-semibold"
+                href={`/project/${spotlight.id}`}
+                className="card-premium group relative col-span-2 row-span-2 flex flex-col justify-between overflow-hidden rounded-card border border-border bg-surface p-6 hover:-translate-y-1 hover:border-brand/50 hover:shadow-[var(--shadow-card-hover)] motion-reduce:hover:translate-y-0"
               >
-                Все новости →
-              </Link>
-            </div>
-            <div className="mt-8 grid gap-5 sm:grid-cols-3">
-              {news.map((n) => (
-                <Link
-                  key={n.id}
-                  href="/news"
-                  className="card-premium group flex flex-col overflow-hidden rounded-card border border-border bg-surface p-5 hover:-translate-y-1 hover:border-brand/60 hover:shadow-[var(--shadow-card-hover)] motion-reduce:hover:translate-y-0"
-                >
-                  <div className="flex items-center gap-2">
-                    {n.isHot && (
-                      <span className="kicker rounded-full border border-warning/40 bg-warning/10 px-2 py-0.5 text-warning">Горячее</span>
-                    )}
-                    {n.category && <span className="kicker text-text-muted">{n.category}</span>}
+                <div className="pointer-events-none absolute right-[-20%] top-[-30%] h-64 w-64 rounded-full bg-brand/10 blur-[100px]" />
+                <div className="relative flex items-center justify-between gap-3">
+                  <p className="kicker kicker-gold">
+                    {spotlight.isHot ? "Горячая сделка" : "Открытая сделка"}
+                    {spotlight.sector ? ` · ${spotlight.sector}` : ""}
+                  </p>
+                  <span className="kicker shrink-0 rounded-pill border border-brand/40 bg-brand-subtle px-2.5 py-1 text-brand">
+                    Доступно
+                  </span>
+                </div>
+                <div className="relative">
+                  <h3 className="text-display text-3xl font-bold sm:text-4xl">{spotlight.name}</h3>
+                  <p className="mt-2 text-text-secondary">
+                    {[spotlight.sector, spotlight.stage].filter(Boolean).join(" · ") || "Late-stage private"}
+                  </p>
+                </div>
+                <div className="relative">
+                  <p className="kicker text-text-muted">Оценка входа</p>
+                  <p className="nums text-3xl font-extrabold text-text-primary sm:text-4xl">
+                    {formatMoney(spotlight.valuation)}
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-x-8 gap-y-3 border-t border-border pt-4">
+                    <Stat k="Доходность" v={spotlight.expectedReturn != null ? `+${Math.round(spotlight.expectedReturn)}%/год` : "—"} pos />
+                    <Stat k="Прогноз выхода" v={spotlight.expectedExit || "—"} />
+                    <Stat k="Мин. чек" v={spotlight.minTicket != null ? formatMoney(spotlight.minTicket, spotlight.currency) : "по запросу"} />
                   </div>
-                  <h3 className="mt-3 font-bold leading-tight text-text-primary">{n.title}</h3>
-                  <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-text-secondary">{n.summary}</p>
-                </Link>
-              ))}
+                </div>
+              </Link>
+            )}
+
+            {/* Новости рынка — большой тайл */}
+            {news.length > 0 && (
+              <div className="col-span-2 row-span-2 flex flex-col overflow-hidden rounded-card border border-border bg-surface p-6">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="kicker text-text-muted">Лента рынка · ежедневно</p>
+                  <Link href="/news" className="text-sm font-semibold text-brand hover:underline">Все →</Link>
+                </div>
+                <div className="mt-1 flex flex-col divide-y divide-border">
+                  {news.map((n) => (
+                    <Link key={n.id} href="/news" className="group flex flex-col gap-1.5 py-3.5">
+                      <div className="flex items-center gap-2">
+                        {n.isHot && (
+                          <span className="kicker rounded-full border border-warning/40 bg-warning/10 px-2 py-0.5 text-warning">Горячее</span>
+                        )}
+                        {n.category && <span className="kicker text-text-muted">{n.category}</span>}
+                      </div>
+                      <h3 className="font-semibold leading-tight text-text-primary transition-colors group-hover:text-brand">{n.title}</h3>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Прочие открытые сделки */}
+            {openRest.map((p) => (
+              <BentoDeal key={p.id} p={p} />
+            ))}
+
+            {/* Трек-рекорд — закрытые раунды */}
+            {closedDeals.map((p) => (
+              <BentoClosed key={p.id} p={p} />
+            ))}
+
+            {/* База — будущие гиганты */}
+            <Link
+              href="/base"
+              className="card-premium group col-span-2 flex flex-col justify-between overflow-hidden rounded-card border border-border bg-surface p-6 hover:-translate-y-1 hover:border-brand/50 hover:shadow-[var(--shadow-card-hover)] motion-reduce:hover:translate-y-0"
+            >
+              <div>
+                <p className="kicker kicker-gold">Будущие гиганты</p>
+                <h3 className="mt-2 text-xl font-bold text-text-primary">База частных компаний</h3>
+                <p className="mt-1.5 text-sm text-text-secondary">
+                  Оценки, раунды и разборы десятков pre-IPO компаний по секторам.
+                </p>
+              </div>
+              <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand">
+                Открыть базу
+                <span className="transition-transform group-hover:translate-x-1 motion-reduce:transition-none">→</span>
+              </span>
+            </Link>
+
+            {/* Статы витрины */}
+            <div className="flex flex-col justify-center gap-3.5 rounded-card border border-border bg-surface-alt p-6">
+              <Stat k="Открытых сделок" v={String(projects.length)} big />
+              <Stat k="Закрытых раундов" v={String(closedDeals.length)} big />
+              {bestMultiple && <Stat k="Лучший результат" v={bestMultiple} big gold />}
             </div>
-          </section>
-        )}
+
+            {/* CTA — подбор */}
+            <a
+              href="#quiz"
+              className="btn-brand flex flex-col justify-between rounded-card p-6 transition-transform hover:-translate-y-1 motion-reduce:hover:translate-y-0"
+            >
+              <span className="text-xs font-bold uppercase tracking-[0.14em] opacity-75">Подбор</span>
+              <span className="mt-6 text-lg font-bold leading-tight">Получить список сделок →</span>
+            </a>
+          </div>
+        </section>
 
         {/* Партнёрам — вход в портал */}
         <section className="mt-28">
@@ -256,7 +302,7 @@ export default async function HomePage() {
             <div className="relative flex flex-wrap items-center justify-between gap-6">
               <div className="max-w-2xl">
                 <p className="kicker kicker-gold">Партнёрская программа</p>
-                <h2 className="text-display mt-2 text-2xl font-bold sm:text-4xl">Продавайте pre-IPO своим клиентам</h2>
+                <h2 className="text-display mt-2 text-2xl font-bold sm:text-4xl">Дайте своим клиентам доступ к pre-IPO</h2>
                 <p className="mt-3 text-text-secondary">
                   Личный кабинет партнёра: ведите клиентов и сделки, отслеживайте комиссии и
                   выплаты, считайте доходность и рентабельность портфеля, формируйте отчёты —
@@ -470,6 +516,81 @@ function SectionHead({
         <h2 className="text-display mt-1 text-2xl font-bold sm:text-4xl">{title}</h2>
       </div>
     </div>
+  );
+}
+
+// Мелкий стат-блок (лейбл + значение) для bento-тайлов
+function Stat({
+  k,
+  v,
+  pos,
+  gold,
+  big,
+}: {
+  k: string;
+  v: string;
+  pos?: boolean;
+  gold?: boolean;
+  big?: boolean;
+}) {
+  return (
+    <div>
+      <p className="kicker text-text-muted">{k}</p>
+      <p
+        className={`nums font-bold ${big ? "text-2xl" : "text-base"} ${
+          pos ? "text-positive" : gold ? "text-brand" : "text-text-primary"
+        }`}
+      >
+        {v}
+      </p>
+    </div>
+  );
+}
+
+// Открытая сделка — компактный bento-тайл
+function BentoDeal({ p }: { p: Project }) {
+  return (
+    <Link
+      href={`/project/${p.id}`}
+      className="card-premium group flex flex-col justify-between overflow-hidden rounded-card border border-border bg-surface p-5 hover:-translate-y-1 hover:border-brand/50 hover:shadow-[var(--shadow-card-hover)] motion-reduce:hover:translate-y-0"
+    >
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="text-base font-semibold leading-tight text-text-primary">{p.name}</h3>
+        <span className="kicker shrink-0 rounded-pill border border-brand/40 bg-brand-subtle px-2 py-0.5 text-brand">Доступно</span>
+      </div>
+      <p className="mt-1 text-xs text-text-muted">{p.sector || "Late-stage private"}</p>
+      <div className="mt-3 border-t border-border pt-3">
+        <p className="nums text-lg font-extrabold text-text-primary">{formatMoney(p.valuation)}</p>
+        <p className="nums mt-0.5 text-xs text-text-secondary">
+          {p.expectedReturn != null ? `+${Math.round(p.expectedReturn)}%/год` : "—"}
+          {p.expectedExit ? ` · ${p.expectedExit}` : ""}
+        </p>
+      </div>
+    </Link>
+  );
+}
+
+// Закрытый раунд (трек-рекорд) — компактный bento-тайл с множителем
+function BentoClosed({ p }: { p: Project }) {
+  const mult = p.cocMultiple != null ? `×${p.cocMultiple.toFixed(1).replace(".", ",")}` : null;
+  return (
+    <Link
+      href={`/project/${p.id}`}
+      className="card-premium group flex flex-col justify-between overflow-hidden rounded-card border border-border bg-surface p-5 hover:-translate-y-1 hover:border-brand/50 hover:shadow-[var(--shadow-card-hover)] motion-reduce:hover:translate-y-0"
+    >
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="text-base font-semibold leading-tight text-text-primary">{p.name}</h3>
+        <span className="kicker shrink-0 rounded-pill border border-border bg-surface-alt px-2 py-0.5 text-text-muted">Закрыто</span>
+      </div>
+      <p className="mt-1 text-xs text-text-muted">{p.sector || "Late-stage private"}</p>
+      <div className="mt-3 flex items-end justify-between gap-2 border-t border-border pt-3">
+        <div>
+          <p className="kicker text-text-muted">Оценка</p>
+          <p className="nums text-base font-bold text-text-primary">{formatMoney(p.valuation)}</p>
+        </div>
+        {mult && <span className="nums text-xl font-extrabold text-brand">{mult}</span>}
+      </div>
+    </Link>
   );
 }
 
