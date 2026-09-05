@@ -1,15 +1,28 @@
 // Аутентификация админки через httpOnly-cookie.
-// В куке лежит НЕ сам пароль, а его хэш.
+// В куке лежит ПОДПИСАННЫЙ (HMAC) токен сессии со сроком, а не детерминированный
+// хэш пароля. Секрет подписи берётся из SESSION_SECRET; если он не задан —
+// генерируется СЛУЧАЙНЫЙ секрет на время жизни процесса. Так куку нельзя
+// подделать по коду из публичного репозитория (раньше значение куки было
+// детерминированным хэшом с публичной константой-фолбэком — её мог вычислить
+// кто угодно и войти без пароля). Минус случайного секрета: сессии сбрасываются
+// при рестарте/редеплое — задайте SESSION_SECRET в окружении для стабильных сессий.
 import { cookies } from "next/headers";
-import { createHash, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
 const COOKIE_NAME = "admin_session";
+const TTL = 60 * 60 * 24 * 7; // 7 дней
 
 // Разрешённые пароли админки как SHA-256 (сам пароль в репозитории НЕ хранится).
-// Благодаря этому вход работает на проде без правки переменной ADMIN_PASSWORD в Railway.
-const EXTRA_HASHES = new Set<string>([
-  "49a8a113f177943a3b9081974e701f83b9f5c94ed96233be189786cf7b4bc4b7", // текущий пароль оператора
-]);
+// Можно задать дополнительные хэши через ADMIN_PASSWORD_HASHES (через запятую).
+const EXTRA_HASHES = new Set<string>(
+  [
+    "49a8a113f177943a3b9081974e701f83b9f5c94ed96233be189786cf7b4bc4b7", // текущий пароль оператора
+    ...(process.env.ADMIN_PASSWORD_HASHES || "")
+      .split(",")
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean),
+  ].filter(Boolean)
+);
 
 function sha256(s: string): string {
   return createHash("sha256").update(s).digest("hex");
@@ -20,14 +33,25 @@ function envPassword(): string | null {
   return p && p.length > 0 ? p : null;
 }
 
-// Секрет сессии всегда стабилен (даже если ADMIN_PASSWORD не задан на проде),
-// иначе httpOnly-кука сессии не сможет сформироваться и вход «не запомнится».
-function sessionToken(): string {
-  const p = envPassword() || "preipo-admin-fallback-v1";
-  return sha256("preipo:v1:" + p);
+// Секрет подписи сессии. Приоритет — SESSION_SECRET (стабильные сессии между
+// рестартами). Иначе — случайный секрет процесса: НИКОГДА публичная константа.
+const RUNTIME_SECRET = randomBytes(32).toString("hex");
+function sessionSecret(): string {
+  const s = process.env.SESSION_SECRET;
+  if (s && s.length >= 16) return s;
+  return RUNTIME_SECRET;
 }
 
-// Сравнение hex-хэшей постоянного времени
+function sign(payload: string): string {
+  return createHmac("sha256", sessionSecret()).update(payload).digest("hex");
+}
+
+// Сравнение строк/hex постоянного времени
+function eqStr(a: string, b: string): boolean {
+  const ba = Buffer.from(a);
+  const bb = Buffer.from(b);
+  return ba.length === bb.length && timingSafeEqual(ba, bb);
+}
 function eqHex(a: string, b: string): boolean {
   const ba = Buffer.from(a, "hex");
   const bb = Buffer.from(b, "hex");
@@ -43,14 +67,20 @@ export function checkPassword(password: string): boolean {
   return EXTRA_HASHES.has(h);
 }
 
+// Токен сессии: `${exp}.${hmac("admin.${exp}")}` — подписан секретом, со сроком.
+function makeToken(): string {
+  const exp = Math.floor(Date.now() / 1000) + TTL;
+  return `${exp}.${sign(`admin.${exp}`)}`;
+}
+
 export async function setSession() {
   const store = await cookies();
-  store.set(COOKIE_NAME, sessionToken(), {
+  store.set(COOKIE_NAME, makeToken(), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 24 * 7, // 7 дней
+    maxAge: TTL,
   });
 }
 
@@ -60,9 +90,14 @@ export async function clearSession() {
 }
 
 export async function isAuthed(): Promise<boolean> {
-  const token = sessionToken();
   const store = await cookies();
   const v = store.get(COOKIE_NAME)?.value;
-  if (!v || v.length !== token.length) return false;
-  return timingSafeEqual(Buffer.from(v), Buffer.from(token));
+  if (!v) return false;
+  const dot = v.indexOf(".");
+  if (dot <= 0) return false;
+  const exp = v.slice(0, dot);
+  const mac = v.slice(dot + 1);
+  const expNum = Number(exp);
+  if (!Number.isFinite(expNum) || expNum < Math.floor(Date.now() / 1000)) return false;
+  return eqStr(mac, sign(`admin.${exp}`));
 }

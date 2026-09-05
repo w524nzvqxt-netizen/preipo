@@ -25,6 +25,11 @@ const MAX_FAILS = 6;
 const LOCK_MS = 10 * 60 * 1000;
 const fails = new Map<string, { n: number; until: number }>();
 
+// Лимит саморегистраций по IP (антиабьюз массового создания аккаунтов)
+const regs = new Map<string, number[]>();
+const REG_WINDOW_MS = 60 * 60 * 1000; // 1 час
+const REG_MAX = 3;
+
 async function clientIp(): Promise<string> {
   const h = await headers();
   return (
@@ -79,6 +84,13 @@ export async function logout() {
 export type RegisterState = { error?: string };
 
 export async function registerAgent(_prev: RegisterState, formData: FormData): Promise<RegisterState> {
+  const ip = await clientIp();
+  const now = Date.now();
+  const arr = (regs.get(ip) || []).filter((t) => now - t < REG_WINDOW_MS);
+  if (arr.length >= REG_MAX) {
+    return { error: "Слишком много регистраций с этого адреса. Попробуйте позже." };
+  }
+
   const name = String(formData.get("name") || "").trim();
   const username = String(formData.get("username") || "").trim().toLowerCase();
   const password = String(formData.get("password") || "");
@@ -93,6 +105,8 @@ export async function registerAgent(_prev: RegisterState, formData: FormData): P
   const agent = await prisma.agent.create({
     data: { username, name, passwordHash: hashPassword(password) },
   });
+  arr.push(now);
+  regs.set(ip, arr);
   await setAgentSession(agent.id);
   redirect("/agent");
 }
@@ -145,6 +159,14 @@ export async function addClient(formData: FormData) {
 export async function deleteClient(formData: FormData) {
   const agent = await requireAgent();
   const id = String(formData.get("id") || "");
+  // Файлы документов клиента — с диска (в БД уйдут каскадом)
+  const docs = await prisma.clientDocument.findMany({
+    where: { clientId: id, agentId: agent.id },
+    select: { filePath: true },
+  });
+  for (const d of docs) {
+    try { await unlink(d.filePath); } catch {}
+  }
   // deleteMany c agentId — нельзя удалить чужого
   await prisma.client.deleteMany({ where: { id, agentId: agent.id } });
   revalidatePath("/agent");

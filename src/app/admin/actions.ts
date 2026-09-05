@@ -135,6 +135,16 @@ export async function updateProject(id: string, formData: FormData) {
 export async function deleteProject(formData: FormData) {
   await requireAuth();
   const id = String(formData.get("id") || "");
+  // Файлы документов проекта — удаляем с диска (в БД уйдут каскадом)
+  const docs = await prisma.projectDocument.findMany({
+    where: { projectId: id },
+    select: { fileUrl: true },
+  });
+  for (const d of docs) {
+    try {
+      await unlink(path.join(process.cwd(), "public", d.fileUrl));
+    } catch {}
+  }
   await prisma.lead.deleteMany({ where: { projectId: id } });
   await prisma.project.delete({ where: { id } });
   revalidatePath("/");

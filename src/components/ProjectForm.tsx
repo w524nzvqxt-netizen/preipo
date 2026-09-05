@@ -114,6 +114,14 @@ export function ProjectForm({
             className={input}
           />
         </Field>
+        <Field label="Мин. чек">
+          <input
+            name="minTicket"
+            defaultValue={project?.minTicket ?? ""}
+            placeholder="50000"
+            className={input}
+          />
+        </Field>
         <Field label="Оценка компании (вход)">
           <input
             name="valuation"

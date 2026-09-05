@@ -217,7 +217,7 @@ export default async function HomePage() {
                     <div>
                       <p className="kicker text-text-muted">Оценка входа</p>
                       <p className="nums text-3xl font-extrabold text-text-primary sm:text-4xl">
-                        {formatMoney(spotlight.valuation)}
+                        {formatMoney(spotlight.valuation, spotlight.currency)}
                       </p>
                     </div>
                     {spotlight.cocMultiple != null && (
@@ -568,7 +568,7 @@ function BentoClosed({ p }: { p: Project }) {
       <div className="mt-3 flex items-end justify-between gap-2 border-t border-border pt-3">
         <div>
           <p className="kicker text-text-muted">Оценка</p>
-          <p className="nums text-base font-bold text-text-primary">{formatMoney(p.valuation)}</p>
+          <p className="nums text-base font-bold text-text-primary">{formatMoney(p.valuation, p.currency)}</p>
         </div>
         {mult && <span className="nums text-xl font-extrabold text-brand">{mult}</span>}
       </div>

@@ -31,6 +31,15 @@ export function LeadForm({
   return (
     <form action={action} className="space-y-3">
       {projectId && <input type="hidden" name="projectId" value={projectId} />}
+      {/* honeypot: скрыто от людей, ловит ботов-спамеров */}
+      <input
+        type="text"
+        name="company"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="pointer-events-none absolute left-[-9999px] h-0 w-0 opacity-0"
+      />
       {projectName && (
         <p className="text-sm text-text-muted">
           Заявка по проекту:{" "}
@@ -39,18 +48,22 @@ export function LeadForm({
       )}
       <input
         name="name"
+        aria-label="Ваше имя"
         placeholder="Ваше имя"
+        autoComplete="name"
         required
         className="w-full rounded-control border border-border bg-surface px-4 py-2.5 text-text-primary placeholder:text-text-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
       />
       <input
         name="contact"
+        aria-label="Контакт для связи: телефон, email или Telegram"
         placeholder="Телефон, email или @telegram"
         required
         className="w-full rounded-control border border-border bg-surface px-4 py-2.5 text-text-primary placeholder:text-text-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
       />
       <textarea
         name="message"
+        aria-label="Комментарий"
         placeholder="Комментарий (необязательно)"
         rows={3}
         className="w-full rounded-control border border-border bg-surface px-4 py-2.5 text-text-primary placeholder:text-text-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
@@ -75,7 +88,7 @@ export function LeadForm({
           является индивидуальной инвестиционной рекомендацией.
         </span>
       </label>
-      {state.error && <p className="text-sm text-negative">{state.error}</p>}
+      {state.error && <p role="alert" className="text-sm text-negative">{state.error}</p>}
       <button
         type="submit"
         disabled={pending}
