@@ -5,12 +5,17 @@ import { prisma } from "@/lib/prisma";
 import { PortfolioBuilder, type Round } from "@/components/PortfolioBuilder";
 import { Disclaimer } from "@/components/Disclaimer";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300; // ISR: кэш 5 мин, быстрый TTFB, устойчивость к холодному старту
+
+const TITLE = "Конструктор портфеля — Pre-IPO Витрина";
+const DESC = "Соберите портфель из открытых pre-IPO раундов и оцените результат по трём сценариям с дорожной картой IPO.";
 
 export const metadata: Metadata = {
-  title: "Конструктор портфеля — Pre-IPO Витрина",
-  description:
-    "Соберите портфель из открытых pre-IPO раундов и оцените результат по трём сценариям с дорожной картой IPO.",
+  title: TITLE,
+  description: DESC,
+  alternates: { canonical: "/portfolio" },
+  openGraph: { type: "website", title: TITLE, description: DESC, url: "/portfolio", siteName: "Pre-IPO Витрина", locale: "ru_RU" },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESC },
 };
 
 // Достаёт множители худший/базовый/лучший из JSON сценариев проекта
@@ -68,7 +73,7 @@ export default async function PortfolioPage() {
             <span className="text-brand">●</span> Pre-IPO Витрина
           </Link>
           <Link
-            href="/#projects"
+            href="/#deals"
             className="text-sm font-medium text-text-secondary hover:text-text-primary"
           >
             ← К проектам
@@ -77,8 +82,8 @@ export default async function PortfolioPage() {
       </header>
 
       <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-12">
-        <p className="kicker mb-2 text-text-muted">Конструктор</p>
-        <h1 className="text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">
+        <p className="kicker kicker-gold mb-2">Конструктор</p>
+        <h1 className="text-display text-3xl font-bold sm:text-5xl">
           Соберите <span className="text-brand">портфель</span> из pre-IPO раундов
         </h1>
         <p className="mt-3 max-w-2xl text-text-secondary">

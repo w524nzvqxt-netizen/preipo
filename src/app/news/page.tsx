@@ -1,14 +1,21 @@
-// Лента новостей pre-IPO в виде газетного выпуска (масштхэд, засечки, колонки,
-// линейки). Контент: ИИ-агент (gen-news) + правки оператора. Светлый «бумажный» вид.
+// Лента новостей pre-IPO в bento-стиле сайта (тёмная тема, золотой акцент).
+// Контент: ИИ-агент (gen-news) + правки оператора.
 import Link from "next/link";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/format";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300; // ISR: кэш 5 мин, быстрый TTFB, устойчивость к холодному старту
 
-export const metadata = {
-  title: "Pre-IPO Вестник — газета рынка частных компаний",
-  description: "Ежедневный выпуск: крупные раунды, оценки и заявки на IPO. Кратко, со ссылками на источники.",
+const TITLE = "Pre-IPO Вестник — новости рынка частных компаний";
+const DESC = "Ежедневный выпуск: крупные раунды, оценки и заявки на IPO. Кратко, со ссылками на источники.";
+
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESC,
+  alternates: { canonical: "/news" },
+  openGraph: { type: "website", title: TITLE, description: DESC, url: "/news", siteName: "Pre-IPO Витрина", locale: "ru_RU" },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESC },
 };
 
 export default async function NewsPage() {
@@ -20,88 +27,81 @@ export default async function NewsPage() {
   const [lead, ...rest] = items;
 
   return (
-    <div className="min-h-screen bg-[#f3efe6] text-neutral-900">
-      {/* верхняя утилитарная полоса */}
-      <div className="border-b border-black/20 bg-[#ebe6da]">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-2 text-[11px] uppercase tracking-wide">
-          <Link href="/" className="font-semibold hover:underline">← На сайт Pre-IPO</Link>
-          <span className="text-neutral-600">Информационно · не ИИР</span>
-        </div>
-      </div>
+    <div className="bg-bg">
+      <div className="mx-auto w-full max-w-6xl px-5 py-10 sm:py-14">
+        <Link href="/" className="text-sm text-text-muted transition-colors hover:text-text-primary">&larr; На главную</Link>
 
-      <main className="mx-auto max-w-5xl px-5 pb-16 pt-8">
-        {/* Масштхэд */}
-        <header>
-          <p className="border-b-2 border-black pb-1 text-center text-[11px] font-semibold uppercase tracking-[0.25em]">
-            Деловая лента · рынок частных компаний
+        <div className="mt-6">
+          <p className="kicker kicker-gold">Вестник pre-IPO · ежедневно</p>
+          <h1 className="text-display mt-2 text-3xl font-bold sm:text-5xl">Вестник pre-IPO</h1>
+          <p className="mt-3 max-w-2xl text-text-secondary">
+            Крупные раунды, новые оценки и заявки на IPO — кратко и со ссылками на источники.
+            Обновляется каждый день · {formatDate(new Date())}.
           </p>
-          <h1 className="my-2 text-center font-serif text-[clamp(40px,8vw,84px)] font-black leading-none tracking-tight">
-            Pre-IPO Вѣстникъ
-          </h1>
-          <div className="flex flex-wrap items-center justify-between gap-2 border-y border-black py-1.5 text-[11px] font-medium uppercase tracking-wide">
-            <span>{formatDate(new Date())}</span>
-            <span>Ежедневный выпуск</span>
-            <span>Цена: бесплатно</span>
-          </div>
-        </header>
+        </div>
 
         {items.length === 0 ? (
-          <p className="py-16 text-center font-serif text-lg text-neutral-500">Выпуск готовится…</p>
+          <p className="mt-16 text-center text-text-muted">Выпуск готовится…</p>
         ) : (
-          <>
-            {/* Передовица */}
+          <div className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-3">
+            {/* Передовица — крупный тайл */}
             {lead && (
-              <article className="border-b border-black/30 py-7">
-                <p className="text-xs font-bold uppercase tracking-wide text-red-800">
-                  {lead.category || "Рынок"}{lead.isHot ? " · Срочно в номер" : ""}
-                </p>
-                <h2 className="mt-1 font-serif text-[clamp(26px,4.5vw,46px)] font-bold leading-[1.1]">{lead.title}</h2>
-                <p className="mt-4 font-serif text-[15px] leading-relaxed text-neutral-800 sm:columns-2 sm:gap-8 [&::first-letter]:float-left [&::first-letter]:mr-2 [&::first-letter]:font-black [&::first-letter]:text-5xl [&::first-letter]:leading-[0.8]">
-                  {lead.summary}
-                </p>
-                <p className="mt-3 text-xs uppercase tracking-wide text-neutral-600">
+              <article className="card-premium rounded-card border border-border bg-surface p-6 sm:p-8 lg:col-span-3">
+                <div className="flex items-center gap-2">
+                  {lead.isHot && (
+                    <span className="kicker rounded-full border border-warning/40 bg-warning/10 px-2 py-0.5 text-warning">Срочно в номер</span>
+                  )}
+                  <span className="kicker text-text-muted">{lead.category || "Рынок"}</span>
+                </div>
+                <h2 className="text-display mt-3 text-2xl font-bold sm:text-4xl">{lead.title}</h2>
+                <p className="mt-4 max-w-3xl text-base leading-relaxed text-text-secondary">{lead.summary}</p>
+                <p className="kicker mt-4 text-text-muted">
                   {lead.sourceUrl ? (
-                    <a href={lead.sourceUrl} target="_blank" rel="noopener noreferrer" className="font-semibold hover:underline">
+                    <a href={lead.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">
                       {lead.sourceName || "Источник"} ↗
                     </a>
-                  ) : null}
+                  ) : (
+                    lead.sourceName
+                  )}
                   {" · "}
                   {formatDate(lead.publishedAt)}
                 </p>
               </article>
             )}
 
-            {/* Колонки */}
-            {rest.length > 0 && (
-              <div className="grid gap-x-7 gap-y-7 py-7 sm:grid-cols-3 sm:divide-x sm:divide-black/15">
-                {rest.map((n) => (
-                  <article key={n.id} className="sm:px-3.5 sm:first:pl-0 sm:last:pr-0">
-                    <p className="text-[11px] font-bold uppercase tracking-wide text-red-800">
-                      {n.category || "Рынок"}{n.isHot ? " · Горячее" : ""}
-                    </p>
-                    <h3 className="mt-1 font-serif text-xl font-bold leading-snug">{n.title}</h3>
-                    <p className="mt-2 font-serif text-sm leading-relaxed text-neutral-700">{n.summary}</p>
-                    <p className="mt-2 text-[11px] uppercase tracking-wide text-neutral-600">
-                      {n.sourceUrl ? (
-                        <a href={n.sourceUrl} target="_blank" rel="noopener noreferrer" className="font-semibold hover:underline">
-                          {n.sourceName || "Источник"} ↗
-                        </a>
-                      ) : (
-                        formatDate(n.publishedAt)
-                      )}
-                    </p>
-                  </article>
-                ))}
-              </div>
-            )}
-          </>
+            {/* Остальные новости — сетка тайлов */}
+            {rest.map((n) => (
+              <article
+                key={n.id}
+                className="card-premium flex flex-col rounded-card border border-border bg-surface p-5 transition-all hover:-translate-y-1 hover:border-brand/50 motion-reduce:hover:translate-y-0"
+              >
+                <div className="flex items-center gap-2">
+                  {n.isHot && (
+                    <span className="kicker rounded-full border border-warning/40 bg-warning/10 px-2 py-0.5 text-warning">Горячее</span>
+                  )}
+                  <span className="kicker text-text-muted">{n.category || "Рынок"}</span>
+                </div>
+                <h3 className="mt-3 font-bold leading-snug text-text-primary">{n.title}</h3>
+                <p className="mt-2 line-clamp-4 text-sm leading-relaxed text-text-secondary">{n.summary}</p>
+                <p className="kicker mt-auto pt-3 text-text-muted">
+                  {n.sourceUrl ? (
+                    <a href={n.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">
+                      {n.sourceName || "Источник"} ↗
+                    </a>
+                  ) : (
+                    formatDate(n.publishedAt)
+                  )}
+                </p>
+              </article>
+            ))}
+          </div>
         )}
 
-        <footer className="mt-6 border-t-2 border-black pt-3 text-center font-serif text-xs italic text-neutral-600">
+        <footer className="mt-14 border-t border-border pt-6 text-sm text-text-muted">
           Краткие пересказы подготовлены редакцией; полные тексты — у источников. Материалы носят
           информационный характер и не являются индивидуальной инвестиционной рекомендацией.
         </footer>
-      </main>
+      </div>
     </div>
   );
 }

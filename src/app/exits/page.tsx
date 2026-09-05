@@ -9,12 +9,17 @@ import { computeExitIndex, computeExitIndexSeries, TICKET } from "@/lib/exit-ind
 import { IndexChart } from "@/components/IndexChart";
 import { formatMoney } from "@/lib/format";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300; // ISR: кэш 5 мин, быстрый TTFB, устойчивость к холодному старту
+
+const TITLE = "Уже на бирже — трек-рекорд IPO | Pre-IPO Витрина";
+const DESC = "Компании, вышедшие на IPO: история раундов с оценками, цена акций, доходность и калькулятор портфеля по точке входа.";
 
 export const metadata: Metadata = {
-  title: "Уже на бирже — трек-рекорд IPO | Pre-IPO Витрина",
-  description:
-    "Компании, вышедшие на IPO: история раундов с оценками, цена акций, доходность и калькулятор портфеля по точке входа.",
+  title: TITLE,
+  description: DESC,
+  alternates: { canonical: "/exits" },
+  openGraph: { type: "website", title: TITLE, description: DESC, url: "/exits", siteName: "Pre-IPO Витрина", locale: "ru_RU" },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESC },
 };
 
 type RawRound = { round?: string; year?: number; valuationUSD?: number | null; note?: string; ours?: boolean };
@@ -61,19 +66,19 @@ export default async function ExitsPage() {
           <Link href="/" className="flex items-center gap-2 text-lg font-bold text-text-primary">
             <span className="text-brand">●</span> Pre-IPO Витрина
           </Link>
-          <Link href="/#projects" className="text-sm font-medium text-text-secondary hover:text-text-primary">
+          <Link href="/#deals" className="text-sm font-medium text-text-secondary hover:text-text-primary">
             ← К проектам
           </Link>
         </div>
       </header>
 
       <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-12">
-        <p className="kicker mb-2 text-text-muted">Трек-рекорд рынка</p>
-        <h1 className="text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">
+        <p className="kicker kicker-gold mb-2">Трек-рекорд рынка</p>
+        <h1 className="text-display text-3xl font-bold sm:text-5xl">
           Уже на бирже: <span className="text-brand">от раунда до IPO</span>
         </h1>
         <p className="mt-3 max-w-2xl text-text-secondary">
-          20 компаний, прошедших путь pre-IPO → IPO. История раундов с оценками,
+          21 компания, прошедшая путь pre-IPO → IPO. История раундов с оценками,
           цена акций сегодня и доходность с момента размещения — и взлёты, и
           провалы. Ниже — калькулятор: что было бы с вложением по точке входа.
         </p>
