@@ -43,7 +43,7 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
     .reduce((s, x) => s + x.commission + (x.entryFee ?? 0), 0);
   // заработок клиента (нетто) = валовая прибыль − SF − вход
   const clientProfit = client.sales.reduce(
-    (s, x) => s + (x.amount * Math.max(0, (x.expMultiple ?? 1) - 1) - (x.sf ?? 0) - (x.entryFee ?? 0)),
+    (s, x) => s + (x.amount * ((x.expMultiple ?? 1) - 1) - (x.sf ?? 0) - (x.entryFee ?? 0)),
     0
   );
   // рентабельность агента: Σ комиссий ÷ Σ(инвестиция × годы до выхода)
@@ -57,15 +57,15 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
   const clientProfitY = client.sales.reduce(
     (s, x) =>
       s + (x.yearsToExit && x.yearsToExit > 0
-        ? x.amount * Math.max(0, (x.expMultiple ?? 1) - 1) - (x.sf ?? 0) - (x.entryFee ?? 0)
+        ? x.amount * ((x.expMultiple ?? 1) - 1) - (x.sf ?? 0) - (x.entryFee ?? 0)
         : 0),
     0
   );
   const clientAnnual = yDenom > 0 ? (clientProfitY / yDenom) * 100 : null;
-  // Валовая доходность pre-IPO и S&P 500 за тот же горизонт (без комиссий)
+  // Валовая доходность pre-IPO и модель 10% сложных годовых за тот же горизонт (без комиссий)
   const SP500_ANNUAL = 0.1;
   const preIpoGrossY = client.sales.reduce(
-    (s, x) => s + (x.yearsToExit && x.yearsToExit > 0 ? x.amount * Math.max(0, (x.expMultiple ?? 1) - 1) : 0),
+    (s, x) => s + (x.yearsToExit && x.yearsToExit > 0 ? x.amount * ((x.expMultiple ?? 1) - 1) : 0),
     0
   );
   const sp500GrossY = client.sales.reduce((s, x) => {
@@ -97,13 +97,13 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
           <div className="flex flex-wrap gap-x-6 gap-y-2 text-right">
             <div><p className="kicker text-text-muted">Инвестировано</p><p className="nums font-bold text-text-primary">{formatPrice(invested)}</p></div>
             <div><p className="kicker text-text-muted">Заработок клиента</p><p className="nums font-bold text-positive">{formatPrice(clientProfit)}</p></div>
-            <div><p className="kicker text-text-muted">Доходность клиента</p><p className="nums font-bold text-positive">{clientAnnual != null ? `${clientAnnual.toFixed(1).replace(".", ",")}%/год` : "—"}</p></div>
-            <div><p className="kicker text-text-muted">Pre-IPO дох.</p><p className="nums font-bold text-positive">{preIpoAnnual != null ? `${preIpoAnnual.toFixed(1).replace(".", ",")}%/год` : "—"}</p></div>
-            <div><p className="kicker text-text-muted">S&amp;P 500</p><p className="nums font-bold text-text-secondary">{sp500Annual != null ? `${sp500Annual.toFixed(1).replace(".", ",")}%/год` : "—"}</p></div>
+            <div><p className="kicker text-text-muted">Доходность клиента</p><p className="nums font-bold text-positive">{clientAnnual != null ? `${clientAnnual.toFixed(1).replace(".", ",")}%/год (простая)` : "—"}</p></div>
+            <div><p className="kicker text-text-muted">Pre-IPO дох.</p><p className="nums font-bold text-positive">{preIpoAnnual != null ? `${preIpoAnnual.toFixed(1).replace(".", ",")}%/год (простая)` : "—"}</p></div>
+            <div><p className="kicker text-text-muted">модель 10% сложных годовых</p><p className="nums font-bold text-text-secondary">{sp500Annual != null ? `${sp500Annual.toFixed(1).replace(".", ",")}%/год (простая)` : "—"}</p></div>
             <div><p className="kicker text-text-muted">Вход 5%</p><p className="nums font-bold text-warning">{formatPrice(entryTotal)}</p></div>
             <div><p className="kicker text-text-muted">SF агента</p><p className="nums font-bold text-accent">{formatPrice(sfAgentTotal)}</p></div>
             <div><p className="kicker text-text-muted">Заработок партнёра</p><p className="nums font-bold text-brand">{formatPrice(partnerTotal)}</p></div>
-            <div><p className="kicker text-text-muted">Рентаб. агента</p><p className="nums font-bold text-positive">{agentYield != null ? `${agentYield.toFixed(1).replace(".", ",")}%/год` : "—"}</p></div>
+            <div><p className="kicker text-text-muted">Рентаб. агента</p><p className="nums font-bold text-positive">{agentYield != null ? `${agentYield.toFixed(1).replace(".", ",")}%/год (простая)` : "—"}</p></div>
             <div><p className="kicker text-text-muted">Выплачено</p><p className="nums font-bold text-text-secondary">{formatPrice(partnerPaid)}</p></div>
           </div>
         </div>
@@ -176,7 +176,7 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
                     <Metric label="Прогноз выхода" value={`${mult.toFixed(2).replace(".", ",")}× · ${formatPrice(exitValue, s.currency)}`} />
                     <Metric label="Заработок клиента" value={formatPrice(clientNet, s.currency)} cls="text-positive" />
                     <Metric label="Заработок партнёра" value={formatPrice(partnerTake, s.currency)} cls="text-brand" />
-                    <Metric label="Рентаб. агента" value={rent != null ? `${rent.toFixed(1).replace(".", ",")}%/год` : "—"} cls="text-positive" />
+                    <Metric label="Рентаб. агента" value={rent != null ? `${rent.toFixed(1).replace(".", ",")}%/год (простая)` : "—"} cls="text-positive" />
                   </div>
 
                   {/* Сборы и горизонт */}

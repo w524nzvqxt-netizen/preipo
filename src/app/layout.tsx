@@ -27,6 +27,7 @@ export const metadata: Metadata = {
   title: "Pre-IPO Витрина — инвестиции в частные компании до IPO",
   description:
     "Актуальные pre-IPO проекты: цены, объёмы, минимальный чек. Оставьте заявку — свяжемся с вами.",
+  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     locale: "ru_RU",
@@ -39,8 +40,15 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: OG_TITLE,
     description: OG_DESC,
+    images: ["/opengraph-image"],
   },
+  robots: { index: true, follow: true },
 };
+
+const JSON_LD = [
+  { "@context": "https://schema.org", "@type": "Organization", name: "Pre-IPO Витрина", url: SITE_URL, logo: `${SITE_URL}/opengraph-image` },
+  { "@context": "https://schema.org", "@type": "WebSite", name: "Pre-IPO Витрина", url: SITE_URL },
+];
 
 export default function RootLayout({
   children,
@@ -50,6 +58,8 @@ export default function RootLayout({
   return (
     <html lang="ru" className={`${manrope.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
+        <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-brand focus:px-4 focus:py-2 focus:font-semibold focus:text-bg">К содержимому</a>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
         <SmoothScroll />
         <ScrollProgress />
         <CustomCursor />

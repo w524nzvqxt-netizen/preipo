@@ -1,7 +1,7 @@
 // Чистые расчёты кабинета партнёра (без prisma/next) — используются и сайтом,
 // и Telegram-ботом, чтобы цифры считались одинаково.
 
-export const SP500_ANNUAL = 0.1; // ~10%/год, долгосрочная средняя S&P 500
+export const SP500_ANNUAL = 0.1; // условный сценарий 10% сложных годовых, не котировка S&P 500
 
 export type SaleLike = {
   amount: number;
@@ -16,7 +16,7 @@ export type SaleLike = {
 export function saleMetrics(s: SaleLike) {
   const mult = s.expMultiple ?? 1;
   const entry = s.entryFee ?? 0;
-  const gross = s.amount * Math.max(0, mult - 1); // валовая прибыль клиента
+  const gross = s.amount * (mult - 1); // валовая прибыль клиента
   const exitValue = s.amount * mult;
   const clientNet = gross - (s.sf ?? 0) - entry; // чистая прибыль клиента
   const partnerTake = s.commission + entry; // заработок партнёра (вход + ¼SF)

@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/format";
+import { contacts } from "@/lib/config";
 
 export const revalidate = 300; // ISR: кэш 5 мин, быстрый TTFB, устойчивость к холодному старту
 
@@ -36,9 +37,11 @@ export default async function NewsPage() {
           <h1 className="text-display mt-2 text-3xl font-bold sm:text-5xl">Вестник pre-IPO</h1>
           <p className="mt-3 max-w-2xl text-text-secondary">
             Крупные раунды, новые оценки и заявки на IPO — кратко и со ссылками на источники.
-            Обновляется каждый день · {formatDate(new Date())}.
+            Последняя публикация: {items.length ? formatDate(new Date(Math.max(...items.map((n) => n.publishedAt.getTime())))) : "выпуск готовится"}.
           </p>
         </div>
+
+        <a href={contacts.channel} target="_blank" rel="noopener noreferrer" className="btn-brand mt-6 inline-flex rounded-control px-5 py-3 font-semibold">Читать наш Telegram-канал ↗</a>
 
         {items.length === 0 ? (
           <p className="mt-16 text-center text-text-muted">Выпуск готовится…</p>
@@ -86,7 +89,7 @@ export default async function NewsPage() {
                 <p className="kicker mt-auto pt-3 text-text-muted">
                   {n.sourceUrl ? (
                     <a href={n.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">
-                      {n.sourceName || "Источник"} ↗
+                      {n.sourceName || "Источник"} ↗ · {formatDate(n.publishedAt)}
                     </a>
                   ) : (
                     formatDate(n.publishedAt)

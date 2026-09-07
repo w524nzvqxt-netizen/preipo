@@ -83,7 +83,7 @@ export async function submitLead(
       },
     });
     // Мгновенное уведомление оператору в Telegram (если настроено в env)
-    await notifyOperator({ name, contact, message, projectId });
+    await notifyOperator();
     return { ok: true };
   } catch {
     return { error: "Не удалось отправить заявку. Попробуйте ещё раз." };
@@ -91,28 +91,13 @@ export async function submitLead(
 }
 
 // Шлёт уведомление о новой заявке в Telegram оператора. Fire-and-forget.
-async function notifyOperator(lead: {
-  name: string;
-  contact: string;
-  message: string;
-  projectId: string | null;
-}) {
+async function notifyOperator() {
   // Фолбэк на уже настроенные переменные бота-ассистента, чтобы заявки
   // доходили до владельца в Telegram даже без отдельных NOTIFY-переменных.
   const token = process.env.TELEGRAM_NOTIFY_TOKEN || process.env.AGENT_BOT_TOKEN;
   const chat = process.env.TELEGRAM_NOTIFY_CHAT || process.env.AUTHORIZED_CHAT_ID;
   if (!token || !chat) return;
-  let project = "";
-  if (lead.projectId) {
-    try {
-      const p = await prisma.project.findUnique({
-        where: { id: lead.projectId },
-        select: { name: true },
-      });
-      if (p) project = `\nПроект: ${p.name}`;
-    } catch {}
-  }
-  const text = `🔔 Новая заявка на pre-ipo.pro\nИмя: ${lead.name}\nКонтакт: ${lead.contact}${project}\nКомментарий: ${lead.message || "—"}`;
+  const text = "🔔 Новая заявка на pre-ipo.pro. Подробности доступны после входа: https://pre-ipo.pro/admin/leads";
   try {
     await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: "POST",

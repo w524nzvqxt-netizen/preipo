@@ -76,7 +76,7 @@ export function Hero({
             transition={{ duration: 0.7, delay: 0.6 }}
             className="mt-6 max-w-xl text-lg leading-relaxed text-text-secondary"
           >
-            SpaceX, OpenAI, Anthropic, Databricks и другие частные компании до выхода
+            OpenAI, Anthropic, Databricks и другие частные компании до выхода
             на биржу. Подбираем сделки, показываем структуру входа, риски, сроки и
             сценарии выхода.
           </motion.p>

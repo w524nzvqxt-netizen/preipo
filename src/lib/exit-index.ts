@@ -31,9 +31,9 @@ export type IndexPoint = { year: number; invested: number; preIpo: number; sp500
 export function computeExitIndexSeries(companies: IndexInput[]): IndexPoint[] {
   const perYear = new Map<number, { inv: number; pre: number; sp: number }>();
   for (const c of companies) {
-    if (!c.currentMarketCapUSD) continue;
+    if (c.currentMarketCapUSD == null || c.currentMarketCapUSD < 0 || !Number.isFinite(c.currentMarketCapUSD)) continue;
     for (const r of c.rounds) {
-      if (!r.valuationUSD || !r.year) continue;
+      if (!r.valuationUSD || r.valuationUSD < 0 || !r.year || !SP500[r.year]) continue;
       const cur = perYear.get(r.year) ?? { inv: 0, pre: 0, sp: 0 };
       cur.inv += TICKET;
       cur.pre += TICKET * (c.currentMarketCapUSD / r.valuationUSD);
@@ -57,9 +57,9 @@ export function computeExitIndex(companies: IndexInput[]): IndexResult {
   let preIpo = 0;
   let sp = 0;
   for (const c of companies) {
-    if (!c.currentMarketCapUSD) continue;
+    if (c.currentMarketCapUSD == null || c.currentMarketCapUSD < 0 || !Number.isFinite(c.currentMarketCapUSD)) continue;
     for (const r of c.rounds) {
-      if (!r.valuationUSD) continue;
+      if (!r.valuationUSD || r.valuationUSD < 0 || !r.year || !SP500[r.year]) continue;
       count++;
       preIpo += TICKET * (c.currentMarketCapUSD / r.valuationUSD);
       const spYear = (r.year && SP500[r.year]) || SP_NOW;

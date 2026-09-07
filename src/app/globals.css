@@ -57,7 +57,7 @@
   --color-border-strong: #D4CCBC;
   --color-text-primary: #15140F;
   --color-text-secondary: #57534A;
-  --color-text-muted: #857F73;
+  --color-text-muted: #6C665A;
   --color-brand: #8A6D2F;
   --color-brand-subtle: #F3ECDA;
   --color-accent: #8A6D2F;
@@ -131,8 +131,8 @@ html.lenis, html.lenis body { height: auto; }
 .glass {
   position: relative;
   background: var(--color-glass);
-  backdrop-filter: blur(24px) saturate(1.35);
-  -webkit-backdrop-filter: blur(24px) saturate(1.35);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
   border: 1px solid var(--color-border);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), var(--shadow-elevated);
 }
@@ -211,7 +211,7 @@ html.lenis, html.lenis body { height: auto; }
 .full-bleed { width: 100vw; margin-left: calc(50% - 50vw); }
 
 /* Бесконечная лента */
-.marquee { animation: marquee 50s linear infinite; }
+.marquee { animation: marquee 50s linear infinite; will-change: transform; backface-visibility: hidden; }
 .marquee:hover { animation-play-state: paused; }
 @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 

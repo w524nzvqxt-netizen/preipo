@@ -175,10 +175,10 @@ export function createAgentBot(prisma: PrismaClient, token: string): Bot {
     const paid = sales.filter((x) => x.commissionPaid).reduce((s, x) => s + x.commission + (x.entryFee ?? 0), 0);
     const yDenom = sales.reduce((s, x) => s + (x.yearsToExit && x.yearsToExit > 0 ? x.amount * x.yearsToExit : 0), 0);
     const clientNetY = sales.reduce(
-      (s, x) => s + (x.yearsToExit && x.yearsToExit > 0 ? x.amount * Math.max(0, (x.expMultiple ?? 1) - 1) - (x.sf ?? 0) - (x.entryFee ?? 0) : 0),
+      (s, x) => s + (x.yearsToExit && x.yearsToExit > 0 ? x.amount * ((x.expMultiple ?? 1) - 1) - (x.sf ?? 0) - (x.entryFee ?? 0) : 0),
       0
     );
-    const preIpoY = sales.reduce((s, x) => s + (x.yearsToExit && x.yearsToExit > 0 ? x.amount * Math.max(0, (x.expMultiple ?? 1) - 1) : 0), 0);
+    const preIpoY = sales.reduce((s, x) => s + (x.yearsToExit && x.yearsToExit > 0 ? x.amount * ((x.expMultiple ?? 1) - 1) : 0), 0);
     const spY = sales.reduce((s, x) => {
       const y = x.yearsToExit ?? 0;
       return y > 0 ? s + x.amount * (Math.pow(1 + SP500_ANNUAL, y) - 1) : s;
@@ -194,7 +194,7 @@ export function createAgentBot(prisma: PrismaClient, token: string): Bot {
       `Заработок партнёра: ${fmt(partner)} (выплачено ${fmt(paid)})\n\n` +
       `Рентабельность агента: *${pctStr(agentAnnual)}/год*\n` +
       `Чистая доходность клиента: *${pctStr(clientAnnual)}/год*\n\n` +
-      `Pre-IPO: ${pctStr(preIpoAnnual)}/год vs S&P 500: ${pctStr(spAnnual)}/год`
+      `Pre-IPO: ${pctStr(preIpoAnnual)}/год vs модель 10% сложных годовых: ${pctStr(spAnnual)}/год`
     );
   }
 
@@ -212,7 +212,7 @@ export function createAgentBot(prisma: PrismaClient, token: string): Bot {
       `📄 *Отчёт инвестора*\n${c.name}${c.contact ? ` · ${c.contact}` : ""}\n\n` +
       `Инвестировано: ${fmt(p.invested)}\n` +
       `Чистая прибыль (прогноз): ${fmt(p.clientProfit)}\n` +
-      `Доходность: ${pctStr(p.clientAnnual)}/год (S&P 500 ${pctStr(p.sp500Annual)}/год)\n\n` +
+      `Доходность: ${pctStr(p.clientAnnual)}/год (модель 10% сложных годовых ${pctStr(p.sp500Annual)}/год)\n\n` +
       `${lines || "сделок нет"}\n\n` +
       `Прогноз основан на ожидаемой оценке выхода, не гарантия. Не является индивидуальной инвестиционной рекомендацией.`
     );

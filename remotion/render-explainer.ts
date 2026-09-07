@@ -28,7 +28,7 @@ const SEG = [
   { clip: "uploads/hero.mp4", title: "Что такое pre-IPO?", sub: "Чётко и понятно" },
   { clip: "uploads/scene-exchange.mp4", caption: "Акции ДО биржи" },
   { clip: "uploads/scene-growth.mp4", caption: "Стадии: Seed → Series A, B, C" },
-  { clip: "uploads/v2/clip-finance.mp4", caption: "Финал — IPO на бирже" },
+  { clip: "uploads/v2/clip-finance.mp4", caption: "Один из возможных выходов — IPO" },
   { clip: "uploads/v2/clip-datacenter.mp4", caption: "Зрелая частная компания" },
   { clip: "uploads/v2/clip-ailab.mp4", caption: "OpenAI, Anthropic ≈ $1 трлн" },
   { clip: "uploads/v2/clip-industrial.mp4", caption: "Раньше — только фондам" },

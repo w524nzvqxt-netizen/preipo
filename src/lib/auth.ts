@@ -16,7 +16,6 @@ const TTL = 60 * 60 * 24 * 7; // 7 дней
 // Можно задать дополнительные хэши через ADMIN_PASSWORD_HASHES (через запятую).
 const EXTRA_HASHES = new Set<string>(
   [
-    "49a8a113f177943a3b9081974e701f83b9f5c94ed96233be189786cf7b4bc4b7", // текущий пароль оператора
     ...(process.env.ADMIN_PASSWORD_HASHES || "")
       .split(",")
       .map((s) => s.trim().toLowerCase())
@@ -42,8 +41,12 @@ function sessionSecret(): string {
   return RUNTIME_SECRET;
 }
 
+function credentialVersion(): string {
+  return sha256([envPassword() ?? "", ...[...EXTRA_HASHES].sort()].join("\0"));
+}
+
 function sign(payload: string): string {
-  return createHmac("sha256", sessionSecret()).update(payload).digest("hex");
+  return createHmac("sha256", sessionSecret()).update(`${credentialVersion()}.${payload}`).digest("hex");
 }
 
 // Сравнение строк/hex постоянного времени

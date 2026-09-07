@@ -43,7 +43,7 @@ function genPdf(project, a, file) {
   doc.fillColor("#FFFFFF").fontSize(22).font("bold").text(project.name, M, 30);
   doc.fillColor("#C9C5BD").fontSize(10).font("body").text((project.sector || "") + "  ·  Аналитический разбор fin-модели и бизнеса", M, 60);
   // бейдж рейтинга
-  const badge = `${a.rating}  ·  ${a.ratingScore}/10`;
+  const badge = `Проверено 07.09.2026`;
   doc.fontSize(9).font("bold");
   const bw = doc.widthOfString(badge) + 20;
   doc.roundedRect(W - M - bw, 34, bw, 22, 11).fill(C.brand);
@@ -74,7 +74,7 @@ function genPdf(project, a, file) {
   let scen = [];
   try { scen = JSON.parse(project.scenarios || "[]"); } catch {}
   if (scen.length) {
-    H("Сценарии на $100 000 (нетто)");
+    H("Сценарии на $100 000 (модель)");
     const max = Math.max(...scen.map((s) => s.val || 0)) || 1;
     const barW = CW - 130, x0 = M + 70;
     scen.forEach((s) => {
@@ -114,7 +114,7 @@ function genPdf(project, a, file) {
 
   // футер-дисклеймер
   doc.moveDown(1);
-  doc.fillColor(C.mut).fontSize(7).font("body").text("Не является индивидуальной инвестиционной рекомендацией и гарантией доходности. Аналитическая оценка на основе материалов сделки и публичных источников (июнь 2026). Инвестиции в pre-IPO высокорисковые, возможна полная потеря средств.", { lineGap: 1 });
+  doc.fillColor(C.mut).fontSize(7).font("body").text("Не является индивидуальной инвестиционной рекомендацией и гарантией доходности. Аналитическая оценка на основе материалов сделки и публичных источников. Редакционные исправления: 07.09.2026. Инвестиции в pre-IPO высокорисковые, возможна полная потеря средств.", { lineGap: 1 });
 
   doc.end();
   return new Promise((res) => stream.on("finish", res));
@@ -125,10 +125,10 @@ function genPdf(project, a, file) {
     const project = db.prepare("SELECT * FROM Project WHERE name=?").get(name);
     if (!project) { console.log("✗ нет проекта:", name); continue; }
     const slug = SLUG[name] || name.toLowerCase().replace(/\s+/g, "-");
-    const file = path.join(OUT_DIR, slug + ".pdf");
+    const file = path.join(OUT_DIR, slug + "-20260907.pdf");
     await genPdf(project, a, file);
     const size = fs.statSync(file).size;
-    const fileUrl = `/uploads/analysis/${slug}.pdf`;
+    const fileUrl = `/uploads/analysis/${slug}-20260907.pdf`;
 
     // сохранить анализ в проект
     db.prepare("UPDATE Project SET financialAnalysis=? WHERE id=?").run(JSON.stringify(a), project.id);

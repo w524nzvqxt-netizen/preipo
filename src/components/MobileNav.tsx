@@ -7,6 +7,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { contacts } from "@/lib/config";
 
 const LINKS: { href: string; label: string }[] = [
   { href: "#deals", label: "Сделки" },
@@ -16,6 +17,7 @@ const LINKS: { href: string; label: string }[] = [
   { href: "/base", label: "Будущие гиганты" },
   { href: "/academy", label: "Академия" },
   { href: "/agent", label: "Партнёрам" },
+  { href: contacts.channel, label: "Наш Telegram-канал ↗" },
 ];
 
 export function MobileNav() {

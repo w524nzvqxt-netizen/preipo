@@ -4,18 +4,27 @@
 // интерактивными элементами. Нативный курсор остаётся (доступность). Только
 // десктоп (на тач-устройствах не рендерится).
 import { useEffect, useState } from "react";
-import { motion, useMotionValue, useSpring } from "motion/react";
+import { usePathname } from "next/navigation";
+import { motion, useMotionValue } from "motion/react";
+
+// Кинематографичный курсор — только для публичной витрины. В админке/кабинете
+// агента (обычный UI с таблицами и формами) он не нужен и не рендерится.
+function isCinematicRoute(pathname: string): boolean {
+  return !pathname.startsWith("/admin") && !pathname.startsWith("/agent");
+}
 
 export function CustomCursor() {
+  // Кольцо следует за мышью 1:1, без инерции — иначе оно «запаздывает».
   const x = useMotionValue(-100);
   const y = useMotionValue(-100);
-  const sx = useSpring(x, { stiffness: 350, damping: 28, mass: 0.4 });
-  const sy = useSpring(y, { stiffness: 350, damping: 28, mass: 0.4 });
   const [active, setActive] = useState(false);
   const [visible, setVisible] = useState(false);
   const [enabled, setEnabled] = useState(false);
+  const pathname = usePathname();
+  const cinematic = isCinematicRoute(pathname);
 
   useEffect(() => {
+    if (!cinematic) return;
     if (window.matchMedia("(pointer: coarse)").matches) return;
     setEnabled(true);
     function move(e: PointerEvent) {
@@ -34,14 +43,14 @@ export function CustomCursor() {
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerleave", leave);
     };
-  }, [x, y]);
+  }, [x, y, cinematic]);
 
-  if (!enabled) return null;
+  if (!cinematic || !enabled) return null;
 
   return (
     <motion.div
       aria-hidden
-      style={{ x: sx, y: sy }}
+      style={{ x, y, willChange: "transform" }}
       className="pointer-events-none fixed left-0 top-0 z-[80]"
     >
       <motion.div

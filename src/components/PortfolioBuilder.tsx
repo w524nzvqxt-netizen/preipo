@@ -5,6 +5,7 @@
 // (худший/базовый/лучший) и дорожную карту IPO по позициям.
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { exitPeriodStart } from "@/lib/scenarios";
 import { formatMoney } from "@/lib/format";
 
 export type Round = {
@@ -24,15 +25,10 @@ export type Round = {
 const PRESETS = [50_000, 100_000, 250_000, 500_000];
 
 const SCENARIOS = [
-  { key: "worst" as const, label: "Худший", tone: "warning" },
+  { key: "worst" as const, label: "Пессимистичный", tone: "warning" },
   { key: "base" as const, label: "Базовый", tone: "accent" },
-  { key: "best" as const, label: "Лучший", tone: "positive" },
+  { key: "best" as const, label: "Оптимистичный", tone: "positive" },
 ];
-
-function exitYear(s: string | null): number {
-  const m = (s ?? "").match(/(20\d{2})/);
-  return m ? parseInt(m[1], 10) : 9999;
-}
 
 function multFor(r: Round, key: "worst" | "base" | "best") {
   return key === "worst" ? r.worst : key === "base" ? r.base : r.best;
@@ -64,7 +60,7 @@ export function PortfolioBuilder({ rounds }: { rounds: Round[] }) {
   const roadmap = useMemo(
     () =>
       [...positions].sort(
-        (a, b) => exitYear(a.expectedExit) - exitYear(b.expectedExit)
+        (a, b) => exitPeriodStart(a.expectedExit) - exitPeriodStart(b.expectedExit)
       ),
     [positions]
   );
@@ -81,7 +77,7 @@ export function PortfolioBuilder({ rounds }: { rounds: Round[] }) {
   }
 
   function setAmount(id: string, v: number) {
-    setAmounts((prev) => ({ ...prev, [id]: Math.max(0, Math.round(v)) }));
+    setAmounts((prev) => ({ ...prev, [id]: Number.isFinite(v) ? Math.min(1e12, Math.max(0, Math.round(v))) : 0 }));
   }
 
   return (
@@ -107,6 +103,7 @@ export function PortfolioBuilder({ rounds }: { rounds: Round[] }) {
                   <button
                     type="button"
                     onClick={() => toggle(r)}
+                    aria-pressed={active}
                     className="flex items-start gap-3 text-left"
                   >
                     <span
@@ -156,6 +153,7 @@ export function PortfolioBuilder({ rounds }: { rounds: Round[] }) {
                         </button>
                       ))}
                       <input
+                        aria-label={`Сумма вложения в ${r.name}, USD`}
                         type="number"
                         min={0}
                         step={10000}
@@ -185,7 +183,7 @@ export function PortfolioBuilder({ rounds }: { rounds: Round[] }) {
           <div className="space-y-5">
             {/* Сумма вложений */}
             <div className="rounded-card border border-border bg-surface-alt p-4">
-              <p className="kicker text-text-muted">Вложено в портфель</p>
+              <p className="kicker text-text-muted">Сумма модели · USD</p>
               <p className="nums text-2xl font-bold text-text-primary">
                 {formatMoney(invested)}
               </p>
@@ -255,7 +253,7 @@ export function PortfolioBuilder({ rounds }: { rounds: Round[] }) {
               </div>
             </div>
 
-            {/* Дорожная карта IPO */}
+            {/* Прогноз сроков выхода */}
             <div className="rounded-card border border-border bg-surface p-4">
               <p className="kicker mb-3 text-text-muted">Дорожная карта IPO</p>
               <ol className="relative space-y-4 border-l border-border pl-4">
@@ -282,7 +280,7 @@ export function PortfolioBuilder({ rounds }: { rounds: Round[] }) {
             </div>
 
             <Link
-              href="/#contact"
+              href="/#quiz"
               className="block rounded-control bg-brand px-5 py-3 text-center font-semibold text-bg transition-colors hover:brightness-110"
             >
               Обсудить портфель
@@ -290,11 +288,7 @@ export function PortfolioBuilder({ rounds }: { rounds: Round[] }) {
 
             {hasIllustrative && (
               <p className="text-xs leading-relaxed text-text-muted">
-                Множители по позициям, отмеченным как открытые раунды без
-                подтверждённой финмодели, носят иллюстративный (модельный)
-                характер и не являются гарантией доходности или индивидуальной
-                инвестиционной рекомендацией. Расчёт по сценариям — нетто к
-                вложенной сумме.
+                Сценарии иллюстрируют модель, а не вероятности. Пессимистичный сценарий не ограничивает убыток: при полной потере капитала на выходе $0. Комиссии, налоги и разводнение нужно сверить с условиями конкретной сделки.
               </p>
             )}
           </div>

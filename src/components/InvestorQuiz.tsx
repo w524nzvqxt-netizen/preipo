@@ -96,15 +96,20 @@ export function InvestorQuiz() {
 
       {!isContact && current && (
         <div>
-          <h3 className="text-lg font-semibold text-text-primary">{current.q}</h3>
+          <h3 id={`quiz-q-${current.key}`} className="text-lg font-semibold text-text-primary">{current.q}</h3>
           {current.hint && <p className="mt-1 text-sm text-text-muted">{current.hint}</p>}
-          <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+          <div
+            role="group"
+            aria-labelledby={`quiz-q-${current.key}`}
+            className="mt-4 grid gap-2.5 sm:grid-cols-2"
+          >
             {current.options.map((opt) => {
               const active = chosen.includes(opt);
               return (
                 <button
                   key={opt}
                   type="button"
+                  aria-pressed={active}
                   onClick={() => toggle(current.key, opt, current.multi)}
                   className={`flex items-center justify-between rounded-control border px-4 py-3 text-left text-sm font-medium transition-colors ${
                     active
@@ -166,13 +171,16 @@ export function InvestorQuiz() {
           <div className="mt-4 space-y-3">
             <input
               name="name"
+              aria-label="Ваше имя"
               placeholder="Ваше имя"
+              autoComplete="name"
               required
               className="w-full rounded-control border border-border bg-surface px-4 py-2.5 text-text-primary placeholder:text-text-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
             />
             <input
               name="contact"
-              placeholder="Telegram, WhatsApp, телефon или email"
+              aria-label="Контакт для связи"
+              placeholder="Telegram, WhatsApp, телефон или email"
               required
               className="w-full rounded-control border border-border bg-surface px-4 py-2.5 text-text-primary placeholder:text-text-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
             />
@@ -188,7 +196,7 @@ export function InvestorQuiz() {
             </label>
           </div>
 
-          {state.error && <p className="mt-3 text-sm text-negative">{state.error}</p>}
+          {state.error && <p role="alert" className="mt-3 text-sm text-negative">{state.error}</p>}
 
           <div className="mt-5 flex items-center gap-3">
             <button

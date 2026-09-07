@@ -4,6 +4,7 @@
 const WA = process.env.NEXT_PUBLIC_WHATSAPP;
 const WHATSAPP_DEFAULT = "https://wa.me/79858884442";
 export const contacts = {
+  channel: process.env.NEXT_PUBLIC_TELEGRAM_CHANNEL || "https://t.me/preipopro",
   telegram: process.env.NEXT_PUBLIC_TELEGRAM || "https://t.me/twix43",
   whatsapp: WA && !WA.includes("79990000000") ? WA : WHATSAPP_DEFAULT,
   email: process.env.NEXT_PUBLIC_EMAIL || "",

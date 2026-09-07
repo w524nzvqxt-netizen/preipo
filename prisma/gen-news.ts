@@ -55,7 +55,7 @@ type Item = { title: string; summary: string; category?: string; sourceName?: st
 
   let added = 0;
   for (const n of items.slice(0, 3)) {
-    if (!n.title || !n.summary) continue;
+    if (!n.title || !n.summary || !n.sourceUrl || !/^https:\/\//.test(n.sourceUrl)) continue;
     const exists = await prisma.newsItem.findFirst({ where: { title: n.title } });
     if (exists) continue;
     await prisma.newsItem.create({
@@ -65,7 +65,8 @@ type Item = { title: string; summary: string; category?: string; sourceName?: st
         category: n.category ?? null,
         sourceName: n.sourceName ?? null,
         sourceUrl: n.sourceUrl ?? null,
-        isHot: true,
+        isHot: false,
+        isActive: false, // редактор проверяет источник до публикации
       },
     });
     added++;

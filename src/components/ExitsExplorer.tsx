@@ -28,12 +28,7 @@ export type ExitCompany = {
 };
 
 function plPct(c: ExitCompany): number | null {
-  // если есть отметка нашего входа — считаем доходность с неё
-  const ours = c.rounds.find((r) => r.ours && r.valuationUSD);
-  if (ours && ours.valuationUSD && c.currentMarketCapUSD) {
-    return Math.round((c.currentMarketCapUSD / ours.valuationUSD - 1) * 100);
-  }
-  if (c.ipoPriceUSD && c.currentPriceUSD) {
+  if (c.ipoPriceUSD != null && c.ipoPriceUSD > 0 && c.currentPriceUSD != null && c.currentPriceUSD >= 0) {
     return Math.round((c.currentPriceUSD / c.ipoPriceUSD - 1) * 100);
   }
   return null;
@@ -49,22 +44,11 @@ type EntryOption = { key: string; label: string; mult: number };
 
 function entryOptions(c: ExitCompany): EntryOption[] {
   const opts: EntryOption[] = [];
-  if (c.ipoPriceUSD && c.currentPriceUSD) {
+  if (c.ipoPriceUSD != null && c.ipoPriceUSD > 0 && c.currentPriceUSD != null && c.currentPriceUSD >= 0) {
     opts.push({
       key: "ipo",
       label: `IPO ${c.ipoDate ?? ""} · $${c.ipoPriceUSD}`,
       mult: c.currentPriceUSD / c.ipoPriceUSD,
-    });
-  }
-  if (c.currentMarketCapUSD) {
-    c.rounds.forEach((r, i) => {
-      if (r.valuationUSD) {
-        opts.push({
-          key: `r${i}`,
-          label: `${r.round} ${r.year ?? ""} · ${formatMoney(r.valuationUSD)}`,
-          mult: c.currentMarketCapUSD! / r.valuationUSD,
-        });
-      }
     });
   }
   return opts;
@@ -140,11 +124,12 @@ export function ExitsExplorer({ companies }: { companies: ExitCompany[] }) {
           <div className="flex items-center gap-2">
             <span className="kicker text-text-muted">Сортировка</span>
             <select
+              aria-label="Сортировка компаний"
               value={sortKey}
               onChange={(e) => setSortKey(e.target.value as SortKey)}
               className="rounded-control border border-border bg-surface px-3 py-1.5 text-sm text-text-primary focus:border-brand focus:outline-none"
             >
-              <option value="pl">По доходности</option>
+              <option value="pl">По изменению цены с IPO</option>
               <option value="mcap">По капитализации</option>
               <option value="name">По названию</option>
             </select>
@@ -157,8 +142,8 @@ export function ExitsExplorer({ companies }: { companies: ExitCompany[] }) {
               <tr>
                 <Th>Компания</Th>
                 <Th right>Цена IPO</Th>
-                <Th right>Цена сейчас</Th>
-                <Th right>Доходность</Th>
+                <Th right>Цена на дату</Th>
+                <Th right>Цена с IPO, %</Th>
                 <Th right>Капитализация</Th>
                 <Th right> </Th>
               </tr>
@@ -181,7 +166,7 @@ export function ExitsExplorer({ companies }: { companies: ExitCompany[] }) {
           </table>
         </div>
         <p className="mt-2 text-xs text-text-muted">
-          Цены и капитализация — на {companies[0]?.asOf ?? "июнь 2026"}. Клик по
+          Даты оценки указаны у компаний. Цены без дивидендов, комиссий и налогов. Клик по
           строке — история раундов.
         </p>
       </div>
@@ -210,6 +195,8 @@ export function ExitsExplorer({ companies }: { companies: ExitCompany[] }) {
                   <div className="flex items-center justify-between gap-3">
                     <button
                       type="button"
+                      disabled={entryOptions(c).length === 0}
+                      aria-pressed={active}
                       onClick={() => toggle(c)}
                       className="flex items-center gap-3 text-left"
                     >
@@ -230,6 +217,7 @@ export function ExitsExplorer({ companies }: { companies: ExitCompany[] }) {
                   {active && (
                     <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
                       <select
+                        aria-label={`Точка входа в ${c.name}`}
                         value={pick.entryKey}
                         onChange={(e) =>
                           setPicks((prev) => ({
@@ -246,6 +234,7 @@ export function ExitsExplorer({ companies }: { companies: ExitCompany[] }) {
                         ))}
                       </select>
                       <input
+                        aria-label={`Сумма модели ${c.name}, USD`}
                         type="number"
                         min={0}
                         step={1000}
@@ -358,7 +347,7 @@ function FragmentRow({
             <div className="space-y-1.5">
               {c.rounds.map((r, i) => {
                 const mult =
-                  c.currentMarketCapUSD && r.valuationUSD
+                  c.currentMarketCapUSD != null && r.valuationUSD
                     ? c.currentMarketCapUSD / r.valuationUSD
                     : null;
                 return (
@@ -379,7 +368,7 @@ function FragmentRow({
                       {formatMoney(r.valuationUSD)}
                     </span>
                     {mult != null && (
-                      <span className="nums text-xs text-positive">→ сейчас ×{mult.toFixed(1)}</span>
+                      <span className="nums text-xs text-positive">→ изменение оценки ×{mult.toFixed(1)}</span>
                     )}
                     {r.note && <span className="text-xs text-text-muted">· {r.note}</span>}
                   </div>

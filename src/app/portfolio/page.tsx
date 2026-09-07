@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { PortfolioBuilder, type Round } from "@/components/PortfolioBuilder";
+import { parseScenarios } from "@/lib/scenarios";
 import { Disclaimer } from "@/components/Disclaimer";
 
 export const revalidate = 300; // ISR: кэш 5 мин, быстрый TTFB, устойчивость к холодному старту
@@ -18,35 +19,17 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: TITLE, description: DESC },
 };
 
-// Достаёт множители худший/базовый/лучший из JSON сценариев проекта
-function mults(scenariosJson: string | null) {
-  try {
-    const arr = JSON.parse(scenariosJson ?? "[]") as {
-      color?: string;
-      mult?: number;
-    }[];
-    const pick = (color: string) =>
-      arr.find((s) => s.color === color)?.mult ?? null;
-    return {
-      worst: pick("amber") ?? 1,
-      base: pick("sky") ?? 1,
-      best: pick("emerald") ?? 1,
-    };
-  } catch {
-    return { worst: 1, base: 1, best: 1 };
-  }
-}
-
 export default async function PortfolioPage() {
   const deals = await prisma.project.findMany({
-    where: { isActive: true },
+    where: { isActive: true, dealStatus: "open", currency: "USD" },
     orderBy: [{ dealStatus: "asc" }, { valuation: "desc" }],
   });
 
   const rounds: Round[] = deals
-    .filter((p) => p.scenarios)
+    .filter((p) => parseScenarios(p.scenarios) !== null)
     .map((p) => {
-      const m = mults(p.scenarios);
+      const rows = parseScenarios(p.scenarios)!;
+      const m = { worst: rows[0].mult, base: rows[1].mult, best: rows[2].mult };
       return {
         id: p.id,
         name: p.name,
@@ -54,8 +37,8 @@ export default async function PortfolioPage() {
         valuation: p.valuation,
         currency: p.currency,
         expectedExit: p.expectedExit,
-        expectedReturn: p.expectedReturn,
-        illustrative: false,
+        expectedReturn: null,
+        illustrative: true,
         worst: m.worst,
         base: m.base,
         best: m.best,
@@ -87,14 +70,14 @@ export default async function PortfolioPage() {
           Соберите <span className="text-brand">портфель</span> из pre-IPO раундов
         </h1>
         <p className="mt-3 max-w-2xl text-text-secondary">
-          Выберите открытые раунды и распределите суммы — получите результат
-          портфеля по трём сценариям (худший / базовый / лучший) и дорожную карту
+          Выберите открытые сделки в USD с доступной моделью и распределите суммы — получите результат
+          портфеля по трём сценариям (пессимистичный / базовый / оптимистичный) и дорожную карту
           выходов на IPO.
         </p>
 
         {rounds.length === 0 ? (
           <div className="mt-8 rounded-card border border-dashed border-border p-10 text-center text-text-muted">
-            Пока нет открытых раундов для портфеля.
+            Пока нет открытых сделок в USD с проверенной структурой сценариев.
           </div>
         ) : (
           <div className="mt-8">

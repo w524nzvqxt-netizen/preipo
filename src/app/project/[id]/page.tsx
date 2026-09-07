@@ -1,6 +1,7 @@
 // Страница проекта — структура: краткое содержание → метрики → сейлз-поинты →
 // плюсы → риски → финмодель → документы → заявка
 import Link from "next/link";
+import { parseScenarios } from "@/lib/scenarios";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatMoney, formatPrice, formatSize } from "@/lib/format";
@@ -70,22 +71,7 @@ export default async function ProjectPage({
     }
   }
 
-  // Ожидаемые результаты ($100k): лучший / средний / худший
-  type Scenario = {
-    key: string;
-    color: "emerald" | "sky" | "amber";
-    mult: number;
-    val: number;
-    irr: string;
-  };
-  let scenarios: Scenario[] = [];
-  if (project.scenarios) {
-    try {
-      scenarios = JSON.parse(project.scenarios) as Scenario[];
-    } catch {
-      scenarios = [];
-    }
-  }
+  const scenarios = parseScenarios(project.scenarios) ?? [];
   // Аналитический разбор (AI-аналитик)
   type Analysis = {
     rating: string;
@@ -127,7 +113,7 @@ export default async function ProjectPage({
     ],
     ["Объём раунда", formatMoney(project.volume, project.currency)],
     [
-      "Доходность нетто",
+      "Прогноз модели, %/год",
       project.expectedReturn != null ? `~${project.expectedReturn}%/год` : "—",
     ],
     ["Прогноз выхода", project.expectedExit || "—"],
@@ -266,15 +252,14 @@ export default async function ProjectPage({
                     ${s.val.toLocaleString("ru-RU")}
                   </div>
                   <div className="nums mt-1 text-sm text-text-secondary">
-                    &times;{s.mult.toFixed(2).replace(".", ",")} &middot; IRR {s.irr}
+                    &times;{s.mult.toFixed(2).replace(".", ",")}
                   </div>
                 </div>
               );
             })}
           </div>
           <p className="mt-3 text-xs text-text-muted">
-            Горизонт ~3,6 года. Расчёт нетто: с учётом разводнения 35%, carry
-            20%, fee 5% (по финансовой модели).
+            Иллюстративные сценарии, а не вероятности или предел убытка. Возможна полная потеря вложения: $0 на выходе. Учёт комиссий, налогов и разводнения требует подтверждения условиями конкретной сделки.
           </p>
           <RiskNote className="mt-2" />
         </Section>
@@ -286,7 +271,7 @@ export default async function ProjectPage({
           <div className="rounded-card border border-border bg-surface p-5 shadow-[var(--shadow-card)] sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <span className="kicker rounded-full border border-brand bg-brand-subtle px-3 py-1 text-brand">
-                {analysis.rating} · {analysis.ratingScore}/10
+                {analysis.rating}
               </span>
               {analysisDoc && (
                 <a

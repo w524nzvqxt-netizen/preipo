@@ -3,9 +3,11 @@
 // «лучами солнца» расходятся ключевые факты.
 import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/lib/format";
-import { Carousel3D, type OrbitItem } from "@/components/Carousel3D";
+import type { OrbitItem } from "@/components/Carousel3D";
+import { Carousel3DLazy } from "@/components/Carousel3DLazy";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300; // ISR: кэш 5 мин, быстрый TTFB, устойчивость к холодному старту
+export const metadata = { robots: { index: false, follow: false } }; // экспериментальная песочница — не индексируем
 
 export default async function LabPage() {
   const projects = await prisma.project.findMany({
@@ -43,7 +45,7 @@ export default async function LabPage() {
         </p>
       </header>
 
-      <Carousel3D items={items} />
+      <Carousel3DLazy items={items} />
     </main>
   );
 }

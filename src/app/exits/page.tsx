@@ -5,13 +5,10 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { ExitsExplorer, type ExitCompany } from "@/components/ExitsExplorer";
 import { Disclaimer } from "@/components/Disclaimer";
-import { computeExitIndex, computeExitIndexSeries, TICKET } from "@/lib/exit-index";
-import { IndexChart } from "@/components/IndexChart";
-import { formatMoney } from "@/lib/format";
 
 export const revalidate = 300; // ISR: кэш 5 мин, быстрый TTFB, устойчивость к холодному старту
 
-const TITLE = "Уже на бирже — трек-рекорд IPO | Pre-IPO Витрина";
+const TITLE = "Уже на бирже — история IPO | Pre-IPO Витрина";
 const DESC = "Компании, вышедшие на IPO: история раундов с оценками, цена акций, доходность и калькулятор портфеля по точке входа.";
 
 export const metadata: Metadata = {
@@ -55,9 +52,6 @@ export default async function ExitsPage() {
     };
   });
 
-  const idx = computeExitIndex(companies);
-  const series = computeExitIndexSeries(companies);
-  const outperform = idx.sp500Mult > 0 ? idx.preIpoMult / idx.sp500Mult : 0;
 
   return (
     <div className="min-h-screen">
@@ -73,58 +67,26 @@ export default async function ExitsPage() {
       </header>
 
       <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-12">
-        <p className="kicker kicker-gold mb-2">Трек-рекорд рынка</p>
+        <p className="kicker kicker-gold mb-2">Историческая выборка</p>
         <h1 className="text-display text-3xl font-bold sm:text-5xl">
           Уже на бирже: <span className="text-brand">от раунда до IPO</span>
         </h1>
         <p className="mt-3 max-w-2xl text-text-secondary">
-          21 компания, прошедшая путь pre-IPO → IPO. История раундов с оценками,
-          цена акций сегодня и доходность с момента размещения — и взлёты, и
-          провалы. Ниже — калькулятор: что было бы с вложением по точке входа.
+          {companies.length} компаний: путь pre-IPO → IPO. История раундов с оценками,
+          цены на указанные даты и доходность с момента размещения — и взлёты, и
+          провалы. Ниже — модель изменения цены с IPO без дивидендов, комиссий и налогов.
         </p>
 
-        {/* Индекс «$10k в каждый раунд» vs S&P 500 */}
-        <div className="mt-8 overflow-hidden rounded-card border border-border bg-surface p-6 sm:p-8">
-          <p className="kicker text-text-muted">
-            Индекс · {formatMoney(TICKET)} в каждый из {idx.count} раундов
-          </p>
-          <div className="mt-4 grid gap-5 sm:grid-cols-3">
-            <div>
-              <p className="kicker text-text-muted">Вложено всего</p>
-              <p className="nums mt-1 text-2xl font-bold text-text-primary">{formatMoney(idx.invested)}</p>
-            </div>
-            <div className="sm:border-l sm:border-border sm:pl-5">
-              <p className="kicker text-text-muted">Pre-IPO портфель сегодня</p>
-              <p className="nums mt-1 text-2xl font-bold text-positive">
-                {formatMoney(idx.preIpoValue)}{" "}
-                <span className="text-base">×{idx.preIpoMult.toFixed(1).replace(".", ",")}</span>
-              </p>
-            </div>
-            <div className="sm:border-l sm:border-border sm:pl-5">
-              <p className="kicker text-text-muted">Те же деньги в S&amp;P 500</p>
-              <p className="nums mt-1 text-2xl font-bold text-text-secondary">
-                {formatMoney(idx.sp500Value)}{" "}
-                <span className="text-base">×{idx.sp500Mult.toFixed(1).replace(".", ",")}</span>
-              </p>
-            </div>
-          </div>
-          <p className="mt-4 text-sm text-text-secondary">
-            Если бы {formatMoney(TICKET)} заходило в <b>каждый</b> раунд этих
-            компаний (и взлёты, и провалы), портфель опередил бы S&amp;P 500
-            примерно в{" "}
-            <b className="text-brand">{outperform.toFixed(1).replace(".", ",")}×</b>.
-            Сравнение модельное: каждая сумма входит по оценке раунда, S&amp;P 500
-            — по уровню индекса того же года (тек. ≈ 7 384).
-          </p>
-          <div className="mt-6">
-            <IndexChart series={series} />
-          </div>
-        </div>
+        <p className="mt-6 rounded-card border border-border p-5 text-sm text-text-secondary">
+          Частные раунды показывают оценку всей компании, а не доходность отдельной доли.
+          Для расчёта результата инвестора нужны цена и класс акций, разводнение, комиссии
+          и даты денежных потоков. Выборка компаний, дошедших до биржи, не представляет
+          весь рынок pre-IPO и не является трек-рекордом нашего фонда.
+        </p>
 
         <div className="mt-8">
           <ExitsExplorer companies={companies} />
         </div>
-
         <footer className="mt-16 border-t border-border pt-6">
           <Disclaimer />
         </footer>

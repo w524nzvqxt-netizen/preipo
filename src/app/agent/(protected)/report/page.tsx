@@ -8,7 +8,7 @@ import { PrintButton } from "@/components/agent/PrintButton";
 
 export const dynamic = "force-dynamic";
 
-const pct = (v: number | null) => (v != null ? `${v.toFixed(1).replace(".", ",")}%/год` : "—");
+const pct = (v: number | null) => (v != null ? `${v.toFixed(1).replace(".", ",")}%/год (простая)` : "—");
 
 export default async function PartnerReport() {
   const agent = await requireAgent();
@@ -44,7 +44,7 @@ export default async function PartnerReport() {
       </section>
       <p className="mt-2 text-sm text-neutral-600">
         Выплачено {formatPrice(p.partnerPaid)} · к выплате {formatPrice(p.partnerUnpaid)} ·
-        чистая доходность клиентов {pct(p.clientAnnual)} (S&P 500 {pct(p.sp500Annual)})
+        чистая доходность клиентов {pct(p.clientAnnual)} (модель 10% сложных годовых {pct(p.sp500Annual)})
       </p>
 
       <div className="mt-6 overflow-x-auto">

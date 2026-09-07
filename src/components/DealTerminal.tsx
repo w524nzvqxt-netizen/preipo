@@ -28,7 +28,7 @@ export function DealTerminal({ deals }: { deals: TerminalDeal[] }) {
           <span className="kicker nums text-text-muted">PRIVATE DEAL TERMINAL</span>
           <span className="flex items-center gap-1.5">
             <span className="glow-pulse h-1.5 w-1.5 rounded-full bg-positive" />
-            <span className="kicker text-text-muted">LIVE</span>
+            <span className="kicker text-text-muted">Сделки</span>
           </span>
         </div>
 

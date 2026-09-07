@@ -9,7 +9,7 @@ import { PrintButton } from "@/components/agent/PrintButton";
 
 export const dynamic = "force-dynamic";
 
-const pct = (v: number | null) => (v != null ? `${v.toFixed(1).replace(".", ",")}%/год` : "—");
+const pct = (v: number | null) => (v != null ? `${v.toFixed(1).replace(".", ",")}%/год (простая)` : "—");
 
 export default async function ClientReport({ params }: { params: Promise<{ id: string }> }) {
   const agent = await requireAgent();
@@ -41,7 +41,7 @@ export default async function ClientReport({ params }: { params: Promise<{ id: s
         <Box label="Инвестировано" value={formatPrice(p.invested)} />
         <Box label="Чистая прибыль (прогноз)" value={formatPrice(p.clientProfit)} accent />
         <Box label="Доходность" value={pct(p.clientAnnual)} accent />
-        <Box label="S&P 500" value={pct(p.sp500Annual)} />
+        <Box label="модель 10% сложных годовых" value={pct(p.sp500Annual)} />
       </section>
 
       <table className="mt-6 w-full text-sm">
@@ -77,7 +77,7 @@ export default async function ClientReport({ params }: { params: Promise<{ id: s
       <p className="mt-6 text-xs leading-relaxed text-neutral-500">
         Прогноз основан на ожидаемой оценке выхода компаний и не является гарантией.
         Доходность указана за вычетом комиссии за вход (5%) и комиссии за успех (20% прибыли).
-        Сравнение с S&P 500 — при среднегодовой доходности индекса ~10%. Не является
+        Сравнение с модель 10% сложных годовых — при среднегодовой доходности индекса ~10%. Не является
         индивидуальной инвестиционной рекомендацией.
       </p>
     </div>

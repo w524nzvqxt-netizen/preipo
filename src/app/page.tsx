@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { ContactButtons } from "@/components/ContactButtons";
 import { InvestorQuiz } from "@/components/InvestorQuiz";
 import { Hero } from "@/components/Hero";
+import { ExplainerPlayer } from "@/components/ExplainerPlayer";
 import { Ticker } from "@/components/Ticker";
 import { Reveal } from "@/components/motion/Reveal";
 import { Disclaimer } from "@/components/Disclaimer";
@@ -75,6 +76,7 @@ export default async function HomePage() {
             <Link href="/academy" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary lg:block">Академия</Link>
             <Link href="/agent" className="hidden rounded-control px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary lg:block">Партнёрам</Link>
             <a href="#quiz" className="btn-brand ml-1 rounded-control px-3 py-2 text-xs font-semibold sm:px-4 sm:text-sm">Получить доступ</a>
+            <a href={contacts.channel} target="_blank" rel="noopener noreferrer" className="hidden rounded-control px-3 py-2 text-sm font-medium text-brand lg:block">Наш канал ↗</a>
             <MobileNav />
           </nav>
         </div>
@@ -90,13 +92,12 @@ export default async function HomePage() {
         >
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <p className="kicker text-text-muted">Аналитика рынка · 21 компания от раунда до IPO</p>
+              <p className="kicker text-text-muted">Аналитика рынка · история раундов и IPO</p>
               <h2 className="mt-2 text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
-                Трек-рекорд pre-IPO раундов против публичного рынка
+                История оценок частных раундов и публичных размещений
               </h2>
               <p className="mt-2 max-w-2xl text-text-secondary">
-                Исторически равные вложения в pre-IPO раунды известных компаний — с учётом
-                и взлётов, и провалов — опережали S&amp;P 500.
+                Оценки частных раундов и изменение цены акций после IPO. Историческая выборка, а не результаты собственного фонда.
               </p>
             </div>
             <span className="shrink-0 rounded-control border border-border px-5 py-3 font-semibold text-text-primary transition-colors group-hover:border-brand/50">
@@ -111,9 +112,7 @@ export default async function HomePage() {
           <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-12">
             <Reveal className="lg:col-span-8">
               <div className="hairline h-full overflow-hidden rounded-card">
-                <video className="aspect-video w-full bg-surface" controls preload="metadata" poster="/uploads/poster-main.jpg" playsInline>
-                  <source src="/uploads/home-preipo-video.mp4" type="video/mp4" />
-                </video>
+                <ExplainerPlayer />
               </div>
             </Reveal>
             <div className="flex flex-col justify-between rounded-card border border-border bg-surface p-6 lg:col-span-4">
@@ -170,7 +169,7 @@ export default async function HomePage() {
         {/* 03 — Bento-витрина: сделки, трек-рекорд, новости */}
         <section id="deals" className="mt-24 scroll-mt-24">
           <div className="flex flex-wrap items-end justify-between gap-4">
-            <SectionHead n="03" kicker="Трек-рекорд" title="Закрытые сделки" gold />
+            <SectionHead n="03" kicker="Архив раундов" title="Приём заявок завершён" gold />
             <Link href="/portfolio" className="rounded-control border border-border px-4 py-2 text-sm font-semibold text-text-secondary transition-colors hover:border-brand/50 hover:text-text-primary">
               Собрать портфель →
             </Link>
@@ -196,13 +195,13 @@ export default async function HomePage() {
                     </div>
                     {spotlight.cocMultiple != null && (
                       <div className="text-right">
-                        <p className="kicker text-text-muted">Результат</p>
+                        <p className="kicker text-text-muted">Базовый прогноз</p>
                         <p className="nums text-3xl font-extrabold text-brand sm:text-4xl">×{spotlight.cocMultiple.toFixed(1).replace(".", ",")}</p>
                       </div>
                     )}
                   </div>
                   <div className="mt-4 flex flex-wrap gap-x-8 gap-y-3 border-t border-border pt-4">
-                    <Stat k="Доходность" v={spotlight.expectedReturn != null ? `+${Math.round(spotlight.expectedReturn)}%/год` : "—"} pos />
+                    <Stat k="Прогноз модели" v={spotlight.expectedReturn != null ? `+${Math.round(spotlight.expectedReturn)}%/год` : "—"} pos />
                     <Stat k="Прогноз выхода" v={spotlight.expectedExit || "—"} />
                   </div>
                 </div>
@@ -244,7 +243,7 @@ export default async function HomePage() {
 
             <div className="flex flex-col justify-center gap-3.5 rounded-card border border-border bg-surface-alt p-6">
               <Stat k="Закрытых раундов" v={String(closedDeals.length)} big />
-              {bestMultiple && <Stat k="Лучший результат" v={bestMultiple} big gold />}
+              {bestMultiple && <Stat k="Наибольший базовый прогноз" v={bestMultiple} big gold />}
             </div>
 
             <a href="#quiz" className="btn-brand flex flex-col justify-between rounded-card p-6 transition-transform hover:-translate-y-1 motion-reduce:hover:translate-y-0">
@@ -269,7 +268,7 @@ export default async function HomePage() {
                 <div className="mt-5 flex flex-wrap gap-3 text-sm text-text-muted">
                   <span className="hairline rounded-control px-3 py-1.5">Клиенты и сделки</span>
                   <span className="hairline rounded-control px-3 py-1.5">Комиссии и SF</span>
-                  <span className="hairline rounded-control px-3 py-1.5">Доходность vs S&amp;P 500</span>
+                  <span className="hairline rounded-control px-3 py-1.5">Модели доходности</span>
                   <span className="hairline rounded-control px-3 py-1.5">Отчёты PDF</span>
                 </div>
               </div>

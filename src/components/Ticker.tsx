@@ -14,21 +14,16 @@ export async function Ticker() {
   return (
     <div className="relative overflow-hidden rounded-control border border-border bg-surface py-2">
       <div className="pointer-events-none absolute left-0 top-0 z-10 flex h-full items-center gap-2 bg-surface px-3">
-        <span className="kicker text-text-muted">Pre-IPO</span>
+        <span className="kicker text-text-muted">Компании</span>
         <span className="hidden text-xs font-normal text-text-muted sm:inline">
-          · индикативно
+          · обзоры
         </span>
       </div>
       <div className="marquee flex w-max gap-8 whitespace-nowrap pl-28">
         {row.map((it, i) => (
           <span key={i} className="flex items-center gap-2 text-sm">
             <span className="font-semibold text-text-primary">{it.name}</span>
-            <span className="nums text-text-secondary">{it.valuation}</span>
-            {it.change && (
-              <span className={`nums ${it.up ? "text-positive" : "text-negative"}`}>
-                {it.up ? "▲" : "▼"} {it.change}
-              </span>
-            )}
+
           </span>
         ))}
       </div>

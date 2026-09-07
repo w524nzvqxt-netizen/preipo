@@ -4,11 +4,16 @@
 // мягкое появление контента. Штора цвета фона — плавно, без резкого флеша.
 // template.tsx перемонтируется на каждую навигацию. Обёртка контента — только
 // opacity (трансформ сломал бы position:fixed/sticky). Уважает reduced-motion.
+import { usePathname } from "next/navigation";
 import { motion, useReducedMotion } from "motion/react";
 
 export default function Template({ children }: { children: React.ReactNode }) {
   const reduce = useReducedMotion();
-  if (reduce) return <>{children}</>;
+  const pathname = usePathname();
+  // Админка и кабинет агента — рабочий инструмент с частой навигацией между
+  // страницами: шторка на каждый переход там только мешает, отключаем её.
+  const cinematic = !pathname.startsWith("/admin") && !pathname.startsWith("/agent");
+  if (reduce || !cinematic) return <>{children}</>;
   return (
     <>
       <motion.div

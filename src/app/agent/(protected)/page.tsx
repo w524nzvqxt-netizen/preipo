@@ -29,7 +29,7 @@ export default async function AgentDashboard() {
   const totalComm = sales.reduce((s, x) => s + x.commission + (x.entryFee ?? 0), 0);
   const totalSfAgent = sales.reduce((s, x) => s + x.commission, 0); // доля агента в SF (¼)
   const clientProfit = sales.reduce(
-    (s, x) => s + (x.amount * Math.max(0, (x.expMultiple ?? 1) - 1) - (x.sf ?? 0) - (x.entryFee ?? 0)),
+    (s, x) => s + (x.amount * ((x.expMultiple ?? 1) - 1) - (x.sf ?? 0) - (x.entryFee ?? 0)),
     0
   );
   const paidComm = sales
@@ -45,19 +45,19 @@ export default async function AgentDashboard() {
   const clientProfitY = sales.reduce(
     (s, x) =>
       s + (x.yearsToExit && x.yearsToExit > 0
-        ? x.amount * Math.max(0, (x.expMultiple ?? 1) - 1) - (x.sf ?? 0) - (x.entryFee ?? 0)
+        ? x.amount * ((x.expMultiple ?? 1) - 1) - (x.sf ?? 0) - (x.entryFee ?? 0)
         : 0),
     0
   );
-  const clientAnnual = yDenom > 0 ? (clientProfitY / yDenom) * 100 : null; // %/год
+  const clientAnnual = yDenom > 0 ? (clientProfitY / yDenom) * 100 : null; // %/год (простая)
   const clientTotal = totalSold > 0 ? (clientProfit / totalSold) * 100 : null; // % всего
-  const agentAnnual = agentYield; // %/год (= yNum / yDenom)
+  const agentAnnual = agentYield; // %/год (простая) (= yNum / yDenom)
   const agentTotal = totalSold > 0 ? (totalComm / totalSold) * 100 : null; // % всего
 
-  // Сравнение валовой доходности pre-IPO и S&P 500 за тот же горизонт (без комиссий)
-  const SP500_ANNUAL = 0.1; // ~10%/год, долгосрочная средняя S&P 500
+  // Сравнение валовой доходности pre-IPO и модель 10% сложных годовых за тот же горизонт (без комиссий)
+  const SP500_ANNUAL = 0.1; // ~10%/год (простая), долгосрочная средняя модель 10% сложных годовых
   const preIpoGrossY = sales.reduce(
-    (s, x) => s + (x.yearsToExit && x.yearsToExit > 0 ? x.amount * Math.max(0, (x.expMultiple ?? 1) - 1) : 0),
+    (s, x) => s + (x.yearsToExit && x.yearsToExit > 0 ? x.amount * ((x.expMultiple ?? 1) - 1) : 0),
     0
   );
   const sp500GrossY = sales.reduce((s, x) => {
@@ -112,19 +112,19 @@ export default async function AgentDashboard() {
         <div className="rounded-card border border-border bg-surface p-5">
           <p className="kicker text-text-muted">Чистая доходность клиента · портфель</p>
           <p className="nums mt-2 text-3xl font-bold text-positive">
-            {clientAnnual != null ? `${clientAnnual.toFixed(1).replace(".", ",")}%/год` : "—"}
+            {clientAnnual != null ? `${clientAnnual.toFixed(1).replace(".", ",")}%/год (простая)` : "—"}
           </p>
           <p className="nums mt-1 text-sm text-text-muted">{pct(clientTotal)} за весь горизонт</p>
           <p className="nums mt-2 text-sm text-text-secondary">
-            Pre-IPO <span className="text-positive">{preIpoAnnual != null ? `${preIpoAnnual.toFixed(1).replace(".", ",")}%/год` : "—"}</span>
-            {" vs "}S&amp;P 500 <span className="text-text-muted">{sp500Annual != null ? `${sp500Annual.toFixed(1).replace(".", ",")}%/год` : "—"}</span>
+            Pre-IPO <span className="text-positive">{preIpoAnnual != null ? `${preIpoAnnual.toFixed(1).replace(".", ",")}%/год (простая)` : "—"}</span>
+            {" vs "}модель 10% сложных годовых <span className="text-text-muted">{sp500Annual != null ? `${sp500Annual.toFixed(1).replace(".", ",")}%/год (простая)` : "—"}</span>
             {preIpoAnnual != null && sp500Annual != null ? <span className="ml-1 text-positive">{ppm(preIpoAnnual, sp500Annual)}</span> : null}
           </p>
         </div>
         <div className="rounded-card border border-border bg-surface p-5">
           <p className="kicker text-text-muted">Рентабельность портфеля агента</p>
           <p className="nums mt-2 text-3xl font-bold text-brand">
-            {agentAnnual != null ? `${agentAnnual.toFixed(1).replace(".", ",")}%/год` : "—"}
+            {agentAnnual != null ? `${agentAnnual.toFixed(1).replace(".", ",")}%/год (простая)` : "—"}
           </p>
           <p className="nums mt-1 text-sm text-text-muted">{pct(agentTotal)} за весь горизонт</p>
         </div>
@@ -156,7 +156,7 @@ export default async function AgentDashboard() {
               const sold = c.sales.reduce((s, x) => s + x.amount, 0);
               const comm = c.sales.reduce((s, x) => s + x.commission + (x.entryFee ?? 0), 0);
               const cprofit = c.sales.reduce(
-                (s, x) => s + (x.amount * Math.max(0, (x.expMultiple ?? 1) - 1) - (x.sf ?? 0) - (x.entryFee ?? 0)),
+                (s, x) => s + (x.amount * ((x.expMultiple ?? 1) - 1) - (x.sf ?? 0) - (x.entryFee ?? 0)),
                 0
               );
               return (

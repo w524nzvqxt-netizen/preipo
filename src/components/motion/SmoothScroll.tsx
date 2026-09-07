@@ -7,13 +7,22 @@ import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+// Админка и кабинет агента — обычный UI с таблицами/формами: инерционный
+// скролл там не нужен и мешает (напр. внутри модалок/списков), плюс не грузим
+// GSAP+Lenis зря на этих маршрутах.
+function isCinematicRoute(pathname: string): boolean {
+  return !pathname.startsWith("/admin") && !pathname.startsWith("/agent");
+}
+
 export function SmoothScroll() {
   const lenisRef = useRef<Lenis | null>(null);
   const pathname = usePathname();
+  const cinematic = isCinematicRoute(pathname);
 
   useEffect(() => {
     // На тач-устройствах и при reduced-motion — нативный скролл (быстрее, без дрожания)
     if (
+      !cinematic ||
       window.matchMedia("(pointer: coarse)").matches ||
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
     ) {
@@ -31,7 +40,7 @@ export function SmoothScroll() {
       lenisRef.current = null;
       gsap.ticker.remove(onTick);
     };
-  }, []);
+  }, [cinematic]);
 
   // При смене маршрута — мгновенно наверх. Иначе Lenis держит позицию прошлой
   // страницы, и переход на карточку проекта открывается «снизу».

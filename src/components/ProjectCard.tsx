@@ -32,6 +32,10 @@ export function ProjectCard({ project }: { project: Project }) {
             <img
               src={project.logoUrl}
               alt={project.name}
+              width={44}
+              height={44}
+              loading="lazy"
+              decoding="async"
               className="h-11 w-11 shrink-0 rounded-control border border-border bg-surface object-contain p-1.5 transition-colors duration-300 group-hover:border-brand/40"
             />
           ) : (

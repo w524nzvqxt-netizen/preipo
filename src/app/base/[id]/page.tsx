@@ -6,7 +6,29 @@ import { ValuationChart, type Round } from "@/components/ValuationChart";
 import { Reveal } from "@/components/motion/Reveal";
 import { Disclaimer } from "@/components/Disclaimer";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300; // ISR: кэш 5 мин, быстрый TTFB, устойчивость к холодному старту
+
+export async function generateMetadata(
+  { params }: { params: Promise<{ id: string }> }
+): Promise<import("next").Metadata> {
+  const { id } = await params;
+  const c = await prisma.kbCompany.findUnique({
+    where: { id },
+    select: { name: true, segment: true, oneLiner: true, isActive: true },
+  });
+  if (!c || !c.isActive) return { title: "Компания не найдена — Pre-IPO Витрина", robots: { index: false } };
+  const title = `${c.name}${c.segment ? ` — ${c.segment}` : ""} · pre-IPO`;
+  const description =
+    c.oneLiner?.replace(/\s+/g, " ").slice(0, 155) ||
+    `${c.name}: разбор частной компании — бизнес, планы, риски и переоценка по раундам.`;
+  const url = `/base/${id}`;
+  return {
+    title, description,
+    alternates: { canonical: url },
+    openGraph: { type: "article", title, description, url, siteName: "Pre-IPO Витрина", locale: "ru_RU" },
+    twitter: { card: "summary_large_image", title, description },
+  };
+}
 
 function parseRounds(s?: string | null): Round[] {
   try { return JSON.parse(s ?? "[]") as Round[]; } catch { return []; }
