@@ -4,7 +4,9 @@
 // Доступ только для AUTHORIZED_CHAT_ID.
 import { Bot } from "grammy";
 import { query } from "@anthropic-ai/claude-agent-sdk";
-import { execSync } from "node:child_process";
+import { execSync, execFileSync } from "node:child_process";
+import projectRules from "./project-rules.cjs";
+const { readProjectRules } = projectRules;
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -56,7 +58,7 @@ const SYSTEM = `Ты — инженер сайта pre-ipo.pro (Next.js 16, Tail
 1. Перед началом: git pull --ff-only (чтобы не разойтись с прод).
 2. Внеси изменения в код/контент. Контент сделок — через скрипты в prisma/ (add-deal.cjs и т.п.), они пишут в dev.db.
 3. Проверь сборку: npm run build — должно быть без ошибок TypeScript. Если падает — почини.
-4. Закоммить по-русски и запушь: git add -A (без .env), git commit, git push origin main.
+4. Закоммить по-русски и запушь: добавь в git только файлы выполненной задачи (без .env, секретов и чужих изменений), git commit, git push origin main.
 5. Кратко отчитайся 1-3 предложениями: что сделал. Если не уверен в правке — уточни, не ломая прод.
 6. После пуша допиши ОДНУ строку в файл bot/activity.log: дата в ISO, кратко что сделал, и хэш коммита (git rev-parse --short HEAD). Файл bot/activity.log — в .gitignore, его НЕ коммить.
 
@@ -64,6 +66,7 @@ const SYSTEM = `Ты — инженер сайта pre-ipo.pro (Next.js 16, Tail
 Никогда не коммить .env/секреты. Не пушить при падающем билде. Все суммы/цифры — только проверенные.`;
 
 console.log(`Конфиг: токен ${TOKEN ? "есть" : "НЕТ"}, владелец ${OWNER || "(не задан)"}, repo ${REPO_DIR}, модель ${MODEL}`);
+console.log("Правила проекта:", readProjectRules().version);
 console.log("Подготовка репозитория…");
 try {
   ensureRepo();
@@ -78,6 +81,12 @@ bot.command("start", (ctx) =>
     `Привет! Пиши правку по сайту pre-ipo.pro — я сделаю и задеплою.\nТвой chat id: ${ctx.chat.id}\nДоступ только для владельца.`
   )
 );
+
+bot.command("rules", (ctx) => {
+  if (!OWNER || String(ctx.chat.id) !== OWNER || ctx.chat.type !== "private") return;
+  const rules = readProjectRules();
+  return ctx.reply(`Версия правил: ${rules.version}\n\n${rules.summary}\n\nПеред каждым заданием обновляю репозиторий и читаю правила заново.`);
+});
 
 bot.on("message:text", async (ctx) => {
   // fail-closed: без заданного владельца команды не выполняются (только выдаём chat id)
@@ -97,7 +106,9 @@ bot.on("message:text", async (ctx) => {
   };
 
   try {
-    let final = "";
+    execFileSync("git", ["-C", REPO_DIR, "pull", "--ff-only"], { stdio: "ignore" });
+      const rules = readProjectRules(REPO_DIR);
+      let final = "";
     for await (const m of query({
       prompt: task,
       options: {
@@ -105,7 +116,7 @@ bot.on("message:text", async (ctx) => {
         model: MODEL,
         permissionMode: "bypassPermissions",
         allowedTools: ["Read", "Edit", "Write", "Bash", "Grep", "Glob"],
-        systemPrompt: { type: "preset", preset: "claude_code", append: SYSTEM },
+        systemPrompt: { type: "preset", preset: "claude_code", append: SYSTEM + "\n\n" + rules.system },
       },
     })) {
       if (m.type === "assistant") {

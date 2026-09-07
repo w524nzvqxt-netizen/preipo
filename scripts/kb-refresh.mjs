@@ -8,6 +8,7 @@ import { execSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import Anthropic from "@anthropic-ai/sdk";
+import projectRules from "../bot/project-rules.cjs";
 import Database from "better-sqlite3";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -55,6 +56,7 @@ for (let b = 0; b < batches.length; b++) {
     const resp = await anthropic.messages.create({
       model: "claude-opus-4-8",
       max_tokens: 3000,
+      system: projectRules.readProjectRules().system,
       tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 8 }],
       messages: [{ role: "user", content: SYS + "\n\nКОМПАНИИ:\n" + list }],
     });

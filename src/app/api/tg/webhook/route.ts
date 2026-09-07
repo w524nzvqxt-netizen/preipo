@@ -39,7 +39,9 @@ export async function POST(req: NextRequest) {
   }
 }
 
+import { projectRulesVersion } from "@/lib/project-rules";
+
 // Диагностика: настроен ли токен на этом окружении (без утечки значений)
 export async function GET() {
-  return NextResponse.json({ ok: true, tokenConfigured: Boolean(process.env.PARTNER_BOT_TOKEN) });
+  return NextResponse.json({ ok: true, tokenConfigured: Boolean(process.env.PARTNER_BOT_TOKEN), rulesVersion: projectRulesVersion });
 }

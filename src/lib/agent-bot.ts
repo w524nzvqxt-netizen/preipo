@@ -3,6 +3,7 @@
 // Локально можно запустить long-polling раннером bot-agent/index.ts.
 import { scryptSync, timingSafeEqual, createHash } from "node:crypto";
 import { Bot, InlineKeyboard } from "grammy";
+import { projectRulesStatus } from "./project-rules";
 import type { PrismaClient } from "../generated/prisma/client";
 import { portfolio, saleMetrics } from "./agent-calc";
 
@@ -47,6 +48,11 @@ type Sess = { step: string; data: Record<string, unknown> };
 
 export function createAgentBot(prisma: PrismaClient, token: string): Bot {
   const bot = new Bot(token);
+  bot.command("rules", async (ctx) => {
+    const owner = process.env.AUTHORIZED_CHAT_ID;
+    if (!owner || String(ctx.from!.id) !== owner || ctx.chat.type !== "private") return;
+    return ctx.reply(projectRulesStatus() + "\n\nЭто бот партнёрского кабинета без AI-модели. Правила доступны для справки; расчёты и доступ к данным определяются кодом.");
+  });
   const nowD = new Date();
   const NOW_YEAR = nowD.getFullYear() + nowD.getMonth() / 12;
 

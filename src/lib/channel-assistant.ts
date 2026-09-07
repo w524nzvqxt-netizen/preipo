@@ -2,6 +2,7 @@
 // Отвечает на вопросы про канал: план постов, идеи контента, что в витрине/новостях,
 // тексты анонсов. Тон: private banking, без хайпа и «иксов». Работает на claude-opus-4-8.
 import Anthropic from "@anthropic-ai/sdk";
+import { projectRulesPrompt } from "./project-rules";
 import type { PrismaClient } from "../generated/prisma/client";
 
 const MODEL = "claude-opus-4-8";
@@ -64,7 +65,7 @@ export async function answerChannelQuestion(prisma: PrismaClient, question: stri
     const resp = await anthropic.messages.create({
       model: MODEL,
       max_tokens: 1200,
-      system: SYSTEM + "\n\nДАННЫЕ:\n" + context,
+      system: SYSTEM + projectRulesPrompt + "\n\nДАННЫЕ:\n" + context,
       messages: [{ role: "user", content: question }],
     });
     const text = resp.content.map((b) => (b.type === "text" ? b.text : "")).join("\n").trim();

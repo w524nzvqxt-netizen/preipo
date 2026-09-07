@@ -9,6 +9,7 @@
 import { Bot } from "grammy";
 import type { PrismaClient } from "../generated/prisma/client";
 import { answerChannelQuestion } from "./channel-assistant";
+import { projectRulesStatus } from "./project-rules";
 
 export function createChannelBot(prisma: PrismaClient, token: string): Bot {
   const bot = new Bot(token);
@@ -33,6 +34,11 @@ export function createChannelBot(prisma: PrismaClient, token: string): Bot {
       );
     }
     return ctx.reply("Это служебный бот канала @preipopro.");
+  });
+
+  bot.command("rules", async (ctx) => {
+    if (!owner() || String(ctx.from!.id) !== owner() || ctx.chat.type !== "private") return;
+    return ctx.reply(projectRulesStatus() + "\n\nЭти правила включаются в каждый AI-запрос. История отдельного чата Codex автоматически не передаётся.");
   });
 
   bot.on("message:text", async (ctx) => {

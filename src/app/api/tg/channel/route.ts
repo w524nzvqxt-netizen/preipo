@@ -7,6 +7,7 @@ import { webhookCallback } from "grammy";
 import type { Bot } from "grammy";
 import { prisma } from "@/lib/prisma";
 import { createChannelBot } from "@/lib/channel-bot";
+import { projectRulesVersion } from "@/lib/project-rules";
 import { webhookSecret } from "@/lib/agent-bot";
 
 export const dynamic = "force-dynamic";
@@ -39,5 +40,5 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET() {
-  return NextResponse.json({ ok: true, tokenConfigured: Boolean(process.env.AGENT_BOT_TOKEN) });
+  return NextResponse.json({ ok: true, tokenConfigured: Boolean(process.env.AGENT_BOT_TOKEN), rulesVersion: projectRulesVersion });
 }

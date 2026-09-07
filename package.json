@@ -9,7 +9,8 @@
     "start:local": "next start",
     "postinstall": "prisma generate",
     "seed": "tsx prisma/seed.ts",
-    "db:reset": "prisma migrate reset --force"
+    "db:reset": "prisma migrate reset --force",
+    "prebuild": "node scripts/build-project-rules.cjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.102.0",
