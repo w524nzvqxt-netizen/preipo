@@ -94,7 +94,7 @@ export default async function ProjectPage({
 
   const financialDocs = project.documents.filter((d) => d.kind === "financial");
   const otherDocs = project.documents.filter(
-    (d) => d.kind !== "financial" && d.kind !== "analysis"
+    (d) => d.kind !== "financial" && (!analysis || d.id !== analysisDoc?.id)
   );
 
   const plPct =

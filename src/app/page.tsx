@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { ContactButtons } from "@/components/ContactButtons";
 import { InvestorQuiz } from "@/components/InvestorQuiz";
 import { Hero } from "@/components/Hero";
-import { ExplainerPlayer } from "@/components/ExplainerPlayer";
 import { Ticker } from "@/components/Ticker";
 import { Reveal } from "@/components/motion/Reveal";
 import { Disclaimer } from "@/components/Disclaimer";
@@ -112,7 +111,11 @@ export default async function HomePage() {
           <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-12">
             <Reveal className="lg:col-span-8">
               <div className="hairline h-full overflow-hidden rounded-card">
-                <ExplainerPlayer />
+                <video className="aspect-video w-full bg-surface" controls preload="metadata" poster="/uploads/preipo-intro-20260907-poster.jpg" playsInline aria-label="Что такое pre-IPO: условия сделки, доходность и риски. 1 минута 15 секунд.">
+                  <source src="/uploads/preipo-intro-20260907.mp4" type="video/mp4" />
+                  <track kind="captions" src="/uploads/preipo-intro-20260907.vtt" srcLang="ru" label="Русский" />
+                  Ваш браузер не поддерживает видео.
+                </video>
               </div>
             </Reveal>
             <div className="flex flex-col justify-between rounded-card border border-border bg-surface p-6 lg:col-span-4">
