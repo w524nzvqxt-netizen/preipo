@@ -3,9 +3,7 @@
 // Плавный инерционный скролл (Lenis) + синхронизация с GSAP ScrollTrigger.
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
-import Lenis from "lenis";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import type Lenis from "lenis";
 
 // Админка и кабинет агента — обычный UI с таблицами/формами: инерционный
 // скролл там не нужен и мешает (напр. внутри модалок/списков), плюс не грузим
@@ -28,17 +26,28 @@ export function SmoothScroll() {
     ) {
       return;
     }
-    gsap.registerPlugin(ScrollTrigger);
-    const lenis = new Lenis({ duration: 1.1, smoothWheel: true });
-    lenisRef.current = lenis;
-    lenis.on("scroll", ScrollTrigger.update);
-    const onTick = (time: number) => lenis.raf(time * 1000);
-    gsap.ticker.add(onTick);
-    gsap.ticker.lagSmoothing(0);
+    let disposed = false;
+    let cleanup: (() => void) | undefined;
+    // Do not download the desktop scrolling stack on touch devices or admin routes.
+    Promise.all([import("lenis"), import("gsap"), import("gsap/ScrollTrigger")])
+      .then(([{ default: Lenis }, { default: gsap }, { ScrollTrigger }]) => {
+        if (disposed) return;
+        gsap.registerPlugin(ScrollTrigger);
+        const lenis = new Lenis({ duration: 1.1, smoothWheel: true });
+        lenisRef.current = lenis;
+        lenis.on("scroll", ScrollTrigger.update);
+        const onTick = (time: number) => lenis.raf(time * 1000);
+        gsap.ticker.add(onTick);
+        gsap.ticker.lagSmoothing(0);
+        cleanup = () => {
+          lenis.destroy();
+          lenisRef.current = null;
+          gsap.ticker.remove(onTick);
+        };
+      }).catch(() => { /* Native scrolling remains available if optional imports fail. */ });
     return () => {
-      lenis.destroy();
-      lenisRef.current = null;
-      gsap.ticker.remove(onTick);
+      disposed = true;
+      cleanup?.();
     };
   }, [cinematic]);
 

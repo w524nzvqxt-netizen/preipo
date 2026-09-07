@@ -66,20 +66,18 @@ export function ProjectVideo({
   return (
     <div className="relative overflow-hidden rounded-3xl border border-neutral-200 shadow-sm">
       <div className="relative aspect-video w-full bg-neutral-900">
-        {BG_VIDEOS.map((src, i) => (
+        {playing && (
           <video
-            key={src}
-            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
-              bg === i ? "opacity-100" : "opacity-0"
-            }`}
+            key={bg}
+            className="absolute inset-0 h-full w-full object-cover"
             autoPlay
             muted
             loop
             playsInline
           >
-            <source src={src} type="video/mp4" />
+            <source src={BG_VIDEOS[bg]} type="video/mp4" />
           </video>
-        ))}
+        )}
       </div>
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
 

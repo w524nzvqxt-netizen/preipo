@@ -111,7 +111,7 @@ export default async function HomePage() {
           <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-12">
             <Reveal className="lg:col-span-8">
               <div className="hairline h-full overflow-hidden rounded-card">
-                <video className="aspect-video w-full bg-surface" controls preload="metadata" poster="/uploads/preipo-intro-20260907-dmitry-poster.jpg" playsInline aria-label="Что такое pre-IPO: условия сделки, доходность и риски. 1 минута 21 секунда.">
+                <video className="aspect-video w-full bg-surface" controls preload="none" poster="/uploads/preipo-intro-20260907-dmitry-poster.jpg" playsInline aria-label="Что такое pre-IPO: условия сделки, доходность и риски. 1 минута 21 секунда.">
                   <source src="/uploads/preipo-intro-20260907-dmitry.mp4" type="video/mp4" />
                   <track kind="captions" src="/uploads/preipo-intro-20260907-dmitry.vtt" srcLang="ru" label="Русский" />
                   Ваш браузер не поддерживает видео.

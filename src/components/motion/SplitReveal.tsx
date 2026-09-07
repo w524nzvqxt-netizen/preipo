@@ -9,12 +9,14 @@ export function SplitReveal({
   highlight = [],
   className = "",
   delay = 0,
+  immediate = false,
   as: Tag = "h1",
 }: {
   text: string;
   highlight?: string[];
   className?: string;
   delay?: number;
+  immediate?: boolean;
   as?: "h1" | "h2" | "p";
 }) {
   const words = text.split(" ");
@@ -22,7 +24,7 @@ export function SplitReveal({
   const reduce = useReducedMotion();
 
   // При «уменьшить движение» — статичный заголовок, сразу читается целиком.
-  if (reduce) {
+  if (reduce || immediate) {
     return (
       <Tag className={className}>
         {words.map((word, i) => {

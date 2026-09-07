@@ -55,7 +55,7 @@ export function Hero({
         {/* Левая колонка */}
         <div className="lg:col-span-7">
           <motion.span
-            initial={{ opacity: 0, y: 10 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="kicker kicker-gold inline-block"
@@ -64,6 +64,7 @@ export function Hero({
           </motion.span>
 
           <SplitReveal
+            immediate
             text="Доступ к сделкам Pre-IPO для квалифицированных инвесторов"
             highlight={["Pre-IPO"]}
             delay={0.15}
@@ -71,7 +72,7 @@ export function Hero({
           />
 
           <motion.p
-            initial={{ opacity: 0 }}
+            initial={false}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.7, delay: 0.6 }}
             className="mt-6 max-w-xl text-lg leading-relaxed text-text-secondary"
@@ -82,7 +83,7 @@ export function Hero({
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.75 }}
             className="mt-9 flex flex-col gap-3 sm:flex-row"
@@ -103,7 +104,7 @@ export function Hero({
 
           {/* Строка доверия */}
           <motion.p
-            initial={{ opacity: 0 }}
+            initial={false}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.7, delay: 0.9 }}
             className="mt-6 max-w-xl text-sm leading-relaxed text-text-muted"
@@ -115,7 +116,7 @@ export function Hero({
 
         {/* Правая колонка — private deal terminal */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
           className="lg:col-span-5"

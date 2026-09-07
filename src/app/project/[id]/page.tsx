@@ -189,7 +189,7 @@ export default async function ProjectPage({
             <video
               className="aspect-video w-full bg-surface-alt"
               controls
-              preload="metadata"
+              preload="none"
               playsInline
             >
               <source src={project.videoUrl} type="video/mp4" />
