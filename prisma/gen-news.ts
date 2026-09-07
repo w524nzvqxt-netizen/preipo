@@ -1,3 +1,4 @@
+import { projectRulesPrompt } from "../src/lib/project-rules";
 // ИИ-агент новостей: через веб-поиск Claude находит свежие pre-IPO новости и
 // делает ОРИГИНАЛЬНЫЕ краткие пересказы (не копии статей) + ссылки на источники.
 // Запуск (вручную или по расписанию раз в день): npx tsx prisma/gen-news.ts
@@ -40,6 +41,7 @@ type Item = { title: string; summary: string; category?: string; sourceName?: st
   const resp = await anthropic.messages.create({
     model: "claude-opus-4-8",
     max_tokens: 2500,
+    system: projectRulesPrompt,
     tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 6 } as never],
     messages: [{ role: "user", content: PROMPT }],
   });

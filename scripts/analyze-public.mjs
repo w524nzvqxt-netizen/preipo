@@ -1,3 +1,4 @@
+import projectRules from "../bot/project-rules.cjs";
 // ИИ-агент «Аналитик публичных AI-компаний».
 // Через веб-поиск Claude собирает свежие данные и делает СУПЕР-ГЛУБОКИЙ
 // оригинальный разбор публичных AI/compute-компаний (Nebius, IREN и т.п.).
@@ -90,6 +91,7 @@ async function analyze(c) {
   const resp = await anthropic.messages.create({
     model: "claude-opus-4-8",
     max_tokens: 4500,
+    system: projectRules.readProjectRules().system,
     tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 8 }],
     messages: [{ role: "user", content: PROMPT(c) }],
   });
