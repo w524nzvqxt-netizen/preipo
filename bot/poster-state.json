@@ -1,7 +1,7 @@
 {
   "articleIndex": 0,
-  "lastMode": "news",
-  "lastPostedAt": "2026-09-09T14:11:49.781Z",
+  "lastMode": "analysis",
+  "lastPostedAt": "2026-09-09T18:48:18.362Z",
   "postedNewsIds": [
     "cmtfzrs7i18235ee1ec2ef2a",
     "cmtgsuzia0002f4u3rot6gqfa",
@@ -12,5 +12,5 @@
   ],
   "dealIndex": 0,
   "kbIndex": 3,
-  "analysisIndex": 0
+  "analysisIndex": 1
 }
